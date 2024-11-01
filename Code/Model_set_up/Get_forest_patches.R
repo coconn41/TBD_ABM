@@ -14,7 +14,7 @@ WMUS = read_sf(paste0(getwd(),'/Data/WMUs/Wildlife_Management_Units.shp')) %>%
   dplyr::select(UNIT,area)
 attributes(WMUS$area)=NULL
 
-WMU_int = st_intersection(WMUS,st_difference(all_sites)) #%>%
+WMU_int = st_intersection(WMUS,st_difference(all_sites)) %>%
   rename(wmu_area = 'area',
          patch_area = 'area.1')
   
@@ -22,44 +22,9 @@ unq_WMUs = WMUS %>%
   filter(UNIT %in% WMU_int$UNIT) # Double check name of UNIT
 
 for(i in 1:nrow(unq_WMUs)){
-LC = get_nlcd(template=unq_WMUS[1,],
-              label="NLCD",
-              dataset='landcover',
-              year=2019,
-              landmass = 'L48',
-              force.redo = T,
-              extraction.dir = tdir)
-LCr = rast(LC)
-LCproj = terra::project(LCr,crs(unq_WMUS[1,]))
-
-LCcrop = terra::crop(x = LCproj,
-                     y = unq_WMUS[1,] |>
-                       terra::vect(),
-                     mask = T)
-
-LC_forest_patches = LCcrop
-values(LC_forest_patches)[values(LC_forest_patches)==42] = 41
-values(LC_forest_patches)[values(LC_forest_patches)==43] = 41
-values(LC_forest_patches)[values(LC_forest_patches)!=41] = NA
-
-y = get_patches(LC_forest_patches,directions=4)
-poly1 = as.polygons(terra::rast(y$layer_1$class_41))
-poly2 = st_as_sf(poly1)
-poly2$area = st_area(poly2) # Area is in m^2 by default
-#poly2$area = set_units(poly2$area,ha)
-attributes(poly2$area)=NULL
-
-fin_poly = poly2
-fin_poly2 = fin_poly %>%
-  filter(area>mean(fin_poly$area))
-fin_poly3 = fin_poly %>%
-  filter(area<=mean(area,na.rm=T)&
-           area>median(area,na.rm=T))
-fin_poly4 = fin_poly3[sample(nrow(fin_poly3),nrow(fin_poly3)*.05),]
-fin_poly = rbind(fin_poly2,fin_poly4)
-remove(fin_poly2,fin_poly3,fin_poly4)
-if(i==1){join_poly = fin_poly}
-if(i>1){join_poly = rbind(fin_poly,join_poly)}
+  ptch = st_intersection(all_patches,unq_WMUs[i,])
+  if(i==1){ptch2 = ptch}
+  if(i>1){ptch2 = rbind(ptch2,ptch)}
 }
 
-fin_poly = join_poly
+fin_poly = ptch2

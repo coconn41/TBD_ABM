@@ -1,25 +1,29 @@
-patches = read_sf(paste0(getwd(),'/Data/Metric_2024-06-07.shp'))
-patches$area = st_area(patches)
-attributes(patches$area)=NULL
-patches = patches %>%
+all_patches = read_sf(paste0(getwd(),'/Data/Metric_2024-06-07.shp'))
+all_patches$area = st_area(all_patches)
+attributes(all_patches$area)=NULL
+patches = all_patches %>%
   filter(layer %in% Loc_metric_table_w_private$layer) %>%
   left_join(.,Loc_metric_table_w_private %>%
               st_drop_geometry(),
             join_by(layer,metric)) %>%
   rename(area_m2 = 'area.x',
          area_ha = 'area.y')
-for(i in 1:nrow(patches)){
-  print(i/nrow(patches)*100)
-  dist_1=st_is_within_distance(patches[i,],patches,dist=1675)
-  df = data.frame(row.id = rep(i,length(dist_1[[1]])),
-                  col.id = unlist(dist_1))
-  if(i==1){dist_2 = st_is_within_distance(patches[i,],patches,dist=1675)
-  df2 = data.frame(row.id = rep(i,length(dist_1[[1]])),
-                  col.id = unlist(dist_1))}
-  if(i>1){df2 = rbind(df2,df)}
-}
 
-locs_within_distance = df2
+myCluster <- parallel::makeCluster(cores)
+doParallel::registerDoParallel(myCluster)
+
+df2 = foreach::foreach(i = 1:nrow(patches),
+                       .errorhandling = "remove",
+                       .combine = "rbind",
+                       .packages = c("sf")) %dopar% {
+                         
+                         dist=st_is_within_distance(patches[i,],patches,dist=1675)
+                         df = data.frame(row.id = rep(i,length(dist[[1]])),
+                                         col.id = unlist(dist))
+                         return(df)
+                       }
+
+locs_within_distance = df2 %>%
   group_by(row.id) %>%
   summarize(tot = n()) %>%
   filter(tot>1) %>%
@@ -96,6 +100,37 @@ v1_rankings = possible_locs %>%
          final_rank = rank(ranksum)) %>%
   arrange(desc(final_rank))
 
-sites = c("Albany Pine Bush Preserve - Siver Road", # connectivity = .30397980
-                   "Clermont") # Connectivity = .65395957
+site_df = data.frame(Site = c("Burnt-Rossman State Forest- Westkill Road Trail",
+                              "Louisa Pond",
+                              "Garnsey Park",
+                              "Allegany State Park",
+                              "Gargoyle Park",
+                              "Green Lakes State Park",
+                              NA,
+                              "Mohansic Golf Course",
+                              "Martin Van Buren"),
+                     Connectivity = rep(c("High","Medium","Low"),3),
+                     ha_relationship = c(rep("Positive",6),
+                                         rep("Negative",3)),
+                     v1_relationship = c(rep("Negative",3),
+                                         rep("Positive",6)),
+                     Predict = c("Yes","Maybe","No","Maybe","Yes","Maybe","No","Maybe","Yes"))
+#site_df2 = site_df %>% filter(Predict %in% c("Yes","Maybe"))
+
+selected_sites = Loc_metric_table_w_private %>%
+  filter(loc_name %in% site_df$Site) %>%
+  mutate(Site_type = "Node")
+
+adjacent_sites = df2 %>%
+  mutate(node_site = Loc_metric_table_w_private[row.id,]$loc_name,
+         adj_site = Loc_metric_table_w_private[col.id,]$loc_name) %>%
+  filter(node_site %in% site_df$Site,
+         node_site!=adj_site)
+
+adjacent_sites = Loc_metric_table_w_private %>%
+  filter(loc_name %in% adjacent_sites$adj_site) %>%
+  mutate(Site_type = "Adjacent")
+
+all_sites = rbind(selected_sites,adjacent_sites)
+
 rm(ha_rankings,v1_rankings,regs,possible_locs,locs_within_distance)
