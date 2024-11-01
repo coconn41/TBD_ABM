@@ -1,24 +1,28 @@
-tdir=tempdir()
-stateurl = "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_500k.zip"
-countyurl = "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_county_500k.zip"
+# tdir=tempdir()
+# stateurl = "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_500k.zip"
+# 
+# if(file.exists(paste(tdir,"/cb_2018_us_state_500k.shp",sep=""))==F){
+#   download.file(stateurl, destfile = file.path(tdir, "States.zip"))
+#   unzip(file.path(tdir,"States.zip"),exdir=tdir)}
+# NYS = read_sf(paste(tdir,"/cb_2018_us_state_500k.shp",sep="")) %>%
+#   filter(NAME=="New York") %>%
+#   st_transform(.,crs=32618)
 
-if(file.exists(paste(tdir,"/cb_2018_us_county_500k.shp",sep=""))==F){
-  download.file(countyurl,destfile = file.path(tdir,"Counties.zip"))
-  unzip(file.path(tdir,"Counties.zip"),exdir=tdir)}
-USA_Counties=read_sf(paste(tdir,"/cb_2018_us_county_500k.shp",sep=""))
-Erie = USA_Counties %>%
-  filter(STATEFP=="36") %>%
-  filter(NAME == "Erie") %>%
-  st_transform(.,crs=32618)
+WMUS = read_sf(paste0(getwd(),'/Data/WMUs/Wildlife_Management_Units.shp')) %>%
+  st_transform(.,crs=32618) %>%
+  mutate(area = st_area(.)) %>%
+  dplyr::select(UNIT,area)
+attributes(WMUS$area)=NULL
 
-if(file.exists(paste(tdir,"/cb_2018_us_state_500k.shp",sep=""))==F){
-  download.file(stateurl, destfile = file.path(tdir, "States.zip"))
-  unzip(file.path(tdir,"States.zip"),exdir=tdir)}
-NYS = read_sf(paste(tdir,"/cb_2018_us_state_500k.shp",sep="")) %>%
-  filter(NAME=="New York") %>%
-  st_transform(.,crs=32618)
+WMU_int = st_intersection(WMUS,st_difference(all_sites)) #%>%
+  rename(wmu_area = 'area',
+         patch_area = 'area.1')
+  
+unq_WMUs = WMUS %>%
+  filter(UNIT %in% WMU_int$UNIT) # Double check name of UNIT
 
-LC = get_nlcd(template=Erie,
+for(i in 1:nrow(unq_WMUs)){
+LC = get_nlcd(template=unq_WMUS[1,],
               label="NLCD",
               dataset='landcover',
               year=2019,
@@ -26,10 +30,10 @@ LC = get_nlcd(template=Erie,
               force.redo = T,
               extraction.dir = tdir)
 LCr = rast(LC)
-LCproj = terra::project(LCr,crs(Erie))
+LCproj = terra::project(LCr,crs(unq_WMUS[1,]))
 
 LCcrop = terra::crop(x = LCproj,
-                     y = Erie |>
+                     y = unq_WMUS[1,] |>
                        terra::vect(),
                      mask = T)
 
@@ -54,3 +58,8 @@ fin_poly3 = fin_poly %>%
 fin_poly4 = fin_poly3[sample(nrow(fin_poly3),nrow(fin_poly3)*.05),]
 fin_poly = rbind(fin_poly2,fin_poly4)
 remove(fin_poly2,fin_poly3,fin_poly4)
+if(i==1){join_poly = fin_poly}
+if(i>1){join_poly = rbind(fin_poly,join_poly)}
+}
+
+fin_poly = join_poly
