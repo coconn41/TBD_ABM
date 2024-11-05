@@ -9,7 +9,7 @@ set.seed(1)
 
 # Calculate model agents, environment, and network
 use_cached_data = TRUE
-source(paste0(getwd(),'/Code/Calc_mod_setup.R')) # Almost complete, need to run lcps and calculate network
+source(paste0(getwd(),'/Code/Model_set_up/Calc_mod_setup.R')) # Almost complete, need to run lcps and calculate network
 
 # Number of agents to start model
 eggs = 100
