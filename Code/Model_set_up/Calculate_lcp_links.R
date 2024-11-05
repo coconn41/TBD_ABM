@@ -28,7 +28,7 @@ road_pix  = terra::rasterize(x = road_vect,
 #####
 # Get nodes:
 #####
-nodes = st_centroid(fin_poly)
+nodes = st_centroid(all_sites)
 
 #####
 # Process resistance raster:
@@ -97,8 +97,8 @@ Rgrid = raster::raster(Resistance_grid)
 myCluster <- parallel::makeCluster(cores)
 doParallel::registerDoParallel(myCluster)
 
-comps <- foreach::foreach(i = 1:nrow(fin_poly), .errorhandling = "remove", .combine = "rbind", .packages = c("sf", "terra")) %dopar% {
-  comps1=t(st_is_within_distance(fin_poly[i,],fin_poly,dist=distance,sparse = F))
+comps <- foreach::foreach(i = 1:nrow(all_patches), .errorhandling = "remove", .combine = "rbind", .packages = c("sf", "terra")) %dopar% {
+  comps1=t(st_is_within_distance(all_patches[i,],all_patches,dist=distance,sparse = F))
   comps1=which(comps1)
   dist_df = data.frame(row=rep(i,length(comps1)),
                        col=comps1)
