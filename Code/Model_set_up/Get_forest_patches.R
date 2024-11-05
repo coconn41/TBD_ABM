@@ -1,12 +1,27 @@
-# tdir=tempdir()
-# stateurl = "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_500k.zip"
-# 
-# if(file.exists(paste(tdir,"/cb_2018_us_state_500k.shp",sep=""))==F){
-#   download.file(stateurl, destfile = file.path(tdir, "States.zip"))
-#   unzip(file.path(tdir,"States.zip"),exdir=tdir)}
-# NYS = read_sf(paste(tdir,"/cb_2018_us_state_500k.shp",sep="")) %>%
-#   filter(NAME=="New York") %>%
-#   st_transform(.,crs=32618)
+tdir=tempdir()
+stateurl = "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_500k.zip"
+
+if(file.exists(paste(tdir,"/cb_2018_us_state_500k.shp",sep=""))==F){
+  download.file(stateurl, destfile = file.path(tdir, "States.zip"))
+  unzip(file.path(tdir,"States.zip"),exdir=tdir)}
+NYS = read_sf(paste(tdir,"/cb_2018_us_state_500k.shp",sep="")) %>%
+  filter(NAME=="New York") %>%
+  st_transform(.,crs=32618)
+
+LC = get_nlcd(template=NYS,
+              label="NLCD",
+              dataset='landcover',
+              year=2019,
+              landmass = 'L48',
+              force.redo = T,
+              extraction.dir = tdir)
+LCr = rast(LC)
+LCproj = terra::project(LCr,crs(NYS))
+
+LCcrop = terra::crop(x = LCproj,
+                     y = NYS |>
+                       terra::vect(),
+                     mask = T)
 
 WMUS = read_sf(paste0(getwd(),'/Data/WMUs/Wildlife_Management_Units.shp')) %>%
   st_transform(.,crs=32618) %>%
