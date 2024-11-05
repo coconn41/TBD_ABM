@@ -1,5 +1,5 @@
 if(use_cached_data == TRUE){fin_poly = read.csv(paste0(getwd(),'/Cached_data/fin_poly.csv'))}
-if(use_catched_data == FALSE){
+if(use_cached_data == FALSE){
 # Bring in tick data and select patches to build model around:
 source(paste0(getwd(),'/Code/Model_set_up/Clean_tick_data.R'))
 source(paste0(getwd(),'/Code/Model_set_up/Select_sites.R'))
