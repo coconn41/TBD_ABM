@@ -36,8 +36,13 @@ fin_poly = fin_poly %>%
            patch_area,gridrows,gridcols,hectare) %>%
   summarize(deer_agents = sum(deer_agents,na.rm = T)) %>% 
   mutate(deer_p_ha = deer_agents/hectare,
-         mouse_agents = rtruncnorm(n=1,a=0,mean = hectare/50,sd = 10),
-         mice_p_ha = mouse_agents/hectare)
+         mouse_agents = rtruncnorm(n=1,a=0,mean = hectare*50,sd = 100),
+         mice_p_ha = mouse_agents/hectare) %>%
+  mutate(gridrows_adjusted = 1000,
+         gridcols_adjusted = 1000,
+         adjusted_ratio = gridrows/gridrows_adjusted,
+         deer_agents_adjusted = deer_p_ha*(hectare/adjusted_ratio),
+         mouse_agents_adjusted = rtruncnorm(n=1,a=0,mean = 100*50,sd = 100))
 
 # Estimate of 1 million deer in NYS:
 # https://extapps.dec.ny.gov/docs/administration_pdf/deer2.pdf
