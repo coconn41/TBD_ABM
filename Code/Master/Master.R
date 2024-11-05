@@ -7,6 +7,9 @@ source(paste0(getwd(),'/Code/Model_set_up/Load_libraries.R'))
 # Set random number state:
 set.seed(1)
 
+# Set number of cores:
+cores = 4
+
 # Calculate model agents, environment, and network
 use_cached_data = TRUE
 source(paste0(getwd(),'/Code/Model_set_up/Calc_mod_setup.R')) # Almost complete, need to run lcps and calculate network
