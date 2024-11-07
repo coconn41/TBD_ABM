@@ -96,6 +96,8 @@ raster::writeRaster(Rgrid,paste0(getwd(),'/Cached_data/Resistance_grid.tiff'))
 
 all_patches = all_patches %>%
   st_set_crs(.,value=st_crs(LCcrop))
+sf::write_sf(all_patches,
+             paste0(getwd(),'/Cached_data/all_patches.shp'))
 
 myCluster <- parallel::makeCluster(cores)
 doParallel::registerDoParallel(myCluster)
