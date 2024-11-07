@@ -15,8 +15,7 @@ fin_poly = fin_poly %>%
   left_join(all_sites %>%
               st_drop_geometry(),
             .,
-            join_by(layer),
-            relationship="many-to-many") %>%
+            join_by(layer)) %>%
   left_join(.,ptch2 %>%
               st_drop_geometry() %>%
               rename(wmu = "UNIT",
