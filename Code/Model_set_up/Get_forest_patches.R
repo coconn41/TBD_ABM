@@ -1,10 +1,12 @@
-tdir=tempdir()
+#tdir=tempdir()
 stateurl = "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_500k.zip"
 
-if(file.exists(paste(tdir,"/cb_2018_us_state_500k.shp",sep=""))==F){
-  download.file(stateurl, destfile = file.path(tdir, "States.zip"))
-  unzip(file.path(tdir,"States.zip"),exdir=tdir)}
-NYS = read_sf(paste(tdir,"/cb_2018_us_state_500k.shp",sep="")) %>%
+if(file.exists(paste0(getwd(),"/Scratch/cb_2018_us_state_500k.shp"))==F){
+  download.file(stateurl, destfile = file.path(paste0(getwd(),'/Scratch'),
+                                               "States.zip"))
+  unzip(file.path(paste0(getwd(),"/Scratch/States.zip")),
+        exdir=paste0(getwd(),'/Scratch'))}
+NYS = read_sf(paste0(getwd(),"/Scratch/cb_2018_us_state_500k.shp")) %>%
   filter(NAME=="New York") %>%
   st_transform(.,crs=32618)
 
