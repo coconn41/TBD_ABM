@@ -96,16 +96,16 @@ raster::writeRaster(Rgrid,
 # Within distance comps
 #####
 
-all_patches = all_patches %>%
+all_sites = all_sites %>%
   st_set_crs(.,value=st_crs(LCcrop))
-sf::write_sf(all_patches,
-             paste0(getwd(),'/Cached_data/all_patches.shp'))
+sf::write_sf(all_sites,
+             paste0(getwd(),'/Cached_data/all_sites.shp'))
 
 myCluster <- parallel::makeCluster(cores)
 doParallel::registerDoParallel(myCluster)
 
-comps <- foreach::foreach(i = 1:nrow(all_patches), .errorhandling = "remove", .combine = "rbind", .packages = c("sf", "terra")) %dopar% {
-  comps1=t(st_is_within_distance(all_patches[i,],all_patches,dist=1675,sparse = F))
+comps <- foreach::foreach(i = 1:nrow(all_sites), .errorhandling = "remove", .combine = "rbind", .packages = c("sf", "terra")) %dopar% {
+  comps1=t(st_is_within_distance(all_sites[i,],all_sites,dist=1675,sparse = F))
   comps1=which(comps1)
   dist_df = data.frame(row=rep(i,length(comps1)),
                        col=comps1)
