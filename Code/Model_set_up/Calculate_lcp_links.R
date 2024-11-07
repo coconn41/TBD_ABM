@@ -89,7 +89,9 @@ Resistance_grid = sum(Resistance_grid,minor_roads,na.rm=T)
 Resistance_grid[Resistance_grid==0]=NA
 Resistance_grid=1/Resistance_grid # These are now conductances, the inverse was taken
 Rgrid = raster::raster(Resistance_grid) 
-raster::writeRaster(Rgrid,paste0(getwd(),'/Cached_data/Resistance_grid.tiff'))
+raster::writeRaster(Rgrid,
+                    paste0(getwd(),'/Cached_data/Resistance_grid.tiff'),
+                    overwrite = TRUE)
 #####
 # Within distance comps
 #####
