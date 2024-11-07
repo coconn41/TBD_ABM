@@ -89,7 +89,7 @@ Resistance_grid = sum(Resistance_grid,minor_roads,na.rm=T)
 Resistance_grid[Resistance_grid==0]=NA
 Resistance_grid=1/Resistance_grid # These are now conductances, the inverse was taken
 Rgrid = raster::raster(Resistance_grid) 
-
+raster::writeRaster(Rgrid,paste0(getwd(),'/Cached_data/Resistance_grid.tiff'))
 #####
 # Within distance comps
 #####
@@ -116,6 +116,8 @@ comps2 = comps
 fltr <- !duplicated(apply(comps, 1, function(x) paste0(sort(x), collapse = "")))
 comps = comps[fltr, ]
 
+write.csv(comps,paste0(getwd(),'/Cached_data/comps.csv'))
+
 #####
 # Calculate least-cost-paths
 #####
@@ -124,8 +126,8 @@ doParallel::registerDoParallel(myCluster)
 
 lcp_network <- foreach::foreach(i = 1:nrow(comps), .errorhandling = "remove", .combine = "rbind", .packages = c("sf","raster","gdistance","tmaptools","dplyr","leastcostpath","terra")) %dopar% {
   
-  bbdf <- sf::st_bbox(fin_poly[c(comps[i,1],comps[i,2]),]) %>%
-    tmaptools::bb_poly(.,projection = sf::st_crs(fin_poly)) %>%
+  bbdf <- sf::st_bbox(all_patches[c(comps[i,1],comps[i,2]),]) %>%
+    tmaptools::bb_poly(.,projection = sf::st_crs(all_patches)) %>%
     sf::st_as_sf()
   
   tr1=leastcostpath::create_cs(terra::crop(x=Rgrid %>%
@@ -138,8 +140,8 @@ lcp_network <- foreach::foreach(i = 1:nrow(comps), .errorhandling = "remove", .c
                                    destination = nodes[comps[i,2],, drop=FALSE]) %>%
     sf::st_as_sf() %>%
     dplyr::mutate(length = sf::st_length(.),
-                  origin_ID = fin_poly[comps[i,1],]$layer,
-                  destination_ID =fin_poly[comps[i,2],]$layer) #lcp$origin_ID <- comps[i,1]
+                  origin_ID = all_patches[comps[i,1],]$layer,
+                  destination_ID =all_patches[comps[i,2],]$layer) 
   
   return(lcp)
 }
@@ -148,3 +150,5 @@ parallel::stopCluster(myCluster)
 
 attributes(lcp_network$length) <- NULL
 lcp_network=lcp_network[,-c(1:3)]
+
+write_sf(lcp_network,paste0(getwd(),'/Cached_data/lcp_network.shp'))

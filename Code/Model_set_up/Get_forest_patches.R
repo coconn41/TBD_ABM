@@ -1,12 +1,12 @@
 #tdir=tempdir()
 stateurl = "https://www2.census.gov/geo/tiger/GENZ2018/shp/cb_2018_us_state_500k.zip"
 
-if(file.exists(paste0(getwd(),"/Scratch/cb_2018_us_state_500k.shp"))==F){
-  download.file(stateurl, destfile = file.path(paste0(getwd(),'/Scratch'),
+if(file.exists(paste0(getwd(),"/Cached_data/cb_2018_us_state_500k.shp"))==F){
+  download.file(stateurl, destfile = file.path(paste0(getwd(),'/Cached_data'),
                                                "States.zip"))
-  unzip(file.path(paste0(getwd(),"/Scratch/States.zip")),
-        exdir=paste0(getwd(),'/Scratch'))}
-NYS = read_sf(paste0(getwd(),"/Scratch/cb_2018_us_state_500k.shp")) %>%
+  unzip(file.path(paste0(getwd(),"/Cached_data/States.zip")),
+        exdir=paste0(getwd(),'/Cached_data'))}
+NYS = read_sf(paste0(getwd(),"/Cached_data/cb_2018_us_state_500k.shp")) %>%
   filter(NAME=="New York") %>%
   st_transform(.,crs=32618)
 
@@ -16,7 +16,7 @@ LC = get_nlcd(template=NYS,
               year=2019,
               landmass = 'L48',
               force.redo = T,
-              extraction.dir = paste0(getwd(),'/Scratch'))
+              extraction.dir = paste0(getwd(),'/Cached_data'))
 LCr = rast(LC)
 LCproj = terra::project(LCr,crs(NYS))
 

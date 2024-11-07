@@ -44,6 +44,7 @@ fin_poly = fin_poly %>%
          deer_agents_adjusted = deer_p_ha*(hectare/adjusted_ratio),
          mouse_agents_adjusted = rtruncnorm(n=1,a=0,mean = 100*50,sd = 100))
 
+write.csv(fin_poly,paste0(getwd(),'/Cached_data/fin_poly.csv'))
 # Estimate of 1 million deer in NYS:
 # https://extapps.dec.ny.gov/docs/administration_pdf/deer2.pdf
 
