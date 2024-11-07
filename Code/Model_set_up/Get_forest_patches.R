@@ -16,7 +16,7 @@ LC = get_nlcd(template=NYS,
               year=2019,
               landmass = 'L48',
               force.redo = T,
-              extraction.dir = tdir)
+              extraction.dir = paste0(getwd(),'/Scratch'))
 LCr = rast(LC)
 LCproj = terra::project(LCr,crs(NYS))
 
