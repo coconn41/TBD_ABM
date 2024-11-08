@@ -1,3 +1,4 @@
+if(use_cached_data==FALSE){
 #####
 # Roadway Data
 #####
@@ -121,31 +122,33 @@ fltr <- !duplicated(apply(comps, 1, function(x) paste0(sort(x), collapse = "")))
 comps = comps[fltr, ]
 
 write.csv(comps,paste0(getwd(),'/Cached_data/comps.csv'))
-
+}
 #####
 # Calculate least-cost-paths
 #####
-myCluster <- parallel::makeCluster(cores)
+if(nrow(comps)<36{tempcores=comps-2})
+myCluster <- parallel::makeCluster(tempcores)
 doParallel::registerDoParallel(myCluster)
 
 lcp_network <- foreach::foreach(i = 1:nrow(comps), .errorhandling = "remove", .combine = "rbind", .packages = c("sf","raster","gdistance","tmaptools","dplyr","leastcostpath","terra")) %dopar% {
   
-  bbdf <- sf::st_bbox(all_patches[c(comps[i,1],comps[i,2]),]) %>%
-    tmaptools::bb_poly(.,projection = sf::st_crs(all_patches)) %>%
-    sf::st_as_sf()
+  bbdf <- sf::st_bbox(all_sites[c(comps[i,1],comps[i,2]),]) %>%
+    tmaptools::bb_poly(.,projection = sf::st_crs(all_sites)) %>%
+    sf::st_as_sf() %>%
+    st_buffer(.,dist=1000)
   
   tr1=leastcostpath::create_cs(terra::crop(x=Rgrid %>%
                                              terra::rast(),
                                            y = bbdf,
-                                           mask=T))
+                                           mask=T)) 
   
   lcp <- leastcostpath::create_lcp(x = tr1,
                                    origin = nodes[comps[i,1],,drop=FALSE],
                                    destination = nodes[comps[i,2],, drop=FALSE]) %>%
     sf::st_as_sf() %>%
     dplyr::mutate(length = sf::st_length(.),
-                  origin_ID = all_patches[comps[i,1],]$layer,
-                  destination_ID =all_patches[comps[i,2],]$layer) 
+                  origin_ID = all_sites[comps[i,1],]$layer,
+                  destination_ID =all_sites[comps[i,2],]$layer) 
   
   return(lcp)
 }

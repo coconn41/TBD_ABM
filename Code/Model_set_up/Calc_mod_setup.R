@@ -1,4 +1,11 @@
-if(use_cached_data == TRUE){fin_poly = read.csv(paste0(getwd(),'/Cached_data/fin_poly.csv'))}
+if(use_cached_data == TRUE){
+  fin_poly = read.csv(paste0(getwd(),'/Cached_data/fin_poly.csv'))
+  all_sites = read_sf(paste0(getwd(),'/Cached_data/all_sites.shp'))
+  comps = read.csv(paste0(getwd(),'/Cached_data/comps.csv'))
+  Rgrid = raster(paste0(getwd(),'/Cached_data/Resistance_grid.tiff'))
+  crs(Rgrid) = "epsg:32618"
+  nodes = st_centroid(all_sites)
+  }
 if(use_cached_data == FALSE){
 # Bring in tick data and select patches to build model around:
 print("Cleaning tick data")
@@ -11,8 +18,8 @@ source(paste0(getwd(),'/Code/Model_set_up/Get_forest_patches.R'))
 
 # Calculate number of agents:
 print("Calculating number of agents")
-source(paste0(getwd(),'/Code/Model_set_up/Calculate_number_of_agents.R'))
+source(paste0(getwd(),'/Code/Model_set_up/Calculate_number_of_agents.R'))}
 
 # Assign links between forest patches:
 print("Calculating lcps")
-source(paste0(getwd(),'/Code/Model_set_up/Calculate_lcp_links.R'))}
+source(paste0(getwd(),'/Code/Model_set_up/Calculate_lcp_links.R'))
