@@ -18,7 +18,7 @@ NYS = read_sf(paste0(getwd(),"/Cached_data/cb_2018_us_state_500k.shp")) %>%
 #               force.redo = T,
 #               extraction.dir = paste0(getwd(),'/Cached_data'))
 LC = terra::rast(paste0(getwd(),'/Cached_data/NLCD_NLCD_Land_Cover_2019.tif'))
-LCr = rast(LC)
+LCr = LC#rast(LC)
 LCproj = terra::project(LCr,crs(NYS))
 
 LCcrop = terra::crop(x = LCproj,
