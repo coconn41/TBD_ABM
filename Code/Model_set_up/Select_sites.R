@@ -121,19 +121,22 @@ selected_sites = Loc_metric_table_w_private %>%
   filter(loc_name %in% site_df$Site) %>%
   mutate(Site_type = "Node")
 
-adjacent_sites = df2 %>%
-  mutate(node_site = Loc_metric_table_w_private[row.id,]$loc_name,
-         adj_site = Loc_metric_table_w_private[col.id,]$loc_name) %>%
-  filter(node_site %in% site_df$Site,
-         node_site!=adj_site)
+# adjacent_sites = df2 %>%
+#   mutate(node_site = Loc_metric_table_w_private[row.id,]$loc_name,
+#          adj_site = Loc_metric_table_w_private[col.id,]$loc_name) %>%
+#   filter(node_site %in% site_df$Site,
+#          node_site!=adj_site)
+# 
+# adjacent_sites = Loc_metric_table_w_private %>%
+#   filter(loc_name %in% adjacent_sites$adj_site) %>%
+#   mutate(Site_type = "Adjacent")
+# 
+# all_sites = rbind(selected_sites,adjacent_sites) %>%
+#   select(-Site_type) %>%
+#   distinct()
 
-adjacent_sites = Loc_metric_table_w_private %>%
-  filter(loc_name %in% adjacent_sites$adj_site) %>%
-  mutate(Site_type = "Adjacent")
+all_sites = df2
 
-all_sites = rbind(selected_sites,adjacent_sites) %>%
-  select(-Site_type) %>%
-  distinct()
 write.csv(all_sites,paste0(getwd(),'/Cached_data/all_sites.csv'))
 
 rm(ha_rankings,v1_rankings,regs,possible_locs,locs_within_distance)
