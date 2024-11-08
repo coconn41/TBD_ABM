@@ -126,7 +126,7 @@ write.csv(comps,paste0(getwd(),'/Cached_data/comps.csv'))
 #####
 # Calculate least-cost-paths
 #####
-if(nrow(comps)<36{tempcores=comps-2})
+if(nrow(comps)<36){tempcores=comps-2}
 myCluster <- parallel::makeCluster(tempcores)
 doParallel::registerDoParallel(myCluster)
 
