@@ -31,7 +31,7 @@ fin_poly = fin_poly %>%
          estimated_wmu_deer_killed = mean_total*patch_percent,
          deer_agents = round(((1/metric)*estimated_wmu_deer_killed)/(total_kill/1000000)),
          hectare = patch_area*.0001) %>%
-  group_by(Location_ID,loc_county,loc_name,layer,metric,area,Site_type,
+  group_by(Location_ID,loc_county,loc_name,layer,metric,area,
            patch_area,gridrows,gridcols,hectare) %>%
   summarize(deer_agents = sum(deer_agents,na.rm = T)) %>% 
   mutate(deer_p_ha = deer_agents/hectare,
