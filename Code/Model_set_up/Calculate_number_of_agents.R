@@ -43,7 +43,38 @@ fin_poly = fin_poly %>%
          deer_agents_adjusted = deer_p_ha*(hectare/adjusted_ratio),
          mouse_agents_adjusted = rtruncnorm(n=1,a=0,mean = 100*50,sd = 100))
 
+starting_site_data = selection_df %>%
+  filter(Site %in% unique(deer_agents$Site)) %>%
+  group_by(Site,Lifestage) %>%
+  filter(Date == min(Date)) %>%
+  left_join(.,Collections,
+            join_by(County,Site,Date)) %>%
+  select(County,Date,Site,Target_genus,Target_species,
+         Target_stage,Lifestage,tot_collected,
+         ha,v1,coinf,und,tot_tested,`Target density`) %>%
+  rename(Density_p_m = "Target density") %>%
+  mutate(num_ticks_projected = ifelse(is.na(Density_p_m)==T,
+                                       tot_collected,Density_p_m*1000),
+         ha_perc = ha/tot_tested,
+         v1_perc = v1/tot_tested)
+
+poly_tick_agents = fin_poly %>%
+  left_join(.,starting_site_data %>%
+              rename(loc_county = "County",
+                     loc_name = "Site"),
+            join_by(loc_county,
+                    loc_name)) %>%
+  select(loc_county,loc_name,metric,gridrows,gridcols,hectare,
+         gridrows_adjusted,gridcols_adjusted,adjusted_ratio,Lifestage,
+         ha_perc,v1_perc,num_ticks_projected) %>%
+  filter(is.na(Lifestage)==F) %>%
+  mutate(ha_perc = ifelse(is.na(ha_perc)==T,0,ha_perc),
+         v1_perc = ifelse(is.na(v1_perc)==T,0,v1_perc),
+         num_ticks_projected = ifelse(is.na(num_ticks_projected)==T,0,num_ticks_projected))
+  
+
 write.csv(fin_poly,paste0(getwd(),'/Cached_data/fin_poly.csv'))
+write.csv(poly_tick_agents,paste0(getwd(),'/Cached_data/poly_tick_agents.csv'))
 # Estimate of 1 million deer in NYS:
 # https://extapps.dec.ny.gov/docs/administration_pdf/deer2.pdf
 

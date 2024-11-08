@@ -17,15 +17,11 @@ cores = 36
 use_cached_data = FALSE
 source(paste0(getwd(),'/Code/Model_set_up/Calc_mod_setup.R')) # Almost complete, need to run lcps and calculate network
 print("finished loading data")
-error
-# Number of agents to start model
-eggs = 100
-larvae = 0
-fedlarvae = 100 # to start the model
-nymphs = 0
-adult_males = 20
-adult_females = 20
-other = 0
+asdfasdf
+# Create network structure
+
+
+# Create agents
 
 # Calculate number of agents:
 source(paste0(getwd(),'/Code/Model_set_up/Calculate_number_of_agents.R'))

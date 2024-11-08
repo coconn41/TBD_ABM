@@ -131,6 +131,9 @@ adjacent_sites = Loc_metric_table_w_private %>%
   filter(loc_name %in% adjacent_sites$adj_site) %>%
   mutate(Site_type = "Adjacent")
 
-all_sites = rbind(selected_sites,adjacent_sites)
+all_sites = rbind(selected_sites,adjacent_sites) %>%
+  select(-Site_type) %>%
+  distinct()
+write.csv(all_sites,paste0(getwd(),'/Cached_data/all_sites.csv'))
 
 rm(ha_rankings,v1_rankings,regs,possible_locs,locs_within_distance)
