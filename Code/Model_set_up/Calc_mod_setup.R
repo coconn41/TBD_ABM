@@ -2,7 +2,7 @@ if(use_cached_data == TRUE){
   fin_poly = read.csv(paste0(getwd(),'/Cached_data/fin_poly.csv'))
   all_sites = read_sf(paste0(getwd(),'/Cached_data/all_sites.shp'))
   comps = read.csv(paste0(getwd(),'/Cached_data/comps.csv'))
-  Rgrid = terra(paste0(getwd(),'/Cached_data/Resistance_grid.tiff'))
+  Rgrid = terra::rast(paste0(getwd(),'/Cached_data/Resistance_grid.tiff'))
   crs(Rgrid) = "epsg:32618"
   nodes = st_centroid(all_sites)
   }

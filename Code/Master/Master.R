@@ -14,7 +14,7 @@ set.seed(1)
 cores = 36
 
 # Calculate model agents, environment, and network
-use_cached_data = TRUE
+use_cached_data = FALSE
 source(paste0(getwd(),'/Code/Model_set_up/Calc_mod_setup.R')) # Almost complete, need to run lcps and calculate network
 print("finished loading data")
 asdfasdf
