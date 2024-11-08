@@ -44,7 +44,7 @@ fin_poly = fin_poly %>%
          mouse_agents_adjusted = rtruncnorm(n=1,a=0,mean = 100*50,sd = 100))
 
 starting_site_data = selection_df %>%
-  filter(Site %in% unique(deer_agents$Site)) %>%
+  filter(Site %in% unique(all_sites$loc_name)) %>%
   group_by(Site,Lifestage) %>%
   filter(Date == min(Date)) %>%
   left_join(.,Collections,
