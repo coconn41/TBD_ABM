@@ -10,15 +10,15 @@ NYS = read_sf(paste0(getwd(),"/Cached_data/cb_2018_us_state_500k.shp")) %>%
   filter(NAME=="New York") %>%
   st_transform(.,crs=32618)
 
-# LC = get_nlcd(template=NYS,
-#               label="NLCD",
-#               dataset='landcover',
-#               year=2019,
-#               landmass = 'L48',
-#               force.redo = T,
-#               extraction.dir = paste0(getwd(),'/Cached_data'))
-LC = terra::rast(paste0(getwd(),'/Cached_data/NLCD_NLCD_Land_Cover_2019.tif'))
-LCr = LC#rast(LC)
+LC = get_nlcd(template=NYS,
+              label="NLCD",
+              dataset='landcover',
+              year=2019,
+              landmass = 'L48',
+              force.redo = T,
+              extraction.dir = paste0(getwd(),'/Cached_data'))
+#LC = terra::rast(paste0(getwd(),'/Cached_data/NLCD_NLCD_Land_Cover_2019.tif'))
+LCr = rast(LC)
 LCproj = terra::project(LCr,crs(NYS))
 
 LCcrop = terra::crop(x = LCproj,
