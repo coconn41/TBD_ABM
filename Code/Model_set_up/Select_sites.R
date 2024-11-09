@@ -129,7 +129,7 @@ site_df = data.frame(Site = c("Hanging Bog", # conn = .6249, ha = .11, v1 = -0.0
                      v1_relationship = c(rep("Negative",2),
                                          rep("Positive",4),
                                          rep("Negative",2)),
-                     Predict = c("Yes","No","Maybe","Maybe","No","Yes","Maybe",))
+                     Predict = c("Yes","No","Maybe","Maybe","No","Yes","Maybe","Maybe"))
 
 selected_sites = Loc_metric_table_w_private %>%
   filter(loc_name %in% site_df$Site) %>%
