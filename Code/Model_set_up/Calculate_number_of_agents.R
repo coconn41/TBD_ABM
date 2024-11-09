@@ -86,7 +86,9 @@ fin_all_patch = fin_poly %>%
   left_join(.,all_patches %>%
               select(layer,geometry)) %>%
   ungroup() %>%
-  select(-c(area_m2,patch_area,area_ha))
+  select(-c(area_m2,patch_area,area_ha)) %>% 
+  st_set_geometry(.,value='geometry') %>%
+  st_transform(.,32618)
 
 starting_site_data = selection_df %>%
   filter(Site %in% unique(all_sites$loc_name)) %>%
@@ -119,7 +121,7 @@ poly_tick_agents = fin_all_patch %>%
   
 
 write_sf(fin_all_patch,paste0(getwd(),'/Cached_data/fin_all_patch.shp'))
-write.csv(poly_tick_agents,paste0(getwd(),'/Cached_data/poly_tick_agents.csv'))
+write_sf(poly_tick_agents,paste0(getwd(),'/Cached_data/poly_tick_agents.shp'))
 # Estimate of 1 million deer in NYS:
 # https://extapps.dec.ny.gov/docs/administration_pdf/deer2.pdf
 
