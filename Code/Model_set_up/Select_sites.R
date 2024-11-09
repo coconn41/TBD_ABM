@@ -143,6 +143,6 @@ adjacent_sites = df2 %>%
 all_sites = patches %>%
   filter(loc_name %in% unique(adjacent_sites$adj_site))
 
-write.csv(all_sites,paste0(getwd(),'/Cached_data/all_sites.csv'))
+write_sf(all_sites,paste0(getwd(),'/Cached_data/all_sites.shp'))
 
 rm(ha_rankings,v1_rankings,regs,possible_locs,locs_within_distance)

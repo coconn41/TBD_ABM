@@ -35,8 +35,8 @@ WMUS = read_sf(paste0(getwd(),'/Data/WMUs/Wildlife_Management_Units.shp')) %>%
 attributes(WMUS$area)=NULL
 
 WMU_int = st_intersection(WMUS,st_difference(all_sites)) %>%
-  rename(wmu_area = 'area',
-         patch_area = 'area.1')
+  rename(wmu_area = 'area') %>%
+  mutate(wmu_ha = wmu_area/10000)
   
 unq_WMUs = WMUS %>%
   filter(UNIT %in% WMU_int$UNIT) # Double check name of UNIT
@@ -46,5 +46,3 @@ for(i in 1:nrow(unq_WMUs)){
   if(i==1){ptch2 = ptch}
   if(i>1){ptch2 = rbind(ptch2,ptch)}
 }
-
-fin_poly = ptch2

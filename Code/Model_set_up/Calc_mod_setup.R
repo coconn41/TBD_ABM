@@ -1,10 +1,26 @@
 if(use_cached_data == TRUE){
-  fin_poly = read.csv(paste0(getwd(),'/Cached_data/fin_poly.csv'))
   all_sites = read_sf(paste0(getwd(),'/Cached_data/all_sites.shp'))
+  fin_all_patch = read_sf(paste0(getwd(),'/Cached_data/fin_all_patch.shp')) %>%
+    rename(Location_ID = "Lctn_ID",
+           loc_county = "lc_cnty",
+           loc_name = "loc_nam",
+           gridrows = "gridrws",
+           gridcols = "gridcls",
+           deer_agents = "dr_gnts",
+           deer_p_ha = "der_p_h",
+           mouse_agents = "ms_gnts",
+           mice_p_ha = "mic_p_h",
+           gridrows_adjusted = "grdrws_",
+           gridcols_adjusted = "grdcls_",
+           adjusted_ratio = "adjstd_",
+           deer_agents_adjusted = "dr_gnt_",
+           mouse_agents_adjusted = "ms_gnt_",
+           patch_type = "ptch_ty")
   comps = read.csv(paste0(getwd(),'/Cached_data/comps.csv'))
   Rgrid = terra::rast(paste0(getwd(),'/Cached_data/Resistance_grid.tiff'))
   crs(Rgrid) = "epsg:32618"
   nodes = st_centroid(all_sites)
+  poly_tick_agents = read.csv(paste0(getwd(),'/Cached_data/poly_tick_agents.csv'))
   }
 if(use_cached_data == FALSE){
 # Bring in tick data and select patches to build model around:

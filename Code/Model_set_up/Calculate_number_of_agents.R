@@ -1,12 +1,12 @@
 # Change this to patches when ready to run full model and convert to the HPC cluster
-
+# See above, include all non-site patches
 Deer_data <- read_excel(paste0(getwd(),"/Data/Deer_data.xlsx")) %>%
   filter(huntyear %in% c(2006,2007,2008)) %>%
   group_by(wmu) %>%
   summarize(mean_total = mean(Total,na.rm=T))
 Deer_data$total_kill = sum(Deer_data$mean_total)
 fin_poly = ptch2
-fin_poly = fin_poly %>% 
+fin_nodes = fin_poly %>% 
   st_drop_geometry() %>% 
   rename(patch_area = 'area',
          WMU_area = 'area.1',
@@ -31,8 +31,8 @@ fin_poly = fin_poly %>%
          estimated_wmu_deer_killed = mean_total*patch_percent,
          deer_agents = round(((1/metric)*estimated_wmu_deer_killed)/(total_kill/1000000)),
          hectare = patch_area*.0001) %>%
-  group_by(Location_ID,loc_county,loc_name,layer,metric,area,
-           patch_area,gridrows,gridcols,hectare) %>%
+  group_by(Location_ID,loc_county,loc_name,layer,metric,area_m2,
+           patch_area,area_ha,gridrows,gridcols,hectare) %>%
   summarize(deer_agents = sum(deer_agents,na.rm = T)) %>% 
   mutate(deer_p_ha = deer_agents/hectare,
          mouse_agents = rtruncnorm(n=1,a=0,mean = hectare*50,sd = 100),
@@ -41,7 +41,52 @@ fin_poly = fin_poly %>%
          gridcols_adjusted = 1000,
          adjusted_ratio = gridrows/gridrows_adjusted,
          deer_agents_adjusted = deer_p_ha*(hectare/adjusted_ratio),
-         mouse_agents_adjusted = rtruncnorm(n=1,a=0,mean = 100*50,sd = 100))
+         mouse_agents_adjusted = rtruncnorm(n=1,a=0,mean = 100*50,sd = 100),
+         patch_type = "Node")
+
+fin_all_patch = fin_poly %>%
+  st_drop_geometry() %>%
+  filter(!c(layer %in% fin_nodes$layer)) %>%
+  rename(patch_area = "area",
+         wmu_area = "area.1",
+         wmu = "UNIT") %>%
+  group_by(wmu) %>%
+  summarize(total_patches_area = sum(patch_area,na.rm=T)) %>%
+  left_join(.,Deer_data) %>%
+  left_join(.,fin_poly %>%
+              rename(patch_area = "area",
+                     wmu_area = "area.1",
+                     wmu = "UNIT")) %>%
+  mutate(area_m2 = patch_area,
+         area_ha = patch_area/10000,
+         gridrows = round(sqrt(patch_area)),
+         gridcols = round(sqrt(patch_area)),
+         patch_percent = patch_area/total_patches_area,
+         estimated_wmu_deer_killed = mean_total*patch_percent,
+         deer_agents = round(((1/metric)*estimated_wmu_deer_killed)/(total_kill/1000000)),
+         hectare = patch_area*.0001) %>%
+  group_by(total_kill,layer,metric,patch_area,
+           area_m2,area_ha,gridrows,gridcols,hectare) %>%
+  summarize(deer_agents = sum(deer_agents,na.rm = T)) %>% 
+  mutate(deer_p_ha = deer_agents/hectare,
+         mouse_agents = rtruncnorm(n=1,a=0,mean = hectare*50,sd = 100),
+         mice_p_ha = mouse_agents/hectare) %>%
+  mutate(gridrows_adjusted = 1000,
+         gridcols_adjusted = 1000,
+         adjusted_ratio = gridrows/gridrows_adjusted,
+         deer_agents_adjusted = deer_p_ha*(hectare/adjusted_ratio),
+         mouse_agents_adjusted = rtruncnorm(n=1,a=0,mean = 100*50,sd = 100)) %>%
+  ungroup() %>%
+  dplyr::select(-total_kill) %>%
+  mutate(Location_ID = NA,
+         loc_county = NA,
+         loc_name = NA,
+         patch_type = "Non-node") %>%
+  bind_rows(fin_nodes,.) %>%
+  left_join(.,all_patches %>%
+              select(layer,geometry)) %>%
+  ungroup() %>%
+  select(-c(area_m2,patch_area,area_ha))
 
 starting_site_data = selection_df %>%
   filter(Site %in% unique(all_sites$loc_name)) %>%
@@ -58,7 +103,7 @@ starting_site_data = selection_df %>%
          ha_perc = ha/tot_tested,
          v1_perc = v1/tot_tested)
 
-poly_tick_agents = fin_poly %>%
+poly_tick_agents = fin_all_patch %>%
   left_join(.,starting_site_data %>%
               rename(loc_county = "County",
                      loc_name = "Site"),
@@ -73,7 +118,7 @@ poly_tick_agents = fin_poly %>%
          num_ticks_projected = ifelse(is.na(num_ticks_projected)==T,0,num_ticks_projected))
   
 
-write.csv(fin_poly,paste0(getwd(),'/Cached_data/fin_poly.csv'))
+write_sf(fin_all_patch,paste0(getwd(),'/Cached_data/fin_all_patch.shp'))
 write.csv(poly_tick_agents,paste0(getwd(),'/Cached_data/poly_tick_agents.csv'))
 # Estimate of 1 million deer in NYS:
 # https://extapps.dec.ny.gov/docs/administration_pdf/deer2.pdf

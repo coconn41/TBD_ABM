@@ -29,7 +29,7 @@ road_pix  = terra::rasterize(x = road_vect,
 #####
 # Get nodes:
 #####
-nodes = st_centroid(all_sites)
+nodes = st_centroid(fin_all_patch)
 
 #####
 # Process resistance raster:
@@ -97,16 +97,11 @@ raster::writeRaster(Rgrid,
 # Within distance comps
 #####
 
-all_sites = all_sites %>%
-  st_set_crs(.,value=st_crs(LCcrop))
-sf::write_sf(all_sites,
-             paste0(getwd(),'/Cached_data/all_sites.shp'))
-
 myCluster <- parallel::makeCluster(cores)
 doParallel::registerDoParallel(myCluster)
 
-comps <- foreach::foreach(i = 1:nrow(all_sites), .errorhandling = "remove", .combine = "rbind", .packages = c("sf", "terra")) %dopar% {
-  comps1=t(st_is_within_distance(all_sites[i,],all_sites,dist=1675,sparse = F))
+comps <- foreach::foreach(i = 1:nrow(fin_all_patch), .errorhandling = "remove", .combine = "rbind", .packages = c("sf", "terra")) %dopar% {
+  comps1=t(st_is_within_distance(fin_all_patch[i,],fin_all_patch,dist=1675,sparse = F))
   comps1=which(comps1)
   dist_df = data.frame(row=rep(i,length(comps1)),
                        col=comps1)
@@ -126,8 +121,8 @@ write.csv(comps,paste0(getwd(),'/Cached_data/comps.csv'))
 #####
 # Calculate least-cost-paths
 #####
-if(nrow(comps)<36){tempcores=nrow(comps)-2}
-myCluster <- parallel::makeCluster(tempcores)
+
+myCluster <- parallel::makeCluster(cores)
 doParallel::registerDoParallel(myCluster)
 
 lcp_network <- foreach::foreach(i = 1:nrow(comps), .errorhandling = "remove", .combine = "rbind", .packages = c("sf","raster","gdistance","tmaptools","dplyr","leastcostpath","terra")) %dopar% {
