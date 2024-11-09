@@ -23,11 +23,13 @@ df2 = foreach::foreach(i = 1:nrow(patches),
                          return(df)
                        }
 
+parallel::stopCluster(myCluster)
+
 locs_within_distance = df2 %>%
   group_by(row.id) %>%
   summarize(tot = n()) %>%
   filter(tot>1) %>%
-  mutate(Site = Loc_metric_table_w_private[row.id,]$loc_name)
+  mutate(Site = patches[row.id,]$loc_name)
 
 possible_locs = selection_df %>%
   filter(Site %in% locs_within_distance$Site) %>%
@@ -72,7 +74,8 @@ ha_rankings = possible_locs %>%
          visitrank = rank(tot_visits),
          ranksum = Yearrank+Betarank+Adjacentrank+visitrank,
          final_rank = rank(ranksum)) %>%
-  arrange(desc(final_rank))
+  arrange(desc(final_rank)) %>%
+  filter(tot_visits>=5)
 
 v1_rankings = possible_locs %>%
   filter(is.na(value==F),
@@ -98,44 +101,47 @@ v1_rankings = possible_locs %>%
          visitrank = rank(tot_visits),
          ranksum = Yearrank+Betarank+Adjacentrank+visitrank,
          final_rank = rank(ranksum)) %>%
-  arrange(desc(final_rank))
+  arrange(desc(final_rank)) %>%
+  filter(tot_visits>=5)
 
-site_df = data.frame(Site = c("Burnt-Rossman State Forest- Westkill Road Trail",
-                              "Louisa Pond",
-                              "Garnsey Park",
-                              "Allegany State Park",
-                              "Gargoyle Park",
-                              "Green Lakes State Park",
-                              NA,
-                              "Mohansic Golf Course",
-                              "Martin Van Buren"),
-                     Connectivity = rep(c("High","Medium","Low"),3),
-                     ha_relationship = c(rep("Positive",6),
-                                         rep("Negative",3)),
-                     v1_relationship = c(rep("Negative",3),
-                                         rep("Positive",6)),
-                     Predict = c("Yes","Maybe","No","Maybe","Yes","Maybe","No","Maybe","Yes"))
-#site_df2 = site_df %>% filter(Predict %in% c("Yes","Maybe"))
+# combos: 
+# hi pos neg Hangning Bog
+# lo pos neg Dwaas Kill
+# hi pos pos Allegany 
+# lo pos pos Moss Lake
+# hi neg pos Mohansic
+# lo neg pos Veterans Memorial Park
+# hi neg neg Pine Barrens
+# lo neg neg Saratoga Spa State Park
+
+
+site_df = data.frame(Site = c("Hanging Bog", # conn = .6249, ha = .11, v1 = -0.05
+                              "Dwaas Kill Nature Preserve", #conn = .165, ha = .42, v1 = -0.26
+                              "Allegany State Park", #conn = .85, ha = .12, v1 = .137
+                              "Moss Lake", # conn = .417, ha = .426, v1 = .002
+                              "Mohansic Golf Course", # conn = .49, ha = -2.42e, v1 = .012
+                              "Veterans Memorial Park", # conn = .21, ha = -4e15, v1 = .07
+                              "Pine Barrens Trails", # conn = .53, ha = -4, v1 =  -1.8
+                              "Saratoga Spa State Park"), #conn = .176, ha = -3.74, v1 = -.005
+                     Connectivity = rep(c("High","Low"),4),
+                     ha_relationship = c(rep("Positive",4),
+                                         rep("Negative",4)),
+                     v1_relationship = c(rep("Negative",2),
+                                         rep("Positive",4),
+                                         rep("Negative",2)),
+                     Predict = c("Yes","No","Maybe","Maybe","No","Yes","Maybe",))
 
 selected_sites = Loc_metric_table_w_private %>%
   filter(loc_name %in% site_df$Site) %>%
   mutate(Site_type = "Node")
 
-# adjacent_sites = df2 %>%
-#   mutate(node_site = Loc_metric_table_w_private[row.id,]$loc_name,
-#          adj_site = Loc_metric_table_w_private[col.id,]$loc_name) %>%
-#   filter(node_site %in% site_df$Site,
-#          node_site!=adj_site)
-# 
-# adjacent_sites = Loc_metric_table_w_private %>%
-#   filter(loc_name %in% adjacent_sites$adj_site) %>%
-#   mutate(Site_type = "Adjacent")
-# 
-# all_sites = rbind(selected_sites,adjacent_sites) %>%
-#   select(-Site_type) %>%
-#   distinct()
+adjacent_sites = df2 %>%
+  mutate(node_site = patches[row.id,]$loc_name,
+         adj_site = patches[col.id,]$loc_name) %>%
+  filter(node_site %in% site_df$Site)
 
-all_sites = df2
+all_sites = patches %>%
+  filter(loc_name %in% unique(adjacent_sites$adj_site))
 
 write.csv(all_sites,paste0(getwd(),'/Cached_data/all_sites.csv'))
 
