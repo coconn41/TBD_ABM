@@ -17,7 +17,7 @@ cores = 36
 use_cached_data = FALSE
 source(paste0(getwd(),'/Code/Model_set_up/Calc_mod_setup.R')) # Almost complete, need to run lcps and calculate network
 print("finished loading data")
-
+fakestop
 # Create network structure
 
 
