@@ -15,8 +15,9 @@ if(use_cached_data == TRUE){
            adjusted_ratio = "adjstd_",
            deer_agents_adjusted = "dr_gnt_",
            mouse_agents_adjusted = "ms_gnt_",
-           patch_type = "ptch_ty")
-  comps = read.csv(paste0(getwd(),'/Cached_data/comps.csv'))
+           patch_type = "ptch_ty") %>%
+    filter(is.na(layer)==F)
+  comps = read.csv(paste0(getwd(),'/Cached_data/comps.csv'))[,-1]
   Rgrid = terra::rast(paste0(getwd(),'/Cached_data/Resistance_grid.tiff'))
   crs(Rgrid) = "epsg:32618"
   nodes = st_centroid(all_sites)

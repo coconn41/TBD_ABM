@@ -1,3 +1,8 @@
+#####
+# Get nodes:
+#####
+nodes = st_centroid(fin_all_patch)
+
 if(use_cached_data==FALSE){
 #####
 # Roadway Data
@@ -26,10 +31,6 @@ road_vect = terra::vect(roadwaydat %>% filter(st_is_empty(.)==F))
 road_pix  = terra::rasterize(x = road_vect,
                              y = LCcrop,
                              field = "Categorization")
-#####
-# Get nodes:
-#####
-nodes = st_centroid(fin_all_patch)
 
 #####
 # Process resistance raster:
@@ -118,6 +119,18 @@ comps = comps[fltr, ]
 
 write.csv(comps,paste0(getwd(),'/Cached_data/comps.csv'))
 }
+
+#####
+# Check comparisons for matched layers
+#####
+filterlist = 0
+for(i in 1:nrow(comps)){
+  if(nodes[comps[i,1],]$layer==nodes[comps[i,2],]$layer){
+  filterlist = c(filterlist,i)}
+}
+filterlist=filterlist[-1]
+comps = comps[-filterlist,]
+
 #####
 # Calculate least-cost-paths
 #####
@@ -127,13 +140,13 @@ doParallel::registerDoParallel(myCluster)
 
 lcp_network <- foreach::foreach(i = 1:nrow(comps), .errorhandling = "remove", .combine = "rbind", .packages = c("sf","raster","gdistance","tmaptools","dplyr","leastcostpath","terra")) %dopar% {
   
-  bbdf <- sf::st_bbox(all_sites[c(comps[i,1],comps[i,2]),]) %>%
-    tmaptools::bb_poly(.,projection = sf::st_crs(all_sites)) %>%
+  bbdf <- sf::st_bbox(fin_all_patch[c(comps[i,1],comps[i,2]),]) %>%
+    tmaptools::bb_poly(.,projection = sf::st_crs(fin_all_patch)) %>%
     sf::st_as_sf() %>%
     st_buffer(.,dist=1000)
   
-  tr1=leastcostpath::create_cs(terra::crop(x=Rgrid %>%
-                                             terra::rast(),
+  tr1=leastcostpath::create_cs(terra::crop(x=Rgrid, #%>%
+                                             #terra::rast(),
                                            y = bbdf,
                                            mask=T)) 
   
@@ -142,8 +155,8 @@ lcp_network <- foreach::foreach(i = 1:nrow(comps), .errorhandling = "remove", .c
                                    destination = nodes[comps[i,2],, drop=FALSE]) %>%
     sf::st_as_sf() %>%
     dplyr::mutate(length = sf::st_length(.),
-                  origin_ID = all_sites[comps[i,1],]$layer,
-                  destination_ID =all_sites[comps[i,2],]$layer) 
+                  origin_ID = fin_all_patch[comps[i,1],]$layer,
+                  destination_ID =fin_all_patch[comps[i,2],]$layer) 
   
   return(lcp)
 }
