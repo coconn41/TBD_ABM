@@ -129,39 +129,67 @@ for(i in 1:nrow(comps)){
   filterlist = c(filterlist,i)}
 }
 filterlist=filterlist[-1]
-comps = comps[-filterlist,]
+complist = 1:nrow(comps)
+complist = complist[-filterlist]
+#comps = comps[-filterlist,]
 
 #####
 # Calculate least-cost-paths
 #####
 
-myCluster <- parallel::makeCluster(cores)
-doParallel::registerDoParallel(myCluster)
-
-lcp_network <- foreach::foreach(i = 1:nrow(comps), .errorhandling = "remove", .combine = "rbind", .packages = c("sf","raster","gdistance","tmaptools","dplyr","leastcostpath","terra")) %dopar% {
-  
+for(i in complist){
   bbdf <- sf::st_bbox(fin_all_patch[c(comps[i,1],comps[i,2]),]) %>%
     tmaptools::bb_poly(.,projection = sf::st_crs(fin_all_patch)) %>%
     sf::st_as_sf() %>%
-    st_buffer(.,dist=1000)
+    sf::st_buffer(.,dist=1000)
   
   tr1=leastcostpath::create_cs(terra::crop(x=Rgrid, #%>%
-                                             #terra::rast(),
+                                           #terra::rast(),
                                            y = bbdf,
                                            mask=T)) 
   
   lcp <- leastcostpath::create_lcp(x = tr1,
                                    origin = nodes[comps[i,1],,drop=FALSE],
                                    destination = nodes[comps[i,2],, drop=FALSE]) %>%
-    sf::st_as_sf() %>%
-    dplyr::mutate(length = sf::st_length(.),
-                  origin_ID = fin_all_patch[comps[i,1],]$layer,
-                  destination_ID =fin_all_patch[comps[i,2],]$layer) 
-  
-  return(lcp)
+  sf::st_as_sf() %>%
+  dplyr::mutate(length = sf::st_length(.),
+               origin_ID = nodes[comps[i,1],]$layer,
+               destination_ID =nodes[comps[i,2],]$layer)
+  if(i==2){lcp2 = lcp}
+  if(i>2){lcp2 = rbind(lcp2,lcp)}
 }
+lcp_network = lcp2
 
-parallel::stopCluster(myCluster)
+# myCluster <- parallel::makeCluster(cores)
+# doParallel::registerDoParallel(myCluster)
+# 
+# lcp_network <- foreach::foreach(i = 1:nrow(comps), .errorhandling = "remove", .combine = "rbind", .packages = c("sf","raster","gdistance","tmaptools","dplyr","leastcostpath","terra")) %dopar% {
+# 
+#   bbdf <- sf::st_bbox(fin_all_patch[c(comps[i,1],comps[i,2]),]) %>%
+#     tmaptools::bb_poly(.,projection = sf::st_crs(fin_all_patch)) %>%
+#     sf::st_as_sf() %>%
+#     sf::st_buffer(.,dist=1000)
+#   
+#   tr1=leastcostpath::create_cs(terra::crop(x=Rgrid, #%>%
+#                                              #terra::rast(),
+#                                            y = bbdf,
+#                                            mask=T)) 
+#   
+#   lcp <- leastcostpath::create_lcp(x = tr1,
+#                                    origin = nodes[comps[i,1],,drop=FALSE],
+#                                    destination = nodes[comps[i,2],, drop=FALSE]) #%>%
+#     #sf::st_as_sf() %>%
+#     #dplyr::mutate(length = sf::st_length(.),
+#     #              origin_ID = nodes[comps[i,1],]$layer,
+#     #              destination_ID =nodes[comps[i,2],]$layer)
+#   lcp = data.frame(length = sf::st_length(lcp),
+#                                  origin_ID = nodes[comps[i,1],]$layer,
+#                                  destination_ID =nodes[comps[i,2],]$layer)
+# 
+#   return(lcp)
+# }
+# 
+# parallel::stopCluster(myCluster)
 
 attributes(lcp_network$length) <- NULL
 lcp_network=lcp_network[,-c(1:3)]
