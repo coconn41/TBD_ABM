@@ -14,10 +14,10 @@ set.seed(1)
 cores = 24
 
 # Calculate model agents, environment, and network
-use_cached_data = TRUE
+use_cached_data = FALSE
 source(paste0(getwd(),'/Code/Model_set_up/Calc_mod_setup.R')) # Almost complete, need to run lcps and calculate network
 print("finished loading data")
-
+end
 # Create agent data frame:
 source(paste0(getwd(),'/Code/Model_set_up/Create_agents.R'))
 # Add other agents
