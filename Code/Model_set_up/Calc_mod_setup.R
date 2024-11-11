@@ -22,6 +22,12 @@ if(use_cached_data == TRUE){
   crs(Rgrid) = "epsg:32618"
   nodes = st_centroid(all_sites)
   poly_tick_agents = read.csv(paste0(getwd(),'/Cached_data/poly_tick_agents.csv'))
+  lcp_network = read_sf(paste0(getwd(),'/Cached_data/lcp_network.shp')) %>%
+    rename(lcp_distance = 'lcp_dst',
+           origin_ID = 'orgn_ID',
+           destination_ID = 'dstn_ID',
+           distance = 'distanc',
+           inverse_sinuousity = 'inv_sns')
   }
 if(use_cached_data == FALSE){
 # Bring in tick data and select patches to build model around:
@@ -35,8 +41,8 @@ source(paste0(getwd(),'/Code/Model_set_up/Get_forest_patches.R'))
 
 # Calculate number of agents:
 print("Calculating number of agents")
-source(paste0(getwd(),'/Code/Model_set_up/Calculate_number_of_agents.R'))}
+source(paste0(getwd(),'/Code/Model_set_up/Calculate_number_of_agents.R'))
 
 # Assign links between forest patches:
 print("Calculating lcps")
-source(paste0(getwd(),'/Code/Model_set_up/Calculate_lcp_links.R'))
+source(paste0(getwd(),'/Code/Model_set_up/Calculate_lcp_links.R'))}

@@ -17,15 +17,6 @@ cores = 24
 use_cached_data = TRUE
 source(paste0(getwd(),'/Code/Model_set_up/Calc_mod_setup.R')) # Almost complete, need to run lcps and calculate network
 print("finished loading data")
-fakestop
-# Create network structure
-
-
-# Create agents
-
-# Calculate number of agents:
-source(paste0(getwd(),'/Code/Model_set_up/Calculate_number_of_agents.R'))
-# Add other agents
 
 # Create agent data frame:
 source(paste0(getwd(),'/Code/Model_set_up/Create_agents.R'))
