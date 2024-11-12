@@ -29,16 +29,16 @@ fin_nodes = fin_poly %>%
          gridcols = round(sqrt(patch_area)),
          patch_percent = patch_area/total_patches_area,
          estimated_wmu_deer_killed = mean_total*patch_percent,
-         deer_agents = round(((1/metric)*estimated_wmu_deer_killed)/(total_kill/1000000)),
          hectare = patch_area*.0001) %>%
+  mutate(deer_agents = ifelse(hectare<=1,2,round(((1/metric)*estimated_wmu_deer_killed)/(total_kill/1000000)))) %>%
   group_by(Location_ID,loc_county,loc_name,layer,metric,area_m2,
            patch_area,area_ha,gridrows,gridcols,hectare) %>%
   summarize(deer_agents = sum(deer_agents,na.rm = T)) %>% 
   mutate(deer_p_ha = deer_agents/hectare,
          mouse_agents = rtruncnorm(n=1,a=0,mean = hectare*50,sd = 5),
          mice_p_ha = mouse_agents/hectare) %>%
-  mutate(gridrows_adjusted = ifelse(hectare>1,10000,gridrows),
-         gridcols_adjusted = ifelse(hectare>1,10000,gricols),
+  mutate(gridrows_adjusted = ifelse(hectare>1,100,gridrows),
+         gridcols_adjusted = ifelse(hectare>1,100,gricols),
          deer_agents_adjusted = ifelse(deer_p_ha>5,5,round(deer_p_ha)),
          mouse_agents_adjusted = round(mice_p_ha),
          patch_type = "Node")
@@ -62,16 +62,16 @@ fin_all_patch = fin_poly %>%
          gridcols = round(sqrt(patch_area)),
          patch_percent = patch_area/total_patches_area,
          estimated_wmu_deer_killed = mean_total*patch_percent,
-         deer_agents = round(((1/metric)*estimated_wmu_deer_killed)/(total_kill/1000000)),
          hectare = patch_area*.0001) %>%
+  mutate(deer_agents = ifelse(hectare<=1,2,round(((1/metric)*estimated_wmu_deer_killed)/(total_kill/1000000)))) %>%
   group_by(total_kill,layer,metric,patch_area,
            area_m2,area_ha,gridrows,gridcols,hectare) %>%
   summarize(deer_agents = sum(deer_agents,na.rm = T)) %>% 
   mutate(deer_p_ha = deer_agents/hectare,
          mouse_agents = rtruncnorm(n=1,a=0,mean = hectare*50,sd = 5),
          mice_p_ha = mouse_agents/hectare) %>%
-  mutate(gridrows_adjusted = ifelse(hectare>1,10000,gridrows),
-         gridcols_adjusted = ifelse(hectare>1,10000,gridcols),
+  mutate(gridrows_adjusted = ifelse(hectare>1,100,gridrows),
+         gridcols_adjusted = ifelse(hectare>1,100,gridcols),
          deer_agents_adjusted = ifelse(deer_p_ha>5,5,round(deer_p_ha)),
          mouse_agents_adjusted = round(mice_p_ha)) %>%
   ungroup() %>%
@@ -98,9 +98,7 @@ starting_site_data = selection_df %>%
          Target_stage,Lifestage,tot_collected,
          ha,v1,coinf,und,tot_tested,`Target density`) %>%
   rename(Density_p_m = "Target density") %>%
-  mutate(num_ticks_projected = ifelse(is.na(Density_p_m)==T,
-                                       tot_collected,Density_p_m*10000),
-         ha_perc = ha/tot_tested,
+  mutate(ha_perc = ha/tot_tested,
          v1_perc = v1/tot_tested)
 
 poly_tick_agents = fin_all_patch %>%
@@ -110,12 +108,12 @@ poly_tick_agents = fin_all_patch %>%
             join_by(loc_county,
                     loc_name)) %>%
   select(loc_county,loc_name,metric,gridrows,gridcols,hectare,
-         gridrows_adjusted,gridcols_adjusted,Lifestage,
-         ha_perc,v1_perc,num_ticks_projected) %>%
+         gridrows_adjusted,gridcols_adjusted,Lifestage,Density_p_m,
+         ha_perc,v1_perc) %>%
   filter(is.na(Lifestage)==F) %>%
   mutate(ha_perc = ifelse(is.na(ha_perc)==T,0,ha_perc),
          v1_perc = ifelse(is.na(v1_perc)==T,0,v1_perc),
-         num_ticks_projected = ifelse(is.na(num_ticks_projected)==T,0,num_ticks_projected))
+         num_ticks_projected = ifelse(is.na(Density_p_m)==T,0,(hectare*10000)*Density_p_m))
   
 
 write_sf(fin_all_patch,paste0(getwd(),'/Cached_data/fin_all_patch.shp'))

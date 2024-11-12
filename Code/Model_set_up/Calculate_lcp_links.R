@@ -222,3 +222,24 @@ lcp_network = lcp_network %>%
   mutate(inv_sinuousity = distance/lcp_distance)
 
 write_sf(lcp_network,paste0(getwd(),'/Cached_data/lcp_network.shp'))
+
+a = fin_all_patch %>% filter(layer==26184,
+                         Location_ID == 54)
+
+test = st_is_within_distance(a,fin_all_patch,1675)
+
+network_id_indicator = 0
+for(i in 1:nrow(site_df)){
+  network_id_indicator = network_id_indicator + 1
+  a = fin_all_patch %>%
+    filter(loc_name==site_df[i,]$Site)
+  b = st_is_within_distance(a,fin_all_patch,1675)[[1]]
+  c = fin_all_patch[b,]
+  d = lcp_network %>% 
+    filter(origin_ID %in% c$layer & destination_ID %in% c$layer) %>%
+    mutate(network_ID = network_id_indicator)
+  if(network_id_indicator == 1){network1 = d}
+  if(network_id_indicator > 1){network1 = rbind(network1,d)}
+}
+
+write_sf(network1,paste0(getwd(),'/Cached_data/Reduced_network.shp'))

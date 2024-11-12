@@ -1,0 +1,9 @@
+Host_agents = read.csv(paste0(getwd(),'/Cached_data/Host_agents.csv'))
+Tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))
+network1 = sf::read_sf(paste0(getwd(),'/Cached_data/Reduced_network.shp')) %>%
+  rename(lcp_distance = "lcp_dst",
+         origin_ID = "orgn_ID",
+         destination_ID = "dstn_ID",
+         distance = "distanc",
+         inverse_sinuousity = "invrs_s",
+         network_ID = "ntwr_ID")
