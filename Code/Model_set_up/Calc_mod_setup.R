@@ -1,5 +1,8 @@
 if(use_cached_data == TRUE){
-  all_sites = read_sf(paste0(getwd(),'/Cached_data/all_sites.shp'))
+  all_sites = read_sf(paste0(getwd(),'/Cached_data/all_sites.shp')) %>%
+    rename(Location_ID = "Lctn_ID",
+           loc_county = "lc_cnty",
+           loc_name = "loc_nam")
   fin_all_patch = read_sf(paste0(getwd(),'/Cached_data/fin_all_patch.shp')) %>%
     rename(Location_ID = "Lctn_ID",
            loc_county = "lc_cnty",
@@ -20,7 +23,7 @@ if(use_cached_data == TRUE){
   comps = read.csv(paste0(getwd(),'/Cached_data/comps.csv'))[,-1]
   Rgrid = terra::rast(paste0(getwd(),'/Cached_data/Resistance_grid.tiff'))
   crs(Rgrid) = "epsg:32618"
-  nodes = st_centroid(all_sites)
+  nodes = st_centroid(fin_all_patch)
   poly_tick_agents = read.csv(paste0(getwd(),'/Cached_data/poly_tick_agents.csv'))
   lcp_network = read_sf(paste0(getwd(),'/Cached_data/lcp_network.shp')) %>%
     rename(lcp_distance = 'lcp_dst',
@@ -41,8 +44,8 @@ source(paste0(getwd(),'/Code/Model_set_up/Get_forest_patches.R'))
 
 # Calculate number of agents:
 print("Calculating number of agents")
-source(paste0(getwd(),'/Code/Model_set_up/Calculate_number_of_agents.R'))
+source(paste0(getwd(),'/Code/Model_set_up/Calculate_number_of_agents.R'))}
 
 # Assign links between forest patches:
 print("Calculating lcps")
-source(paste0(getwd(),'/Code/Model_set_up/Calculate_lcp_links.R'))}
+source(paste0(getwd(),'/Code/Model_set_up/Calculate_lcp_links.R'))

@@ -1,27 +1,29 @@
 # Upon testing, will see if adjusted or full host agents will run due to size
 
-deer_agents = fin_poly %>%
+deer_agents = fin_all_patch %>%
   filter(is.na(deer_agents_adjusted)==F) %>%
   uncount(round(deer_agents_adjusted)) %>%
   select(loc_county,loc_name,layer,metric,
-         Site_type,gridrows_adjusted,gridcols_adjusted) %>%
+         gridrows_adjusted,gridcols_adjusted) %>%
   rename(County = "loc_county",
          Site = "loc_name") %>%
-  mutate(row = round(runif(n=nrow(.),
+  mutate(deer_id = 1:nrow(.),
+         row = round(runif(n=nrow(.),
                      min = 0,
                      max = gridrows_adjusted)),
          col = round(runif(n=nrow(.),
                            min = 0,
                            max = gridrows_adjusted))) # use this to place the deer in their respective site
   
-mouse_agents = fin_poly %>%
+mouse_agents = fin_all_patch %>%
   filter(is.na(mouse_agents_adjusted)==F) %>%
   uncount(round(mouse_agents_adjusted)) %>%
   select(loc_county,loc_name,layer,metric,
-         Site_type,gridrows_adjusted,gridcols_adjusted) %>%
+         gridrows_adjusted,gridcols_adjusted) %>%
   rename(County = "loc_county",
          Site = "loc_name")  %>%
-  mutate(row = round(runif(n=nrow(.),
+  mutate(mouse_id = 1:nrow(.),
+         row = round(runif(n=nrow(.),
                            min = 0,
                            max = gridrows_adjusted)),
          col = round(runif(n=nrow(.),

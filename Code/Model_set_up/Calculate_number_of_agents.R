@@ -35,13 +35,12 @@ fin_nodes = fin_poly %>%
            patch_area,area_ha,gridrows,gridcols,hectare) %>%
   summarize(deer_agents = sum(deer_agents,na.rm = T)) %>% 
   mutate(deer_p_ha = deer_agents/hectare,
-         mouse_agents = rtruncnorm(n=1,a=0,mean = hectare*50,sd = 100),
+         mouse_agents = rtruncnorm(n=1,a=0,mean = hectare*50,sd = 5),
          mice_p_ha = mouse_agents/hectare) %>%
-  mutate(gridrows_adjusted = 1000,
-         gridcols_adjusted = 1000,
-         adjusted_ratio = gridrows/gridrows_adjusted,
-         deer_agents_adjusted = deer_p_ha*(hectare/adjusted_ratio),
-         mouse_agents_adjusted = rtruncnorm(n=1,a=0,mean = 100*50,sd = 100),
+  mutate(gridrows_adjusted = ifelse(hectare>1,10000,gridrows),
+         gridcols_adjusted = ifelse(hectare>1,10000,gricols),
+         deer_agents_adjusted = ifelse(deer_p_ha>5,5,round(deer_p_ha)),
+         mouse_agents_adjusted = round(mice_p_ha),
          patch_type = "Node")
 
 fin_all_patch = fin_poly %>%
@@ -69,13 +68,12 @@ fin_all_patch = fin_poly %>%
            area_m2,area_ha,gridrows,gridcols,hectare) %>%
   summarize(deer_agents = sum(deer_agents,na.rm = T)) %>% 
   mutate(deer_p_ha = deer_agents/hectare,
-         mouse_agents = rtruncnorm(n=1,a=0,mean = hectare*50,sd = 100),
+         mouse_agents = rtruncnorm(n=1,a=0,mean = hectare*50,sd = 5),
          mice_p_ha = mouse_agents/hectare) %>%
-  mutate(gridrows_adjusted = 1000,
-         gridcols_adjusted = 1000,
-         adjusted_ratio = gridrows/gridrows_adjusted,
-         deer_agents_adjusted = deer_p_ha*(hectare/adjusted_ratio),
-         mouse_agents_adjusted = rtruncnorm(n=1,a=0,mean = 100*50,sd = 100)) %>%
+  mutate(gridrows_adjusted = ifelse(hectare>1,10000,gridrows),
+         gridcols_adjusted = ifelse(hectare>1,10000,gridcols),
+         deer_agents_adjusted = ifelse(deer_p_ha>5,5,round(deer_p_ha)),
+         mouse_agents_adjusted = round(mice_p_ha)) %>%
   ungroup() %>%
   dplyr::select(-total_kill) %>%
   mutate(Location_ID = NA,
@@ -101,7 +99,7 @@ starting_site_data = selection_df %>%
          ha,v1,coinf,und,tot_tested,`Target density`) %>%
   rename(Density_p_m = "Target density") %>%
   mutate(num_ticks_projected = ifelse(is.na(Density_p_m)==T,
-                                       tot_collected,Density_p_m*1000),
+                                       tot_collected,Density_p_m*10000),
          ha_perc = ha/tot_tested,
          v1_perc = v1/tot_tested)
 
@@ -112,7 +110,7 @@ poly_tick_agents = fin_all_patch %>%
             join_by(loc_county,
                     loc_name)) %>%
   select(loc_county,loc_name,metric,gridrows,gridcols,hectare,
-         gridrows_adjusted,gridcols_adjusted,adjusted_ratio,Lifestage,
+         gridrows_adjusted,gridcols_adjusted,Lifestage,
          ha_perc,v1_perc,num_ticks_projected) %>%
   filter(is.na(Lifestage)==F) %>%
   mutate(ha_perc = ifelse(is.na(ha_perc)==T,0,ha_perc),

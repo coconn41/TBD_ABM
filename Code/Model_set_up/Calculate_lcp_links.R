@@ -194,4 +194,31 @@ lcp_network = lcp2
 attributes(lcp_network$length) <- NULL
 lcp_network=lcp_network[,-c(1:3)]
 
+new_nodes = st_centroid(fin_all_patch)
+
+myCluster <- parallel::makeCluster(cores)
+doParallel::registerDoParallel(myCluster)
+
+distance_list=foreach::foreach(i=complist,.errorhandling = "remove", .combine = "rbind", .packages = c("sf"))%dopar%{
+  distcomp = data.frame(distance=st_distance(new_nodes[comps[i,1],],new_nodes[comps[i,2],]),
+                        origin_ID = new_nodes[comps[i,1],]$layer,
+                        destination_ID = new_nodes[comps[i,2],]$layer)
+  attributes(distcomp$distance)=NULL
+  return(distcomp)
+}
+
+parallel::stopCluster(myCluster)
+
+distance_list = distinct(distance_list)
+
+# Merge with lcp_network as euclidean distance
+# Calculate inverse sinuousity
+lcp_network = lcp_network %>%
+  rename(origin_ID = 'orgn_ID',
+         destination_ID = 'dstn_ID',
+         lcp_distance = 'length') %>%
+  left_join(.,distance_list,
+            join_by(origin_ID,destination_ID)) %>%
+  mutate(inv_sinuousity = distance/lcp_distance)
+
 write_sf(lcp_network,paste0(getwd(),'/Cached_data/lcp_network.shp'))
