@@ -19,6 +19,21 @@ if(use_cached_data == TRUE){
            mouse_agents_adjusted = "ms_gnt_",
            patch_type = "ptch_ty") %>%
     filter(is.na(layer)==F)
+  reduced_patches = read_sf(paste0(getwd(),'/Cached_data/Reduced_patches.shp')) %>%
+    rename(Location_ID = "Lctn_ID",
+           loc_county = "lc_cnty",
+           loc_name = "loc_nam",
+           gridrows = "gridrws",
+           gridcols = "gridcls",
+           deer_agents = "dr_gnts",
+           deer_p_ha = "der_p_h",
+           mouse_agents = "ms_gnts",
+           mice_p_ha = "mic_p_h",
+           gridrows_adjusted = "grdrws_",
+           gridcols_adjusted = "grdcls_",
+           deer_agents_adjusted = "dr_gnt_",
+           mouse_agents_adjusted = "ms_gnt_",
+           patch_type = "ptch_ty")
   comps = read.csv(paste0(getwd(),'/Cached_data/comps.csv'))[,-1]
   Rgrid = terra::rast(paste0(getwd(),'/Cached_data/Resistance_grid.tiff'))
   crs(Rgrid) = "epsg:32618"

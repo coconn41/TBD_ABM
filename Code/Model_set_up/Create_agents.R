@@ -45,6 +45,8 @@ reducer = deer_agents$layer
 reduced_patches = fin_all_patch %>%
   filter(layer %in% reducer)
 
+sf::write_sf(reduced_patches,paste0(getwd(),'/Cached_data/Reduced_patches.shp'))
+
 mouse_agents = reduced_patches %>%
   filter(is.na(mouse_agents)==F) %>%
   uncount(round(mouse_agents)) %>%
@@ -95,9 +97,16 @@ nymphal_agents = poly_tick_agents %>%
                            max = gridrows)),
          col = round(runif(n=nrow(.),
                            min = 0,
-                           max = gridcols))) %>%
+                           max = gridcols)),
+         links = 0,
+         time_on_host = 0,
+         fed = 0,
+         mated = 0,
+         sex = sample(c('male','female'),nrow(.),replace=T),
+         time_since_mating = 0) %>%
   select(loc_county,loc_name,Lifestage,ha_infected,v1_infected,
-         Agent_type,row,col) %>%
+         Agent_type,row,col,links,time_on_host,fed,
+         mated,sex,time_since_mating) %>%
   left_join(.,fin_all_patch %>%
               filter(is.na(loc_name)==F) %>%
               st_drop_geometry(),
@@ -119,9 +128,16 @@ adult_agents = poly_tick_agents %>%
                            max = gridrows)),
          col = round(runif(n=nrow(.),
                            min = 0,
-                           max = gridcols))) %>%
+                           max = gridcols)),
+         links = 0,
+         time_on_host = 0,
+         fed = 0,
+         mated = 0,
+         sex = sample(c('male','female'),nrow(.),replace=T),
+         time_since_mating = 0) %>%
   select(loc_county,loc_name,Lifestage,ha_infected,v1_infected,
-         Agent_type,row,col) %>%
+         Agent_type,row,col,links,time_on_host,fed,
+         mated,sex,time_since_mating) %>%
   left_join(.,fin_all_patch %>%
               filter(is.na(loc_name)==F) %>%
               st_drop_geometry(),
@@ -133,7 +149,8 @@ Tick_agents = rbind(nymphal_agents,adult_agents) %>%
                                    ifelse(v1_infected==1,"v1","None"))) %>%
   select(loc_county,loc_name,layer,metric,
          gridrows,gridcols,Agent_type,row,col,
-         Agent_ID,Lifestage,Infection_status) %>%
+         Agent_ID,Lifestage,Infection_status,links,time_on_host,fed,
+         mated,sex,time_since_mating) %>%
   rename(County = "loc_county",
          Site = "loc_name")
 
