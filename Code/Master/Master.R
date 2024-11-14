@@ -14,6 +14,12 @@ set.seed(1)
 cores = 24
 
 #####
+# Calculate data or load data:
+#####
+calculate_data = FALSE
+if(calculate_data==TRUE){source(paste0(getwd(),'/Code/Model_set_up/Calc_mod_setup.R'))}
+
+#####
 # Load data:
 #####
 # Agents and patches:
