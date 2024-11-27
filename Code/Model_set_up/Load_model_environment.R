@@ -1,5 +1,5 @@
-Host_agents = read.csv(paste0(getwd(),'/Cached_data/Host_agents.csv'))
-Tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))
+Host_agents = read.csv(paste0(getwd(),'/Cached_data/Host_agents.csv'))[,-1]
+Tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1]
 network1 = sf::read_sf(paste0(getwd(),'/Cached_data/Reduced_network.shp')) %>%
   rename(lcp_distance = "lcp_dst",
          origin_ID = "orgn_ID",
@@ -7,6 +7,14 @@ network1 = sf::read_sf(paste0(getwd(),'/Cached_data/Reduced_network.shp')) %>%
          distance = "distanc",
          inverse_sinuousity = "invrs_s",
          network_ID = "ntwr_ID")
+network1 = network1 %>%
+  bind_rows(.,network1 %>%
+              mutate(destination_ID2 = origin_ID,
+                     origin_ID2 = destination_ID,
+                     destination_ID = destination_ID2,
+                     origin_ID = origin_ID2) %>%
+              select(-c(destination_ID2,origin_ID2))) %>%
+  distinct()
 reduced_patches = read_sf(paste0(getwd(),'/Cached_data/Reduced_patches.shp')) %>%
   rename(Location_ID = "Lctn_ID",
          loc_county = "lc_cnty",
@@ -22,6 +30,21 @@ reduced_patches = read_sf(paste0(getwd(),'/Cached_data/Reduced_patches.shp')) %>
          deer_agents_adjusted = "dr_gnt_",
          mouse_agents_adjusted = "ms_gnt_",
          patch_type = "ptch_ty")
+
+patch_resource_df = reduced_patches %>%
+  select(layer,gridrows,gridcols) %>%
+  st_drop_geometry() %>%
+  distinct() %>%
+  #head(2) %>% # uncomment to use full dataset
+  uncount(gridrows) %>%
+  group_by(layer) %>%
+  mutate(row = 1:n()) %>%
+  ungroup() %>%
+  uncount(gridcols) %>%
+  group_by(layer,row) %>%
+  mutate(col = 1:n()) %>%
+  ungroup() %>%
+  mutate(vegetation = round(runif(n=nrow(.),-.5,5.5))) 
 # Assign network IDs to patches:
 # Detect matches:
 list_network = network1 %>%
@@ -44,6 +67,19 @@ network2 = network1 %>%
   ungroup() %>%
   select(-tot) %>%
   rename(layer = "value")
+
+aspatial_network = network1 %>%
+  st_drop_geometry() %>%
+  group_by(origin_ID) %>%
+  mutate(sample_probability = inverse_sinuousity / sum(inverse_sinuousity))
+  
+
 reduced_patches = left_join(reduced_patches,network2)
 
-remove(list_network,network2)
+deer_agents = Host_agents %>% 
+  filter(Agent_type == "Deer")
+
+mouse_agents = Host_agents %>%
+  filter(Agent_type == "Mouse")
+
+remove(list_network,network2,Host_agents)
