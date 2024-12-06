@@ -25,14 +25,20 @@ if(calculate_data==TRUE){source(paste0(getwd(),'/Code/Model_set_up/Calc_mod_setu
 # Agents and patches:
 source(paste0(getwd(),'/Code/Model_set_up/Load_model_environment.R'))
 # Sunlight times (for daily activity):
-source(paste0(getwd(),'/Code/Subroutines/Sunlight_times.R'))
+source(paste0(getwd(),'/Code/Model_set_up/Sunlight_times.R'))
 
 #####
 # Load model subroutines:
 #####
 source(paste0(getwd(),'/Code/Subroutines/Update_environment.R'))
 source(paste0(getwd(),'/Code/Subroutines/Mouse_movement.R'))
+source(paste0(getwd(),'/Code/Subroutines/Deer_movement.R'))
 source(paste0(getwd(),'/Code/Subroutines/Other_movement.R')) # Same as mouse currently
+
+# Model starting timing:
+year=0
+day=1
+daytime = "night"
 
 # Number of hourly timesteps
 go_timesteps = 8760

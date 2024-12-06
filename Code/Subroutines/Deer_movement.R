@@ -11,11 +11,13 @@ deer_movement = function(deer_agents,daytime,network){if(daytime=="day"){
            new_col = sample(possibility_col_min:possiblitiy_col_max,size = 1)) %>%
     mutate(jump_patch = ifelse(new_row<=0|new_col<=0,1,0)) %>%
     mutate(new_patch = ifelse(jump_patch == 1,
-                              sample(subset(network,
-                                            origin_ID==layer)$destination_ID,
+                              sample(subset(jump_probability_df,
+                                            origin_ID==layer&
+                                              network_ID==network_ID)$destination_ID,
                                      size = 1,
-                                     prob = subset(network,
-                                                   origin_ID==layer)$sample_probability),
+                                     prob = subset(jump_probability_df,
+                                                   origin_ID==layer,
+                                                   network_ID==network_ID)$product_prob),
                               layer)) %>%
     mutate(new_row = ifelse(new_patch!=layer,round(runif(n=1,
                                  min = 0,
@@ -30,7 +32,8 @@ deer_movement = function(deer_agents,daytime,network){if(daytime=="day"){
     mutate(old_row = row,
            old_col = col,
            row = new_row,
-           col = new_col)
+           col = new_col,
+           layer=new_patch)
     
 }
 }

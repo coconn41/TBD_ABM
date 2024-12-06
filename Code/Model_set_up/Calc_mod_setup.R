@@ -102,4 +102,8 @@ source(paste0(getwd(),'/Code/Model_set_up/Calculate_number_of_agents.R'))
 
 # Assign links between forest patches:
 print("Calculating lcps")
-source(paste0(getwd(),'/Code/Model_set_up/Calculate_lcp_links.R'))}
+source(paste0(getwd(),'/Code/Model_set_up/Calculate_lcp_links.R'))
+
+# Create network from patches and lcp distances
+source(paste0(getwd(),'/Code/Model_set_up/Create_PC_network'))
+}

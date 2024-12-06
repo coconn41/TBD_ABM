@@ -1,5 +1,7 @@
 Host_agents = read.csv(paste0(getwd(),'/Cached_data/Host_agents.csv'))[,-1]
 Tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1]
+jump_probability_df = read.csv(paste0(getwd(),"/Cached_data/jump_probability_df.csv"))
+
 network1 = sf::read_sf(paste0(getwd(),'/Cached_data/Reduced_network.shp')) %>%
   rename(lcp_distance = "lcp_dst",
          origin_ID = "orgn_ID",
@@ -31,20 +33,24 @@ reduced_patches = read_sf(paste0(getwd(),'/Cached_data/Reduced_patches.shp')) %>
          mouse_agents_adjusted = "ms_gnt_",
          patch_type = "ptch_ty")
 
-patch_resource_df = reduced_patches %>%
-  select(layer,gridrows,gridcols) %>%
-  st_drop_geometry() %>%
-  distinct() %>%
-  #head(2) %>% # uncomment to use full dataset
-  uncount(gridrows) %>%
-  group_by(layer) %>%
-  mutate(row = 1:n()) %>%
-  ungroup() %>%
-  uncount(gridcols) %>%
-  group_by(layer,row) %>%
-  mutate(col = 1:n()) %>%
-  ungroup() %>%
-  mutate(vegetation = round(runif(n=nrow(.),-.5,5.5))) 
+# calculate network:
+
+
+
+# patch_resource_df = reduced_patches %>%
+#   select(layer,gridrows,gridcols) %>%
+#   st_drop_geometry() %>%
+#   distinct() %>%
+#   #head(2) %>% # uncomment to use full dataset
+#   uncount(gridrows) %>%
+#   group_by(layer) %>%
+#   mutate(row = 1:n()) %>%
+#   ungroup() %>%
+#   uncount(gridcols) %>%
+#   group_by(layer,row) %>%
+#   mutate(col = 1:n()) %>%
+#   ungroup() %>%
+#   mutate(vegetation = round(runif(n=nrow(.),-.5,5.5))) 
 # Assign network IDs to patches:
 # Detect matches:
 list_network = network1 %>%
