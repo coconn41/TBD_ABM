@@ -31,5 +31,5 @@ mouse_movement = function(mouse_agents,daytime){if(daytime=="day"){mouse_agents 
                          movement==7 ~ col-1,
                          movement==9 ~ col+1,
                          TRUE ~ col),
-         location = paste(row,",",col,sep = ""))}
+         locs = paste0(row,",",col,",",network_ID))}
 }

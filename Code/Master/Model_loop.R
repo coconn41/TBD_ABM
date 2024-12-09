@@ -9,6 +9,9 @@ for(i in 1:go_timesteps){
   other_movement(other_agents,daytime)
   
   # Move deer
+  deer_movement(deer_agents = deer_agents,
+                daytime = daytime,
+                network = aspatial_network)
   
   # Attach ticks
   

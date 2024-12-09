@@ -73,17 +73,21 @@ egg_sac_agents = data.frame(ID = NA,
                         age = NA,
                         num_eggs = NA,
                         row = NA,
-                        col = NA)
+                        col = NA,
+                        gridrow = NA,
+                        gridcol = NA)
   
 larval_agents = data.frame(ID = NA,
                            age = NA,
                            sex = NA,
                            row = NA,
-                           col = NA)
+                           col = NA,
+                           gridrow = NA,
+                           gridcol = NA)
   
 nymphal_agents = poly_tick_agents %>% 
   filter(Lifestage == "Nymph") %>%
-  uncount(round(number_ticks_projected)) %>%
+  uncount(round(num_ticks_projected)) %>%
   group_by(loc_name) %>%
   mutate(ha_infected = ifelse(is.na(ha_perc)==T,0,
                               rbinom(n=n(),size=1,prob=ha_perc))) %>%
@@ -110,11 +114,12 @@ nymphal_agents = poly_tick_agents %>%
   left_join(.,fin_all_patch %>%
               filter(is.na(loc_name)==F) %>%
               st_drop_geometry(),
-            join_by(loc_county,loc_name)) 
-  
+            join_by(loc_county,loc_name)) %>%
+  left_join(.,network2)
+
 adult_agents = poly_tick_agents %>% 
   filter(Lifestage == "Adult") %>%
-  uncount(round(number_ticks_projected)) %>%
+  uncount(round(num_ticks_projected)) %>%
   group_by(loc_name) %>%
   mutate(ha_infected = ifelse(is.na(ha_perc)==T,0,
                               rbinom(n=n(),size=1,prob=ha_perc))) %>%
@@ -141,14 +146,16 @@ adult_agents = poly_tick_agents %>%
   left_join(.,fin_all_patch %>%
               filter(is.na(loc_name)==F) %>%
               st_drop_geometry(),
-            join_by(loc_county,loc_name)) 
+            join_by(loc_county,loc_name)) %>%
+  left_join(.,network2)
 
 Tick_agents = rbind(nymphal_agents,adult_agents) %>%
-  mutate(Agent_ID = (max(Host_agents$Agent_ID)+1):(max(Host_agents$Agent_ID)+1)+(nrow(.)+max(Host_agents$Agent_ID)),
+  mutate(Agent_ID = seq(from = max(Host_agents$Agent_ID)+1,
+                        length.out = nrow(.)),
          Infection_status = ifelse(ha_infected==1,"ha",
                                    ifelse(v1_infected==1,"v1","None"))) %>%
   select(loc_county,loc_name,layer,metric,
-         gridrows,gridcols,Agent_type,row,col,
+         gridrows,gridcols,Agent_type,row,col,network_ID,
          Agent_ID,Lifestage,Infection_status,links,time_on_host,fed,
          mated,sex,time_since_mating) %>%
   rename(County = "loc_county",

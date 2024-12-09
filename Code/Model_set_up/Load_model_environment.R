@@ -1,6 +1,10 @@
-Host_agents = read.csv(paste0(getwd(),'/Cached_data/Host_agents.csv'))[,-1]
-Tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1]
-jump_probability_df = read.csv(paste0(getwd(),"/Cached_data/jump_probability_df.csv"))
+Host_agents = read.csv(paste0(getwd(),'/Cached_data/Host_agents.csv'))[,-1] %>%
+  mutate(V1_infected = 0,
+         Ha_infected = 0,
+         linked_ticks = list(0),
+         locs = paste0(row,",",col,",",network_ID))
+Tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1] 
+jump_probability_df = read.csv(paste0(getwd(),"/Cached_data/jump_probability_df.csv"))[,-1]
 
 network1 = sf::read_sf(paste0(getwd(),'/Cached_data/Reduced_network.shp')) %>%
   rename(lcp_distance = "lcp_dst",
@@ -11,6 +15,28 @@ network1 = sf::read_sf(paste0(getwd(),'/Cached_data/Reduced_network.shp')) %>%
          network_ID = "ntwr_ID")
 network1 = network1 %>%
   bind_rows(.,network1 %>%
+              mutate(destination_ID2 = origin_ID,
+                     origin_ID2 = destination_ID,
+                     destination_ID = destination_ID2,
+                     origin_ID = origin_ID2) %>%
+              select(-c(destination_ID2,origin_ID2))) %>%
+  distinct() %>%
+  st_drop_geometry() %>%
+  #dplyr::select(-geometry) %>%
+  group_by(origin_ID,destination_ID,network_ID) %>%
+  summarize(lcp_distance = mean(lcp_distance),
+            distance = mean(distance),
+            inverse_sinuousity = mean(inverse_sinuousity)) %>%
+  distinct()
+spat_network = sf::read_sf(paste0(getwd(),'/Cached_data/Reduced_network.shp')) %>%
+  rename(lcp_distance = "lcp_dst",
+         origin_ID = "orgn_ID",
+         destination_ID = "dstn_ID",
+         distance = "distanc",
+         inverse_sinuousity = "invrs_s",
+         network_ID = "ntwr_ID")
+spat_network = spat_network %>%
+  bind_rows(.,spat_network %>%
               mutate(destination_ID2 = origin_ID,
                      origin_ID2 = destination_ID,
                      destination_ID = destination_ID2,

@@ -1,4 +1,4 @@
-use_cached_data = FALSE
+use_cached_data = TRUE
 if(use_cached_data == TRUE){
   all_sites = read_sf(paste0(getwd(),'/Cached_data/all_sites.shp')) %>%
     rename(Location_ID = "Lctn_ID",
