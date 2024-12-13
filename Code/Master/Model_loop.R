@@ -13,7 +13,16 @@ for(i in 1:go_timesteps){
                 daytime = daytime,
                 network = aspatial_network)
   
+  # Create deer paths
+  create_deer_paths(deer_agents = deer_agents)
+  
   # Attach ticks
+  attach_ticks(tick_agents = tick_agents,
+               deer_paths = deer_paths,
+               mouse_agents = mouse_agents,
+               LA_probability = LA_probability,
+               NA_probability = NA_probability,
+               AA_probability = AA_probability)
   
   # Update tick timer
   

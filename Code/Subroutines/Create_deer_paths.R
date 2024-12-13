@@ -36,6 +36,9 @@ create_deer_paths = function(deer_agents){
     select(Agent_ID,network_ID,row,col) %>%
     distinct() %>%
     group_by(network_ID,row,col) %>%
-    mutate(prob = runif(min=0,max=1,n=1)) %>%
-    arrange(prob)
+    mutate(locs = paste0(row,",",
+                         col,",",
+                         network_ID))
+    #mutate(prob = runif(min=0,max=1,n=1)) %>%
+    #arrange(prob)
 }

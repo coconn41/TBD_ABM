@@ -3,7 +3,7 @@ Host_agents = read.csv(paste0(getwd(),'/Cached_data/Host_agents.csv'))[,-1] %>%
          Ha_infected = 0,
          linked_ticks = list(0),
          locs = paste0(row,",",col,",",network_ID))
-Tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1] 
+tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1] 
 jump_probability_df = read.csv(paste0(getwd(),"/Cached_data/jump_probability_df.csv"))[,-1]
 
 network1 = sf::read_sf(paste0(getwd(),'/Cached_data/Reduced_network.shp')) %>%
