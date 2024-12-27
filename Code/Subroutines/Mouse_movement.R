@@ -31,7 +31,9 @@ mouse_movement = function(mouse_agents,daytime){if(daytime=="day"){mouse_agents 
                          movement==7 ~ col-1,
                          movement==9 ~ col+1,
                          TRUE ~ col),
-         locs = paste0(row,",",col,",",network_ID))}
+         locs = paste0(row,",",col,",",network_ID)) %>%
+  mutate(prob = runif(n = nrow(.),min = 0,max=1)) %>%
+  arrange(desc(prob))}
 }
 #To test, be sure to change the function assignment from "mouse_agents" to "test_mice"
 # test_mice = head(mouse_agents,1000)

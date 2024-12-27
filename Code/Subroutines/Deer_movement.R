@@ -34,7 +34,8 @@ deer_movement = function(deer_agents,daytime,network){if(daytime=="day"){
            row = new_row,
            col = new_col,
            layer = new_patch,
-           locs = paste0(row,",",col,",",network_ID))
+           locs = paste0(row,",",col,",",network_ID)) %>%
+    select(-c(jump_patch))
     
 }
 }

@@ -109,7 +109,7 @@ aspatial_network = network1 %>%
 reduced_patches = left_join(reduced_patches,network2)
 
 deer_agents = Host_agents %>% 
-  filter(Agent_type == "Deer")
+  filter(Agent_type == "Deer") 
 
 mouse_agents = Host_agents %>%
   filter(Agent_type == "Mouse")
