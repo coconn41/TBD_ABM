@@ -45,16 +45,17 @@ source(paste0(getwd(),'/Code/Subroutines/Deer_movement.R'))
 #source(paste0(getwd(),'/Code/Subroutines/Other_movement.R')) # Not updated yet
 source(paste0(getwd(),'/Code/Subroutines/Create_deer_paths.R'))
 source(paste0(getwd(),'/Code/Subroutines/Tick_attachment.R'))
-#Tick timer
+source(paste0(getwd(),'/Code/Subroutines/Groom_attached_ticks.R'))
 #Tick mating
+#Tick timer
 #Tick detachment
+#Molting
 #Lay eggs
 #Tick death
-#Tick molting
 
 # Model starting timing:
-year=0
-day=1
+year=1
+day=78 # January + February + March 20th for winter solstice = 30+28+20
 daytime = "night"
 
 # Number of hourly timesteps

@@ -13,6 +13,6 @@ daylight=getSunlightTimes(date=seq.Date(from=as.Date("2018-01-01"),
          dayofyear = 1:nrow(.)) %>%
   mutate(sunrise_hour = ifelse(.$sunrise_minute>30,.$sunrise_hour+1,.$sunrise_hour),
          sunrise_minute = ifelse(.$sunset_minute>30,.$sunset_minute+1,.$sunset_minute)) %>%
-  dplyr::select(dayofyear,sunrise_hour,sunset_hour) %>%
-  filter(dayofyear>=90&dayofyear<=351) %>%
-  mutate(dayofyear=c(1:262))
+  dplyr::select(dayofyear,sunrise_hour,sunset_hour) #%>%
+  #filter(dayofyear>=90&dayofyear<=351) %>%
+  #mutate(dayofyear=c(1:262))

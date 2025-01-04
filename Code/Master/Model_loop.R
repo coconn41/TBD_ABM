@@ -42,14 +42,17 @@ for(i in 1:48){#go_timesteps
                LA_probability = LA_probability,
                NA_probability = NA_probability,
                AA_probability = AA_probability)}
+  
+  # Groom ticks
+  if(daytime=="day"){groom_fn(tick_agents = tick_agents)}
+  
+  # Mate ticks
 }
 end_time = Sys.time()
 end_time-start_time
 #9.043 minutes to do network 3
 
   # Update tick timer
-  
-  # Mate ticks
   
   # Drop off ticks
   

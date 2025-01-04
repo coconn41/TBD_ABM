@@ -3,7 +3,11 @@ Host_agents = read.csv(paste0(getwd(),'/Cached_data/Host_agents.csv'))[,-1] %>%
          Ha_infected = 0,
          linked_ticks = list(0),
          locs = paste0(row,",",col,",",network_ID))
-tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1] 
+tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1] %>%
+  mutate(tick_age_wks = ifelse(Lifestage=="Adult",65,# Starting age Summer solstice (Jun. 21st) to Sept. 22nd of next year
+                               ifelse(Lifestage=="Nymph",39,NA))) %>% # Starting age Summer solstice (Jun. 21st) to March 20th of next year
+  mutate(die = 0,
+         linked_type = "N")
 jump_probability_df = read.csv(paste0(getwd(),"/Cached_data/jump_probability_df.csv"))[,-1]
 
 network1 = sf::read_sf(paste0(getwd(),'/Cached_data/Reduced_network.shp')) %>%

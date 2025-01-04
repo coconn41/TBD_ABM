@@ -29,19 +29,19 @@ attach_ticks = function(tick_agents,deer_paths,mouse_agents,other_agents,
                                      deer_paths$locs,0),0))
   T_matches2 <- T_matches1 %>%
     filter(deer_links > 0) %>%
-    mutate(deer_links = deer_paths$Agent_ID[.$deer_links])%>%
-    mutate(deer_links = ifelse(Lifestage == "Larvae",ifelse(rbinom(n=1,
-                                                                   size=1,
-                                                                   prob=LA_probability)==1,
-                                                            deer_links,0),
-                               ifelse(Lifestage == "Nymph",ifelse(rbinom(n=1,
-                                                                         size=1,
-                                                                         prob=NA_probability)==1,
-                                                                  deer_links,0),
-                                      ifelse(Lifestage == "Adult",ifelse(rbinom(n=1,
-                                                                                size=1,
-                                                                                prob=AA_probability)==1,
-                                                                         deer_links,0),0)))) 
+    mutate(deer_links = deer_paths$Agent_ID[.$deer_links])#%>% # Below is miscoded
+    # mutate(deer_links = ifelse(Lifestage == "Larvae",ifelse(rbinom(n=1,
+    #                                                                size=1,
+    #                                                                prob=LA_probability)==1,
+    #                                                         deer_links,0),
+    #                            ifelse(Lifestage == "Nymph",ifelse(rbinom(n=1,
+    #                                                                      size=1,
+    #                                                                      prob=NA_probability)==1,
+    #                                                               deer_links,0),
+    #                                   ifelse(Lifestage == "Adult",ifelse(rbinom(n=1,
+    #                                                                             size=1,
+    #                                                                             prob=AA_probability)==1,
+    #                                                                      deer_links,0),0)))) 
 
 
   T_matches3 = T_matches1 %>%
@@ -59,19 +59,19 @@ attach_ticks = function(tick_agents,deer_paths,mouse_agents,other_agents,
   
   T_matches5 = T_matches4 %>%
     filter(mouse_links > 0) %>%
-    mutate(mouse_links = mouse_agents$Agent_ID[.$mouse_links])%>%
-    mutate(mouse_links = ifelse(Lifestage == "Larvae",ifelse(rbinom(n=1,
-                                                                   size=1,
-                                                                   prob=LA_probability)==1,
-                                                            mouse_links,0),
-                               ifelse(Lifestage == "Nymph",ifelse(rbinom(n=1,
-                                                                         size=1,
-                                                                         prob=NA_probability)==1,
-                                                                  mouse_links,0),
-                                      ifelse(Lifestage == "Adult",ifelse(rbinom(n=1,
-                                                                                size=1,
-                                                                                prob=AA_probability)==1,
-                                                                         mouse_links,0),0)))) 
+    mutate(mouse_links = mouse_agents$Agent_ID[.$mouse_links])#%>% # Below is miscoded
+    # mutate(mouse_links = ifelse(Lifestage == "Larvae",ifelse(rbinom(n=1,
+    #                                                                size=1,
+    #                                                                prob=LA_probability)==1,
+    #                                                         mouse_links,0),
+    #                            ifelse(Lifestage == "Nymph",ifelse(rbinom(n=1,
+    #                                                                      size=1,
+    #                                                                      prob=NA_probability)==1,
+    #                                                               mouse_links,0),
+    #                                   ifelse(Lifestage == "Adult",ifelse(rbinom(n=1,
+    #                                                                             size=1,
+    #                                                                             prob=AA_probability)==1,
+    #                                                                      mouse_links,0),0)))) 
   T_matches6 = T_matches4 %>%
     filter(mouse_links == 0) %>%
     bind_rows(.,T_matches5)
@@ -81,11 +81,15 @@ attach_ticks = function(tick_agents,deer_paths,mouse_agents,other_agents,
                           rbinom(n=1,size = 1,prob = N_prob),
                           ifelse(deer_links>0&mouse_links>0&Lifestage=="Larvae",
                                  rbinom(n=1,size=1,prob = L_prob),
-                                 ifelse(deer_links>0&mouse_links&Lifestage=="Adult",
-                                        1,-1))),
+                                 ifelse(deer_links>0&mouse_links>0&Lifestage=="Adult",
+                                        0,-1))),
+           linked_type = ifelse(selection==1,"Mouse",
+                                ifelse(selection==0,"Deer","N")),
            links = ifelse(selection==1,mouse_links,
                           ifelse(selection==0,deer_links,0))) %>%
-    dplyr::select(-c(deer_links,mouse_links,selection)) 
+    dplyr::select(-c(deer_links,mouse_links,selection)) %>%
+    rbind(.,tick_agents %>% filter(links>0))  # This combines back with already linked ticks
+
 }
 # start_time = Sys.time()
 # attach_ticks(tick_agents,deer_paths,mouse_agents,LA_probability,NA_probability,AA_probability)
