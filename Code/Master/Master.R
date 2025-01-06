@@ -46,9 +46,11 @@ source(paste0(getwd(),'/Code/Subroutines/Deer_movement.R'))
 source(paste0(getwd(),'/Code/Subroutines/Create_deer_paths.R'))
 source(paste0(getwd(),'/Code/Subroutines/Tick_attachment.R'))
 source(paste0(getwd(),'/Code/Subroutines/Groom_attached_ticks.R'))
+source(paste0(getwd(),'/Code/Subroutines/Tick_mating.R'))
+source(paste0(getwd(),'/Code/Subroutines/Groom_attached_ticks.R'))
+source(paste0(getwd(),'/Code/Subroutines/Tick_timer.R'))
+source(paste0(getwd(),'/Code/Subroutines/Tick_drop_off.R'))
 
-#Tick timer
-#Tick detachment
 #Molting
 #Lay eggs
 #Tick death

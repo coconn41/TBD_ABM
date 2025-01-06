@@ -7,7 +7,10 @@ tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1] %>%
   mutate(tick_age_wks = ifelse(Lifestage=="Adult",65,# Starting age Summer solstice (Jun. 21st) to Sept. 22nd of next year
                                ifelse(Lifestage=="Nymph",39,NA))) %>% # Starting age Summer solstice (Jun. 21st) to March 20th of next year
   mutate(die = 0,
-         linked_type = "N")
+         linked_type = "N",
+         num_ticks = 1,
+         dropped = 0,
+         time_since_fed = 0)
 jump_probability_df = read.csv(paste0(getwd(),"/Cached_data/jump_probability_df.csv"))[,-1]
 
 network1 = sf::read_sf(paste0(getwd(),'/Cached_data/Reduced_network.shp')) %>%

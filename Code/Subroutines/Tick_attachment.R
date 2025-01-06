@@ -15,8 +15,15 @@ N_prob = testing_data[1,3]/(testing_data[1,3]+testing_data[2,3])
 
 attach_ticks = function(tick_agents,deer_paths,mouse_agents,other_agents,
                         LA_probability,NA_probability,AA_probability){
+  
+  # This includes only ticks that are not linked to a host
+  # and also have not already succeeded in a bloodmeal
   T_matches0 <- tick_agents %>% 
-    filter(links==0)
+    filter(links==0&dropped==0)
+  
+  # This includes only ticks that are not linked to a host
+  # and also have not already succeeded in a bloodmeal and
+  # checks to see if deer have crossed their path
   T_matches1 <- T_matches0 %>%
     mutate(deer_links = ifelse(paste0(row,",",
                                       col,",",
@@ -27,6 +34,11 @@ attach_ticks = function(tick_agents,deer_paths,mouse_agents,other_agents,
                                             .$col,",",
                                             .$network_ID),
                                      deer_paths$locs,0),0))
+  
+  # This includes only ticks that are not linked to a host
+  # and also have not already succeeded in a bloodmeal and
+  # also includes only newly attached ticks, it then assigns them
+  # the agent ID of the deer that picked them up
   T_matches2 <- T_matches1 %>%
     filter(deer_links > 0) %>%
     mutate(deer_links = deer_paths$Agent_ID[.$deer_links])#%>% # Below is miscoded
@@ -44,6 +56,10 @@ attach_ticks = function(tick_agents,deer_paths,mouse_agents,other_agents,
     #                                                                      deer_links,0),0)))) 
 
 
+  # This includes only ticks that are not linked to a host
+  # and also have not already succeeded in a bloodmeal and
+  # includes ticks that were not newly picked up by deer. It
+  # then recombines them with the ones that were newly picked up
   T_matches3 = T_matches1 %>%
     filter(deer_links == 0) %>%
     bind_rows(.,T_matches2) 
@@ -88,10 +104,6 @@ attach_ticks = function(tick_agents,deer_paths,mouse_agents,other_agents,
            links = ifelse(selection==1,mouse_links,
                           ifelse(selection==0,deer_links,0))) %>%
     dplyr::select(-c(deer_links,mouse_links,selection)) %>%
-    rbind(.,tick_agents %>% filter(links>0))  # This combines back with already linked ticks
+    rbind(.,tick_agents %>% filter(links>0|dropped>0))  # This combines back with already linked ticks
 
 }
-# start_time = Sys.time()
-# attach_ticks(tick_agents,deer_paths,mouse_agents,LA_probability,NA_probability,AA_probability)
-# end_time = Sys.time()
-# end_time-start_time

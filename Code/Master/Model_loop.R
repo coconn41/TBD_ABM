@@ -50,16 +50,15 @@ if(season!="winter"){
   if(daytime=="day"){mating_fn(tick_agents = tick_agents)}
   
   # Tick timer
+  tick_timer(tick_agents = tick_agents)
   
+  # Tick drop off
+  tick_drop_fn(tick_agents = tick_agents)
   }
 }
 end_time = Sys.time()
 end_time-start_time
 #9.043 minutes to do network 3
-
-  # Update tick timer
-  
-  # Drop off ticks
   
   # Update tick processes (Lay eggs, molt, die)
   
