@@ -31,7 +31,7 @@ for(i in 1:48){#go_timesteps
   if(daytime=="day"){deer_movement(deer_agents = deer_agents,
                 daytime = daytime,
                 network = aspatial_network)}
-  
+if(season!="winter"){  
   # Create deer paths
   if(daytime=="day"){create_deer_paths(deer_agents = deer_agents)}
   
@@ -47,6 +47,11 @@ for(i in 1:48){#go_timesteps
   if(daytime=="day"){groom_fn(tick_agents = tick_agents)}
   
   # Mate ticks
+  if(daytime=="day"){mating_fn(tick_agents = tick_agents)}
+  
+  # Tick timer
+  
+  }
 }
 end_time = Sys.time()
 end_time-start_time
