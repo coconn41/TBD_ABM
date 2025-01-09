@@ -43,6 +43,11 @@ if(season!="winter"){
                NA_probability = NA_probability,
                AA_probability = AA_probability)}
   
+  # Transfer pathogens
+  transfer_pathogens(tick_agents = tick_agents,
+                     deer_agents = deer_agents,
+                     mouse_agents = mouse_agents)
+  
   # Groom ticks
   if(daytime=="day"){groom_fn(tick_agents = tick_agents)}
   
@@ -54,6 +59,9 @@ if(season!="winter"){
   
   # Tick drop off
   tick_drop_fn(tick_agents = tick_agents)
+  
+  # Tick death
+  tick_death(tick_agents = tick_agents)
   }
 }
 end_time = Sys.time()

@@ -50,10 +50,11 @@ source(paste0(getwd(),'/Code/Subroutines/Tick_mating.R'))
 source(paste0(getwd(),'/Code/Subroutines/Groom_attached_ticks.R'))
 source(paste0(getwd(),'/Code/Subroutines/Tick_timer.R'))
 source(paste0(getwd(),'/Code/Subroutines/Tick_drop_off.R'))
-
-#Molting
-#Lay eggs
-#Tick death
+source(paste0(getwd(),'/Code/Subroutines/Tick_molting.R'))
+source(paste0(getwd(),'/Code/Subroutines/lay_eggs.R'))
+source(paste0(getwd(),'/Code/Subroutines/Tick_death.R'))
+# "Kill" hosts
+# Track data
 
 # Model starting timing:
 year=1

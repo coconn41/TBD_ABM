@@ -26,18 +26,19 @@ bresenham_line <- function(x1, y1, x2, y2) {
 create_deer_paths = function(deer_agents){
   deer_paths <<- deer_agents %>%
     filter(jump_patch==0) %>%
-    select(Agent_ID,network_ID,old_row,old_col,new_row,new_col) %>%
+    select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col) %>%
     rowwise() %>%
-    mutate(cells = list(bresenham_line(old_row, old_col, new_row, new_col))) %>%
+    mutate(cells = list(bresenham_line(old_col, old_row, new_col, new_row))) %>%
     ungroup() %>%
     unnest(cells) %>%
     mutate(row = cells[,1],
            col = cells[,2]) %>%
-    select(Agent_ID,network_ID,row,col) %>%
+    select(Agent_ID,network_ID,layer,row,col) %>%
     distinct() %>%
-    group_by(network_ID,row,col) %>%
+    group_by(network_ID,layer,row,col) %>%
     mutate(locs = paste0(row,",",
                          col,",",
+                         layer,",",
                          network_ID)) %>%
     ungroup() %>%
     group_by(Agent_ID) %>%
