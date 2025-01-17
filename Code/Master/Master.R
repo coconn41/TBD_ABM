@@ -47,13 +47,13 @@ source(paste0(getwd(),'/Code/Subroutines/Create_deer_paths.R'))
 source(paste0(getwd(),'/Code/Subroutines/Tick_attachment.R'))
 source(paste0(getwd(),'/Code/Subroutines/Groom_attached_ticks.R'))
 source(paste0(getwd(),'/Code/Subroutines/Tick_mating.R'))
-source(paste0(getwd(),'/Code/Subroutines/Groom_attached_ticks.R'))
 source(paste0(getwd(),'/Code/Subroutines/Tick_timer.R'))
 source(paste0(getwd(),'/Code/Subroutines/Tick_drop_off.R'))
 source(paste0(getwd(),'/Code/Subroutines/Tick_molting.R'))
 source(paste0(getwd(),'/Code/Subroutines/lay_eggs.R'))
 source(paste0(getwd(),'/Code/Subroutines/Tick_death.R'))
-# "Kill" hosts
+source(paste0(getwd(),'/Code/Subroutines/Host_timer.R'))
+source(paste0(getwd(),'/Code/Subroutines/Kill_hosts.R'))
 # Track data
 
 # Model starting timing:
