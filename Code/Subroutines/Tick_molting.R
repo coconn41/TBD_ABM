@@ -10,7 +10,7 @@ tick_molting = function(tick_agents){
                             Lifestage == "Nymph" & 
                               fed == 1 & 
                               day >= nymph_to_adult_min &
-                              day <= nymph_to_adult_max ~ ,# find age to molt, dummy age in for now
+                              day <= nymph_to_adult_max ~ 1,# find age to molt, dummy age in for now
                             TRUE ~ 0)) %>%
     mutate(fed = ifelse(molt==1,0,fed),
            time_since_fed = ifelse(molt==1,0,fed),
