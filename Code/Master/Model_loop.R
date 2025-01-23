@@ -84,6 +84,8 @@ if(season!="winter"){
              tick_agents = tick_agents,
              deer_agents = deer_agents,
              mouse_agents = mouse_agents)
+  
+  if(i%%10==0){print(i)}
   setTxtProgressBar(pb,i)
 }
 #end_time = Sys.time()
