@@ -1,5 +1,5 @@
 update_enviro = function(i,daylight){
-
+if(i%%8760==0){Year<<-Year+1}
 day_hour <<- (i%%24)+1
 if(day_hour==1){day <<- day+1}
 

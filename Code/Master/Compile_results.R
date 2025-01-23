@@ -5,12 +5,14 @@ track_data = function(timestep,deer_agents,mice_agents,tick_agents){
       summarise(V1_perc = sum(V1_infected)/n()) %>%
       mutate(day_of_year = day,
              season = season,
+             Year = Year,
              Agent = "Deer")
     mouse_data<- mouse_agents %>%
       group_by(network_ID) %>%
       summarise(Ha_perc = sum(Ha_infected)/n()) %>%
       mutate(day_of_year = day,
              season = season,
+             Year = Year,
              Agent = "Mice")
     tick_data <- tick_agents %>%
       group_by(Lifestage,network_ID) %>%
@@ -18,6 +20,7 @@ track_data = function(timestep,deer_agents,mice_agents,tick_agents){
                 v1_perc = (length(which(Infection_status == "v1"))/n())*100,
                 total_ticks = sum(num_ticks),
                 Agent = "Tick",
+                Year = Year,
                 day_of_year = day,
                 season = season)
   }
