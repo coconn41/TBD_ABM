@@ -39,18 +39,19 @@ source(paste0(getwd(),"/Code/Parameters/Parameter_script.R"))
 #####
 # Load model subroutines:
 #####
-source(paste0(getwd(),'/Code/Subroutines/Update_environment.R'))
-source(paste0(getwd(),'/Code/Subroutines/Mouse_movement.R'))
-source(paste0(getwd(),'/Code/Subroutines/Deer_movement.R'))
+source(paste0(getwd(),'/Code/Subroutines/Update_environment.R')) # Good
+source(paste0(getwd(),'/Code/Subroutines/Mouse_movement.R')) # Good
+source(paste0(getwd(),'/Code/Subroutines/Deer_movement.R')) # Good
 #source(paste0(getwd(),'/Code/Subroutines/Other_movement.R')) # Not updated yet
-source(paste0(getwd(),'/Code/Subroutines/Create_deer_paths.R'))
-source(paste0(getwd(),'/Code/Subroutines/Tick_attachment.R'))
-source(paste0(getwd(),'/Code/Subroutines/Groom_attached_ticks.R'))
-source(paste0(getwd(),'/Code/Subroutines/Tick_mating.R'))
-source(paste0(getwd(),'/Code/Subroutines/Tick_timer.R'))
-source(paste0(getwd(),'/Code/Subroutines/Tick_drop_off.R'))
+source(paste0(getwd(),'/Code/Subroutines/Create_deer_paths.R')) # Good
+source(paste0(getwd(),'/Code/Subroutines/Tick_attachment.R')) # Good
+source(paste0(getwd(),'/Code/Subroutines/Groom_attached_ticks.R')) # Good
+source(paste0(getwd(),'/Code/Subroutines/Tick_mating.R')) # Good
+source(paste0(getwd(),'/Code/Subroutines/Tick_timer.R')) # Good
+source(paste0(getwd(),'/Code/Subroutines/Tick_drop_off.R')) # Good
 source(paste0(getwd(),'/Code/Subroutines/Tick_molting.R'))
-source(paste0(getwd(),'/Code/Subroutines/lay_eggs.R'))
+source(paste0(getwd(),'/Code/Subroutines/lay_eggs.R')) # Good
+source(paste0(getwd(),'/Code/Subroutines/Transfer_pathogens.R'))
 source(paste0(getwd(),'/Code/Subroutines/Tick_death.R'))
 source(paste0(getwd(),'/Code/Subroutines/Host_timer.R'))
 source(paste0(getwd(),'/Code/Subroutines/Kill_hosts.R'))
@@ -58,7 +59,7 @@ source(paste0(getwd(),'/Code/Subroutines/Kill_hosts.R'))
 
 # Model starting timing:
 year=1
-day=78 # January + February + March 20th for winter solstice = 30+28+20
+day=79 # January (31) + February (28) + March 20th for spring solstice = 30+28+20
 daytime = "night"
 
 # Number of hourly timesteps
