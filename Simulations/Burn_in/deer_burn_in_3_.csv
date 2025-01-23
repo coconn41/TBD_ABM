@@ -1,0 +1,7 @@
+"","County","Site","layer","metric","gridrows","gridcols","Agent_type","row","col","network_ID","Agent_ID","V1_infected","Ha_infected","Age","Kill","Ha_infection_timer","V1_infection_timer","tick_links","locs","possibility_row_min","possibility_row_max","possibility_col_min","possiblitiy_col_max","new_row","new_col","new_patch","jump_patch","old_row","old_col"
+"1","Cattaraugus","Allegany State Park - FLT North Country Access 4",25399,0.836062265324273,5609,5609,"Deer",2917,3236,3,2175,0,0,24,0,0,0,4626670,"2917,3236,3",2839,3039,3160,3360,2917,3236,25399,0,2939,3260
+"2","Cattaraugus","Allegany State Park - Thunder Rocks",29759,0.754664932203501,8433,8433,"Deer",1397,2007,3,2739,0,0,24,0,0,0,5006586,"1397,2007,3",1248,1448,1886,2086,1397,2007,29759,0,1348,1986
+"3","Cattaraugus","Allegany State Park - Thunder Rocks",29759,0.754664932203501,8433,8433,"Deer",6108,4174,3,2888,0,0,24,0,0,0,5295073,"6108,4174,3",5960,6160,4105,4305,6108,4174,29759,0,6060,4205
+"4","Cattaraugus","Allegany State Park - Thunder Rocks",29759,0.754664932203501,8433,8433,"Deer",6791,7387,3,3045,0,0,24,0,0,0,5048290,"6791,7387,3",6641,6841,7334,7534,6791,7387,29759,0,6741,7434
+"5","Cattaraugus","Allegany State Park - Thunder Rocks",29759,0.754664932203501,8433,8433,"Deer",2736,4144,3,3191,0,0,24,0,0,0,5178120,"2736,4144,3",2602,2802,3946,4146,2736,4144,29759,0,2702,4046
+"6","Cattaraugus","Allegany State Park - Thunder Rocks",29759,0.754664932203501,8433,8433,"Deer",5286,1374,3,3412,0,0,24,0,0,0,5006344,"5286,1374,3",5254,5454,1209,1409,5286,1374,29759,0,5354,1309

@@ -79,3 +79,12 @@ write.csv(mouse_data2,paste0(getwd(),"/Simulations/Mice/Mouse_results_",Sys.Date
                            "_.csv"))
 write.csv(tick_data2,paste0(getwd(),"/Simulations/Ticks/Tick_results_",Sys.Date(),"_",substring(Sys.time(),12,16),
                            "_.csv"))
+
+# Save burn in:
+
+write.csv(deer_agents,paste0(getwd(),"/Simulations/Burn_in/deer_burn_in_",
+                             net_select,"_.csv"))
+write.csv(mouse_agents,paste0(getwd(),"/Simulations/Burn_in/mouse_burn_in_",
+                             net_select,"_.csv"))
+write.csv(tick_agents,paste0(getwd(),"/Simulations/Burn_in/tick_burn_in_",
+                             net_select,"_.csv"))
