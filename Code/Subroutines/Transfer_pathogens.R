@@ -1,6 +1,6 @@
+transfer_outcomes_ha = c("None","ha")
+transfer_outcomes_v1 = c("None","v1")
 transfer_pathogens = function(tick_agents, deer_agents, mouse_agents){
-  transfer_outcomes_ha = c("None","ha")
-  transfer_outcomes_v1 = c("None","v1")
   tick_agents <<- tick_agents %>%
     mutate(transfer_type = case_when(links>0 & 
                                        attempted_pathogen_transfer == 0 &

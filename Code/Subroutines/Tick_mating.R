@@ -4,7 +4,7 @@ mating_fn = function(tick_agents){
            Lifestage == "Adult",
            mated != 1) %>%
     group_by(links) %>%
-    summarize(tot = n()) %>%
+    summarise(tot = n()) %>%
     ungroup() %>%
     filter(tot > 1)
   

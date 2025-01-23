@@ -24,5 +24,5 @@ tick_molting = function(tick_agents){
                               ifelse(molt==1 & Lifestage=="Larvae","Nymph",
                                      ifelse(molt==1 & Lifestage=="Nymph","Adult",Lifestage)))) %>%
     mutate(sex = ifelse(sex=="none" & Lifestage == "Adult",
-                        sample(sexes,size=.)))
+                        sample(sexes,size=1),sex))
 }

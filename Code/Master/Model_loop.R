@@ -17,6 +17,7 @@ spat_network = spat_network %>%
   filter(network_ID == net_select)}
 
 start_time = Sys.time()
+pb = txtProgressBar(min = 1, max = go_timesteps, initial = 1) 
 for(i in 1:go_timesteps){#go_timesteps
   # Update environment
   update_enviro(i,daylight)

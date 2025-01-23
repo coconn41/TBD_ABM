@@ -21,7 +21,8 @@ lay_eggs = function(tick_agents){
          links = ifelse(Lifestage=="Eggs",0,links),
          sex = "none",
          mated = ifelse(Lifestage=="Eggs",0,mated),
-         Agent_ID = (max(.$Agent_ID)+1):(max$Agent_ID+nrow(new_eggs)))
+         Agent_ID = ifelse(nrow(.)>0,(max(.$Agent_ID)+1):(max(.$Agent_ID)+nrow(.)),
+                           NA))
   
   tick_agents <<- tick_agents %>%
     rbind(.,new_eggs)
