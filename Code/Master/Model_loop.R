@@ -17,7 +17,7 @@ spat_network = spat_network %>%
   filter(network_ID == net_select)}
 
 start_time = Sys.time()
-for(i in 1:48){#go_timesteps
+for(i in 1:go_timesteps){#go_timesteps
   # Update environment
   update_enviro(i,daylight)
   
@@ -41,7 +41,7 @@ if(season!="winter"){
                mouse_agents = mouse_agents,
                LA_probability = LA_probability,
                NA_probability = NA_probability,
-               AA_probability = AA_probability)}
+               AA_probability = AA_probability)}}
   
   # Transfer pathogens
   transfer_pathogens(tick_agents = tick_agents,
@@ -60,20 +60,41 @@ if(season!="winter"){
   # Tick drop off
   tick_drop_fn(tick_agents = tick_agents)
   
+  # Lay eggs
+  lay_eggs(tick_agents = tick_agents)
+  
+  # Tick molting
+  tick_molting(tick_agents = tick_agents)
+  
   # Tick death
   tick_death(tick_agents = tick_agents)
-  }
+  
+  # Host timer
+  host_timer_fn(deer_agents = deer_agents,
+                mouse_agents = mouse_agents)
+  
+  # "Kill" hosts
+  kill_hosts_fn(deer_agents = deer_agents,
+                mouse_agents = mouse_agents)
+  
+  
+  # Compile results
+  track_data(timestep = i,
+             tick_agents = tick_agents,
+             deer_agents = deer_agents,
+             mouse_agents = mouse_agents)
+  setTxtProgressBar(pb,i)
 }
-end_time = Sys.time()
-end_time-start_time
+#end_time = Sys.time()
+#end_time-start_time
 #9.043 minutes to do network 3
   
   # Update tick processes (Lay eggs, molt, die)
   
   # Track population data
   
-  setTxtProgressBar(pb,i)
-}
+  
+
   
   
   

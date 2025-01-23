@@ -55,7 +55,7 @@ source(paste0(getwd(),'/Code/Subroutines/Transfer_pathogens.R'))
 source(paste0(getwd(),'/Code/Subroutines/Tick_death.R'))
 source(paste0(getwd(),'/Code/Subroutines/Host_timer.R'))
 source(paste0(getwd(),'/Code/Subroutines/Kill_hosts.R'))
-# Track data
+source(paste0(getwd(),'/Code/Master/Compile_results.R'))
 
 # Model starting timing:
 year=1
@@ -63,10 +63,19 @@ day=79 # January (31) + February (28) + March 20th for spring solstice = 30+28+2
 daytime = "night"
 
 # Number of hourly timesteps
-go_timesteps = 8760
+i = 8760
 
 # Select network: either "all" or the network number
 net_select = 3
 
 # RUN model:
 source(paste0(getwd(),'/Code/Master/Model_loop.R'))
+
+# Save results:
+
+write.csv(deer_data2,paste0(getwd(),"/Simulations/Deer/Deer_results_",Sys.Date(),"_",substring(Sys.time(),12,16),
+                  "_.csv"))
+write.csv(mouse_data2,paste0(getwd(),"/Simulations/Mice/Mouse_results_",Sys.Date(),"_",substring(Sys.time(),12,16),
+                           "_.csv"))
+write.csv(tick_data2,paste0(getwd(),"/Simulations/Ticks/Tick_results_",Sys.Date(),"_",substring(Sys.time(),12,16),
+                           "_.csv"))

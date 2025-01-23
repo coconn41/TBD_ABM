@@ -26,25 +26,35 @@ Groom_survival = 0.2
 egg_mort_rate = 0.00003017683
 
 #####
+# Molting timing in days w/ explanation
+#####
+lay_egg = 80+31 # March 20th + April 20th (31 days)
+egg_to_larvae = 171+31 # June 20th + July 20th
+larvae_to_nymph_min = 80+31 # March 20th + April 20th (31 days)
+larvae_to_nymph_max = 171 # June 20th
+nymph_to_adult_min = 258 # September 15th
+nymph_to_adult_max = 258 + 30 # September 15th + 30 day = October 15th
+
+#####
 # Parameters from other sources
 #####
 mouse_infect_tick_ha = 0.0665 # Keesing ASTMH 2014
 mouse_infect_tick_v1 = 0.0094 # Keesing ASTMH 2014
-tick_infect_mouse_ha = 0.0665 # Need a citation for this?
-tick_infect_mouse_v1 = 0.0094 # Need a citation for this?
+tick_infect_mouse_ha = 1 # 0.0665 # Need a citation for this?
+tick_infect_mouse_v1 = 1 # 0.0094 # Need a citation for this?
 deer_infect_tick_v1 = 0.0094 # Massung EID 2005
 deer_infect_tick_ha = 0.0665 # Massung EID 2005
-tick_infect_deer_v1 = 0.0094 # Need a citation for this?
-tick_infect_deer_ha = 0.0665 # Need a citation for this?
+tick_infect_deer_v1 = 1 # 0.0094 # Need a citation for this?
+tick_infect_deer_ha = 1 # 0.0665 # Need a citation for this?
 
-# Reichard Vector-Borne and Zoonotic Diseases 2009, WTD became PCR negative after 28 days
+ # Reichard Vector-Borne and Zoonotic Diseases 2009, WTD became PCR negative after 28 days
 
 
 #####
 # Need new source for below:
 #####
 
-eggs_per_female = 1
+eggs_per_female = 1000 # Sonenshine 1991, but still apriori
 
 # A priori:
 # Larval drop off within 12 hours
