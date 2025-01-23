@@ -36,7 +36,7 @@ network1 = network1 %>%
   st_drop_geometry() %>%
   #dplyr::select(-geometry) %>%
   group_by(origin_ID,destination_ID,network_ID) %>%
-  summarize(lcp_distance = mean(lcp_distance),
+  summarise(lcp_distance = mean(lcp_distance),
             distance = mean(distance),
             inverse_sinuousity = mean(inverse_sinuousity)) %>%
   distinct()
@@ -92,28 +92,28 @@ reduced_patches = read_sf(paste0(getwd(),'/Cached_data/Reduced_patches.shp')) %>
 # Assign network IDs to patches:
 # Detect matches:
 list_network = network1 %>%
-  st_drop_geometry() %>% 
+  #st_drop_geometry() %>% 
   pivot_longer(.,c(origin_ID,destination_ID)) %>%
   select(network_ID,value) %>%
   group_by(network_ID, value) %>%
-  summarize(tot = n()) %>%
+  summarise(tot = n()) %>%
   ungroup() %>%
   group_by(value) %>%
-  summarize(tot = n())
+  summarise(tot = n())
 # patches are not duplicated across networks
 
 network2 = network1 %>%
-  st_drop_geometry() %>% 
+  #st_drop_geometry() %>% 
   pivot_longer(.,c(origin_ID,destination_ID)) %>%
   select(network_ID,value) %>%
   group_by(network_ID, value) %>%
-  summarize(tot = n()) %>%
+  summarise(tot = n()) %>%
   ungroup() %>%
   select(-tot) %>%
   rename(layer = "value")
 
 aspatial_network = network1 %>%
-  st_drop_geometry() %>%
+  #st_drop_geometry() %>%
   group_by(origin_ID) %>%
   mutate(sample_probability = inverse_sinuousity / sum(inverse_sinuousity))
   
