@@ -25,12 +25,12 @@ track_data = function(i,deer_agents,mouse_agents,tick_agents){
                 day_of_year = day,
                 season = season)
   }
-  if(timestep==24){
+  if(i==24){
     deer_data2 <<- deer_data
     mouse_data2 <<- mouse_data
     tick_data2 <<- tick_data
   }
-  if(timestep>24){
+  if(i>24){
     deer_data2 <<- rbind(deer_data,deer_data2)
     mouse_data2 <<- rbind(mouse_data,mouse_data2)
     tick_data2 <<- rbind(tick_data,tick_data2)
