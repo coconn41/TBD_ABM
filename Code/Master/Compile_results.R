@@ -8,14 +8,14 @@ track_data = function(i,deer_agents,mouse_agents,tick_agents){
              season = season,
              year = year,
              Agent = "Deer")
-    mouse_data<- mouse_agents %>%
+    mouse_data<<- mouse_agents %>%
       group_by(network_ID) %>%
       summarise(Ha_perc = sum(Ha_infected)/n()) %>%
       mutate(day_of_year = day,
              season = season,
              year = year,
              Agent = "Mice")
-    tick_data <- tick_agents %>%
+    tick_data <<- tick_agents %>%
       group_by(Lifestage,network_ID) %>%
       summarise(Ha_perc = (length(which(Infection_status == "ha"))/n())*100,
                 v1_perc = (length(which(Infection_status == "v1"))/n())*100,
