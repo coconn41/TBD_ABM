@@ -1,7 +1,7 @@
 options(dplyr.summarise.inform = FALSE)
 track_data = function(i,deer_agents,mouse_agents,tick_agents){
   if(i%%24==0){
-    deer_data <- deer_agents %>%
+    deer_data <<- deer_agents %>%
       group_by(network_ID) %>%
       summarise(V1_perc = sum(V1_infected)/n()) %>%
       mutate(day_of_year = day,
