@@ -15,7 +15,7 @@ N_prob = testing_data[1,3]/(testing_data[1,3]+testing_data[2,3])
 
 attach_ticks = function(tick_agents,deer_paths,mouse_agents,other_agents,
                         LA_probability,NA_probability,AA_probability){
-  
+  start_time = Sys.time()
   # This includes only ticks that are not linked to a host
   # and also have not already succeeded in a bloodmeal
   T_matches1 <- tick_agents %>% 
@@ -92,5 +92,7 @@ attach_ticks = function(tick_agents,deer_paths,mouse_agents,other_agents,
   
   tick_agents <<- tick_agents %>%
     mutate(links = ifelse(is.na(links)==T,0,links))
+  end_time = Sys.time()
+  end_time-start_time
 
 }

@@ -63,7 +63,7 @@ day=79 # January (31) + February (28) + March 20th for spring solstice = 30+28+2
 daytime = "night"
 
 # Number of hourly timesteps
-go_timesteps = 8760
+go_timesteps = 8760*3
 
 # Select network: either "all" or the network number
 net_select = 7

@@ -2,7 +2,7 @@ options(dplyr.summarise.inform = FALSE)
 track_data = function(i,deer_agents,mouse_agents,tick_agents){
   #if(i%%24==0){
     deer_data <<- deer_agents %>%
-      group_by(network_ID) %>%
+      group_by(network_ID,layer) %>%
       summarise(V1_perc = sum(V1_infected)/n()) %>%
       mutate(day_of_year = day,
              season = season,
@@ -10,7 +10,7 @@ track_data = function(i,deer_agents,mouse_agents,tick_agents){
              year = year,
              Agent = "Deer")
     mouse_data<<- mouse_agents %>%
-      group_by(network_ID) %>%
+      group_by(network_ID,layer) %>%
       summarise(Ha_perc = sum(Ha_infected)/n()) %>%
       mutate(day_of_year = day,
              timestep = i,
@@ -18,7 +18,7 @@ track_data = function(i,deer_agents,mouse_agents,tick_agents){
              year = year,
              Agent = "Mice")
     tick_data <<- tick_agents %>%
-      group_by(Lifestage,network_ID) %>%
+      group_by(Lifestage,network_ID,layer) %>%
       summarise(Ha_perc = (length(which(Infection_status == "ha"))/n())*100,
                 v1_perc = (length(which(Infection_status == "v1"))/n())*100,
                 total_ticks = sum(num_ticks),
