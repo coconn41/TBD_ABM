@@ -19,8 +19,17 @@ tick_death = function(tick_agents){
                                                                  rbinom(n = 1, size = 1, prob = A_unfed_DR_o40),
                                                                  ifelse(Lifestage == "Adult" & fed == 0 & dropped == 0 & (day/7) <40,
                                                                         rbinom(n = 1, size = 1, prob = A_unfed_DR_lt40),0))))))) %>%
-    mutate(death = ifelse(sum(replete_death,un_replete_death)>=1,1,0)) %>%
+    mutate(die = ifelse(sum(replete_death,un_replete_death)>=1,1,0)) %>%
+    mutate(die = ifelse(Lifestage == "Larvae" & 
+                          fed == 0 &
+                          season == "fall",1,die)) %>%
+    mutate(die = ifelse(Lifestage == "Nymph" & 
+                          fed == 0 &
+                          season == "fall",1,die)) %>%
+    mutate(die = ifelse(Lifestage == "Adult" & 
+                          mated == 0 &
+                          season == "summer",1,die)) %>%
     filter(num_ticks >= 0,
-           death == 0) %>%
-    dplyr::select(-c(replete_death,un_replete_death,death))
+           die == 0) %>%
+    dplyr::select(-c(replete_death,un_replete_death))
 }

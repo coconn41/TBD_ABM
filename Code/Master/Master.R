@@ -66,7 +66,7 @@ daytime = "night"
 go_timesteps = 8760
 
 # Select network: either "all" or the network number
-net_select = 3
+net_select = 7
 
 # RUN model:
 source(paste0(getwd(),'/Code/Master/Model_loop.R'))

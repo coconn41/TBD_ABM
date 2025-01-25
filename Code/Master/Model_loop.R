@@ -19,7 +19,7 @@ spat_network = spat_network %>%
 
 pb = txtProgressBar(min = 1, max = go_timesteps, initial = 1) 
 start_time = Sys.time()
-for(i in 1:go_timesteps){#go_timesteps
+for(i in 1:100){#go_timesteps
   # Update environment
   
   update_enviro(i,daylight)
@@ -285,14 +285,14 @@ if(season!="winter"){
     #                                     TRUE ~ "None"))
     mutate(Infection_status = case_when(transfer_type == "d2tv1" ~ transfer_outcomes_v1[rbinom(n = 1, size = 1, prob = deer_infect_tick_v1)+1],
                                         transfer_type == "m2tha" ~ transfer_outcomes_ha[rbinom(n = 1, size = 1, prob = mouse_infect_tick_ha)+1],
-                                        transfer_type == "None" ~ "None",
+                                        transfer_type == "None" ~ Infection_status,
                                         TRUE ~ "None"))
   
   dmatches1 <- deer_agents %>%
-    filter(tick_links == 0)
+    filter(tick_links == 0 | V1_infected == 1)
   
   deer_agents <- deer_agents %>%
-    filter(tick_links>1) %>%
+    filter(tick_links>1 & V1_infected == 0) %>%
     mutate(#Ha_infected = ifelse(tick_agents[which(tick_agents$Agent_ID==tick_links),]$transfer_type == "t2dha",
       #                             rbinom(n = 1, size = 1, prob = tick_infect_deer_ha),
       #                             0),
@@ -302,10 +302,10 @@ if(season!="winter"){
     bind_rows(.,dmatches1)
   
   m_matches1 <- mouse_agents %>%
-    filter(tick_links==0)
+    filter(tick_links==0 | Ha_infected == 1)
   
   mouse_agents <- mouse_agents %>%
-    filter(tick_links>1) %>%
+    filter(tick_links>1 & Ha_infected == 0) %>%
     mutate(Ha_infected = ifelse(tick_agents[which(tick_agents$Agent_ID==tick_links),]$transfer_type == "t2mha",
                                 rbinom(n = 1, size = 1, prob = tick_infect_mouse_ha),
                                 0),

@@ -82,7 +82,7 @@ transfer_pathogens = function(tick_agents, deer_agents, mouse_agents){
     #                                     TRUE ~ "None"))
     mutate(Infection_status = case_when(transfer_type == "d2tv1" ~ transfer_outcomes_v1[rbinom(n = 1, size = 1, prob = deer_infect_tick_v1)+1],
                                         transfer_type == "m2tha" ~ transfer_outcomes_ha[rbinom(n = 1, size = 1, prob = mouse_infect_tick_ha)+1],
-                                        transfer_type == "None" ~ "None",
+                                        transfer_type == "None" ~ Infection_status,
                                         TRUE ~ "None"))
   
   dmatches1 <- deer_agents %>%
