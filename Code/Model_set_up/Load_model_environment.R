@@ -23,6 +23,11 @@ tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1] %>%
 nymph_agents = tick_agents %>% filter(Lifestage=="Nymph")
 tick_agents = tick_agents %>% filter(Lifestage!="Nymph")
 
+source(paste0(getwd(),'/Code/Model_set_up/Introduce_new_ticks.R'))
+
+nymph_agents = tick_agents %>% filter(Lifestage=="Nymph")
+tick_agents = tick_agents %>% filter(Lifestage!="Nymph")
+
 jump_probability_df = read.csv(paste0(getwd(),"/Cached_data/jump_probability_df.csv"))[,-1]
 
 network1 = sf::read_sf(paste0(getwd(),'/Cached_data/Reduced_network.shp')) %>%
