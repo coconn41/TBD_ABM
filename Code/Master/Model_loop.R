@@ -377,7 +377,7 @@ if(season!="winter"){
              deer_agents = deer_agents,
              mouse_agents = mouse_agents)
   
-  if(i%%100==0){print(i)}
+  if(i%%100==0){print("timestep ", i, ", year ",year)}
   #setTxtProgressBar(pb,i)
 }
 #end_time = Sys.time()
