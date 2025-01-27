@@ -18,7 +18,7 @@ spat_network = spat_network %>%
 
 
 #pb = txtProgressBar(min = 1, max = go_timesteps, initial = 1) 
-#start_time = Sys.time()
+# start_time = Sys.time()
 for(i in 1:go_timesteps){
   # Update environment
   
@@ -377,11 +377,11 @@ if(season!="winter"){
              deer_agents = deer_agents,
              mouse_agents = mouse_agents)
   
-  if(i%%100==0){print("timestep ", i, ", year ",year)}
+  if(i%%100==0){print(paste0("timestep ", i, ",day ",day," of year ", year))}
   #setTxtProgressBar(pb,i)
 }
-#end_time = Sys.time()
-#end_time-start_time
+# end_time = Sys.time()
+# end_time-start_time
 #9.043 minutes to do network 3
   
   # Update tick processes (Lay eggs, molt, die)

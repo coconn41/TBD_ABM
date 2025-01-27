@@ -28,4 +28,18 @@ tick_agents = data.frame(County = character(tick_agents_num_row),
                          attempted_pathogen_transfer = integer(tick_agents_num_row),
                          transfer_type = character(tick_agents_num_row),
                          molt = integer(tick_agents_num_row))
-  
+
+loaded_data = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1] %>%
+  mutate(tick_age_wks = ifelse(Lifestage=="Adult",65,# Starting age Summer solstice (Jun. 21st) to Sept. 22nd of next year
+                               ifelse(Lifestage=="Nymph",39,NA))) %>% # Starting age Summer solstice (Jun. 21st) to March 20th of next year
+  mutate(die = 0,
+         linked_type = "N",
+         num_ticks = 1,
+         dropped = 0,
+         time_since_fed = 0,
+         attempted_pathogen_transfer = 0)
+
+nymph_agents = loaded_data %>% filter(Lifestage=="Nymph")
+loaded_data = loaded_data %>% filter(Lifestage!="Nymph")
+
+tick_agents[1:nrow(loaded_data), 1:ncol(loaded_data)] <- loaded_data  

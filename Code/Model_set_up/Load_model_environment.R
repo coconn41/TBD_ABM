@@ -8,9 +8,9 @@ Host_agents = read.csv(paste0(getwd(),'/Cached_data/Host_agents.csv'))[,-1] %>%
          tick_links = 0,
          locs = paste0(row,",",col,",",network_ID))
 
-source(paste0(getwd(),'/Code/Model_set_up/Preallocate_dataframes.R'))
+#source(paste0(getwd(),'/Code/Model_set_up/Preallocate_dataframes.R'))
 
-loaded_data = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1] %>%
+tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1] %>%
   mutate(tick_age_wks = ifelse(Lifestage=="Adult",65,# Starting age Summer solstice (Jun. 21st) to Sept. 22nd of next year
                                ifelse(Lifestage=="Nymph",39,NA))) %>% # Starting age Summer solstice (Jun. 21st) to March 20th of next year
   mutate(die = 0,
@@ -20,10 +20,8 @@ loaded_data = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1] %>%
          time_since_fed = 0,
          attempted_pathogen_transfer = 0)
 
-nymph_agents = loaded_data %>% filter(Lifestage=="Nymph")
-loaded_data = loaded_data %>% filter(Lifestage!="Nymph")
-
-tick_agents[1:nrow(loaded_data), 1:ncol(loaded_data)] <- loaded_data
+nymph_agents = tick_agents %>% filter(Lifestage=="Nymph")
+tick_agents = tick_agents %>% filter(Lifestage!="Nymph")
 
 jump_probability_df = read.csv(paste0(getwd(),"/Cached_data/jump_probability_df.csv"))[,-1]
 
