@@ -24,6 +24,12 @@ for(i in 1:go_timesteps){
   
   update_enviro(i,daylight)
   
+  # Add nymphs in during summer of Year 1
+  if(year==1&day==171){
+    tick_agents = rbind(tick_agents,nymph_agents)
+    remove(nymph_agents)
+  }
+  
   # Move mice
   if(daytime=="day"){mouse_agents <- mouse_agents %>%
     mutate(movement = case_when(row==gridrows & !col%in%c(1,gridcols) ~ as.numeric(sample(c(1:6),nrow(.),replace=T)),
@@ -319,7 +325,24 @@ if(season!="winter"){
            attempted_pathogen_transfer = ifelse(links>0 & Infection_status != "None",1,0))
 #####  
   # Groom ticks
-  if(daytime=="day"){groom_fn(tick_agents = tick_agents)}
+  if(daytime=="day"){tick_agents <- tick_agents %>%
+    mutate(die = ifelse(time_on_host > 0 & linked_type == "Deer",
+                        rbinom(n=1,size=1,prob = deer_GR),
+                        ifelse(time_on_host > 0 & linked_type == "Mouse",
+                               rbinom(n=1,size=1,prob = mouse_GR),0))) %>% # deer_GR mouse_GR
+    mutate(die = ifelse(die==1,ifelse(rbinom(n=1,size=1,prob = Groom_survival)==1,
+                                      0,1),0)) # Groom survival function
+  
+  groom_list <- subset(tick_agents,tick_agents$die==1)$Agent_ID
+  
+  deer_agents <- deer_agents %>% 
+    mutate(tick_links = ifelse(tick_links %in% groom_list,0,tick_links))
+  
+  mouse_agents <- mouse_agents %>%
+    mutate(tick_links = ifelse(tick_links %in% groom_list,0,tick_links))
+  
+  tick_agents <- tick_agents %>%
+    filter(die==0)}
   
   # Mate ticks
   if(daytime=="day"){mating_fn(tick_agents = tick_agents)}
