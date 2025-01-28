@@ -20,14 +20,6 @@ tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1] %>%
          time_since_fed = 0,
          attempted_pathogen_transfer = 0)
 
-nymph_agents = tick_agents %>% filter(Lifestage=="Nymph")
-tick_agents = tick_agents %>% filter(Lifestage!="Nymph")
-
-source(paste0(getwd(),'/Code/Model_set_up/Introduce_new_ticks.R'))
-
-nymph_agents = tick_agents %>% filter(Lifestage=="Nymph")
-tick_agents = tick_agents %>% filter(Lifestage!="Nymph")
-
 jump_probability_df = read.csv(paste0(getwd(),"/Cached_data/jump_probability_df.csv"))[,-1]
 
 network1 = sf::read_sf(paste0(getwd(),'/Cached_data/Reduced_network.shp')) %>%
@@ -137,5 +129,16 @@ deer_agents = Host_agents %>%
 
 mouse_agents = Host_agents %>%
   filter(Agent_type == "Mouse")
+
+nymph_agents = tick_agents %>% filter(Lifestage=="Nymph")
+tick_agents = tick_agents %>% filter(Lifestage!="Nymph")
+
+source(paste0(getwd(),'/Code/Model_set_up/Introduce_new_ticks.R'))
+
+nymph_agents = tick_agents %>% 
+  filter(Lifestage=="Nymph") %>%
+  mutate(molt = 0,
+         transfer_type = "None")
+tick_agents = tick_agents %>% filter(Lifestage!="Nymph")
 
 remove(list_network,network2,Host_agents)
