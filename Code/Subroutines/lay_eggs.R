@@ -42,5 +42,5 @@ lay_eggs = function(tick_agents){
            mated = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
                           0,mated),
          Agent_ID = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
-                           (max(.$Agent_ID)+1):(max(.$Agent_ID)+num_new_eggs)))}
+                           (max(.$Agent_ID)+1):(max(.$Agent_ID)+num_new_eggs),Agent_ID))}
          
