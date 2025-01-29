@@ -1,5 +1,5 @@
 groom_fn = function(tick_agents,deer_agents){
-  tick_agents <<- tick_agents %>%
+  tick_agents <- tick_agents %>%
     mutate(die = ifelse(time_on_host > 0 & linked_type == "Deer",
                         rbinom(n=1,size=1,prob = deer_GR),
                         ifelse(time_on_host > 0 & linked_type == "Mouse",
