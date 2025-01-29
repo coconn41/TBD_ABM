@@ -5,6 +5,8 @@ mouse_agents = mouse_agents %>%
   filter(network_ID == net_select)
 tick_agents = tick_agents %>%
   filter(network_ID == net_select)
+nymph_agents = nymph_agents %>%
+  filter(network_ID == net_select)
 jump_probability_df = jump_probability_df %>%
   filter(network_ID == net_select)
 aspatial_network = aspatial_network %>%
