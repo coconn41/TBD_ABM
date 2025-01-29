@@ -27,7 +27,7 @@ for(i in 1:go_timesteps){
   update_enviro(i,daylight)
   
   # Add nymphs in during summer of Year 1
-  if(year==1&day==171){
+  if(year==1&day==171 & exists("nymph_agents")){
     tick_agents = rbind(tick_agents,nymph_agents)
     remove(nymph_agents)
   }
