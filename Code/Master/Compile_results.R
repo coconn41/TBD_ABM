@@ -8,6 +8,8 @@ track_data = function(i,deer_agents,mouse_agents,tick_agents){
              season = season,
              timestep = i,
              year = year,
+             day_of_year = day,
+             network = net_select,
              Agent = "Deer")
     mouse_data<<- mouse_agents %>%
       group_by(network_ID,layer) %>%
@@ -16,6 +18,8 @@ track_data = function(i,deer_agents,mouse_agents,tick_agents){
              timestep = i,
              season = season,
              year = year,
+             day_of_year = day,
+             network = net_select,
              Agent = "Mice")
     tick_data <<- tick_agents %>%
       group_by(Lifestage,network_ID,layer) %>%
@@ -26,6 +30,7 @@ track_data = function(i,deer_agents,mouse_agents,tick_agents){
                 year = year,
                 timestep = i,
                 day_of_year = day,
+                network = net_select,
                 season = season)
  # }
   if(i==1){#24){
