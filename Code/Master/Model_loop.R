@@ -326,7 +326,8 @@ if(season!="winter"){
     mutate(transfer_type = "None",
            attempted_pathogen_transfer = ifelse(links>0 & Infection_status != "None",1,0))
 #####  
-  # Groom ticks
+# Groom ticks
+#####  
   if(daytime=="day"){tick_agents <- tick_agents %>%
     mutate(die = ifelse(time_on_host > 0 & linked_type == "Deer",
                         rbinom(n=1,size=1,prob = deer_GR),

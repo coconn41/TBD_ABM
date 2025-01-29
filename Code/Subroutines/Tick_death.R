@@ -28,7 +28,17 @@ tick_death = function(tick_agents){
                           season == "fall",1,die)) %>%
     mutate(die = ifelse(Lifestage == "Adult" & 
                           mated == 0 &
-                          season == "summer",1,die)) %>%
+                          season == "summer",1,die))
+  
+  die_list <<- tick_agents %>% filter(die==1)
+  
+  deer_agents <<- deer_agents %>% 
+    mutate(tick_links = ifelse(tick_links %in% die_list,0,tick_links))
+  
+  mouse_agents <<- mouse_agents %>%
+    mutate(tick_links = ifelse(tick_links %in% die_list,0,tick_links))
+  
+  tick_agents <<- tick_agents %>%
     filter(num_ticks >= 0,
            die == 0) %>%
     dplyr::select(-c(replete_death,un_replete_death))
