@@ -1,5 +1,5 @@
 tick_death = function(tick_agents){
-  tick_agents <<- tick_agents %>%
+  tick_agents <- tick_agents %>%
     mutate(replete_death = ifelse(Lifestage=="Larvae" & fed == 1 & dropped == 1,
                                   rbinom(n = 1, size = 1, prob = L_rep_DR),
                                   ifelse(Lifestage == "Nymph" & fed == 1 & dropped == 1,
@@ -30,7 +30,7 @@ tick_death = function(tick_agents){
                           mated == 0 &
                           season == "summer",1,die))
   
-  die_list <<- tick_agents %>% filter(die==1)
+  die_list <- tick_agents %>% filter(die==1)
   
   deer_agents <<- deer_agents %>% 
     mutate(tick_links = ifelse(tick_links %in% die_list,0,tick_links))
