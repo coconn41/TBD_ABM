@@ -31,6 +31,7 @@ tick_death = function(tick_agents){
                           season == "summer",1,die))
   
   die_list <- tick_agents %>% filter(die==1)
+  die_list = die_list$Agent_ID
   
   deer_agents <<- deer_agents %>% 
     mutate(tick_links = ifelse(tick_links %in% die_list,0,tick_links))
