@@ -8,18 +8,29 @@ tick_drop_fn = function(tick_agents){
   
 if(nrow(L_ticks)!=0){ L_ticks2 = L_ticks %>%
     uncount(dropped) %>%
-    mutate(dropped = 1,
+    mutate(dropped = -1,
            Agent_ID = (max(tick_agents$Agent_ID)+1):((max(tick_agents$Agent_ID))+nrow(.)),
            num_ticks = 1)
   
   L_ticks = L_ticks %>%
     mutate(dropped = 0)
-  tick_agents <<- tick_agents %>%
-    mutate(dropped = ifelse(fed == 1 & Lifestage == "Adult",1,
-                            ifelse(fed == 1 & Lifestage == "Nymph",1,fed))) %>%
+  tick_agents <- tick_agents %>%
+    mutate(dropped = ifelse(fed == 1 & Lifestage == "Adult",-1,
+                            ifelse(fed == 1 & Lifestage == "Nymph",-1,fed))) %>%
     filter(!c(Agent_ID %in% L_ticks)) %>%
     bind_rows(.,L_ticks) %>%
-    bind_rows(.,L_ticks2) %>%
+    bind_rows(.,L_ticks2)
+  
+  dropped_IDs = tick_agents %>% filter(dropped==-1)
+  dropped_IDs = dropped_IDs$Agent_ID
+  
+deer_agents <<- deer_agents %>%
+  mutate(tick_links = ifelse(tick_links%in%dropped_IDs,0,tick_links))
+mouse_agents <<- mouse_agents %>%
+  mutate(tick_links = ifelse(tick_links%in%dropped_IDs,0,tick_links))
+  
+tick_agents <<- tick_agents %>%
+    mutate(dropped = ifelse(dropped==-1,1,dropped)) %>%
     mutate(row = ifelse(links>0&dropped==1&linked_type == "Deer",
                         deer_agents[match(.$links,deer_agents$Agent_ID),]$row,
                         #deer_agents[which(deer_agents$Agent_ID==links),]$row,
@@ -40,10 +51,18 @@ if(nrow(L_ticks)!=0){ L_ticks2 = L_ticks %>%
     mutate(links = ifelse(links>0&dropped==1,0,links))
   }
 if(nrow(L_ticks)==0){tick_agents <<- tick_agents %>%
-    mutate(dropped = ifelse(fed == 1 & Lifestage == "Adult",1,
-                            ifelse(fed == 1 & Lifestage == "Nymph",1,fed))) %>%
+    mutate(dropped = ifelse(fed == 1 & Lifestage == "Adult",-1,
+                            ifelse(fed == 1 & Lifestage == "Nymph",-1,fed))) %>%
     filter(!c(Agent_ID %in% L_ticks)) %>%
-    bind_rows(.,L_ticks) %>%
+    bind_rows(.,L_ticks)
+
+deer_agents <<- deer_agents %>%
+  mutate(tick_links = ifelse(tick_links%in%dropped_IDs,0,tick_links))
+mouse_agents <<- mouse_agents %>%
+  mutate(tick_links = ifelse(tick_links%in%dropped_IDs,0,tick_links))
+
+tick_agents <<- tick_agents %>%
+  mutate(dropped = ifelse(dropped==-1,1,dropped)) %>%
     mutate(row = ifelse(links>0&dropped==1&linked_type == "Deer",
                         deer_agents[match(.$links,deer_agents$Agent_ID),]$row,
                         #deer_agents[which(deer_agents$Agent_ID==links),]$row,
