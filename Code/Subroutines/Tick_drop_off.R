@@ -56,6 +56,9 @@ if(nrow(L_ticks)==0){tick_agents <<- tick_agents %>%
     filter(!c(Agent_ID %in% L_ticks)) %>%
     bind_rows(.,L_ticks)
 
+dropped_IDs = tick_agents %>% filter(dropped==-1)
+dropped_IDs = dropped_IDs$Agent_ID
+
 deer_agents <<- deer_agents %>%
   mutate(tick_links = ifelse(tick_links%in%dropped_IDs,0,tick_links))
 mouse_agents <<- mouse_agents %>%
