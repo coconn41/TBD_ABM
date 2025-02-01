@@ -21,8 +21,9 @@ spat_network = spat_network %>%
 
 #pb = txtProgressBar(min = 1, max = go_timesteps, initial = 1) 
 # start_time = Sys.time()
-for(i in 1:go_timesteps){
+for(i in 1:go_timesteps){#3695
   # Update environment
+  
   
   update_enviro(i,daylight)
   
@@ -110,7 +111,7 @@ for(i in 1:go_timesteps){
            layer = new_patch,
            locs = paste0(row,",",col,",",network_ID),
            jump_patch = 0) }
-if(season!="winter"){  
+if(day>=lay_egg){  
   # Create deer paths
   if(daytime=="day"){deer_paths <- deer_agents %>%
     filter(jump_patch==0) %>%
@@ -132,8 +133,10 @@ if(season!="winter"){
     group_by(Agent_ID) %>%
     mutate(prob = runif(min=0,max=1,n=1)) %>%
     arrange(prob)}
-  
-  # Attach ticks
+
+#####    
+# Attach ticks
+#####  
   if(daytime=="day"){T_matches1 <- tick_agents %>% 
     filter(links==0&dropped==0)
   
@@ -167,31 +170,22 @@ if(season!="winter"){
                                       mouse_agents$network_ID),NA)) 
   
   T_matches5 = T_matches4 %>%
-    mutate(mouse_links = mouse_agents[.$mouse_links,]$Agent_ID)#%>% # Below is miscoded
-  # mutate(mouse_links = ifelse(Lifestage == "Larvae",ifelse(rbinom(n=1,
-  #                                                                size=1,
-  #                                                                prob=LA_probability)==1,
-  #                                                         mouse_links,0),
-  #                            ifelse(Lifestage == "Nymph",ifelse(rbinom(n=1,
-  #                                                                      size=1,
-  #                                                                      prob=NA_probability)==1,
-  #                                                               mouse_links,0),
-  #                                   ifelse(Lifestage == "Adult",ifelse(rbinom(n=1,
-  #                                                                             size=1,
-  #                                                                             prob=AA_probability)==1,
-  #                                                                      mouse_links,0),0)))) 
+    mutate(mouse_links = mouse_agents[.$mouse_links,]$Agent_ID)    
   
   tick_agents <- T_matches5 %>%
-    mutate(selection = ifelse(deer_links>0&mouse_links>0&Lifestage=="Nymph",
-                              rbinom(n=1,size = 1,prob = N_prob),
-                              ifelse(deer_links>0&mouse_links>0&Lifestage=="Larvae",
-                                     rbinom(n=1,size=1,prob = L_prob),
-                                     ifelse(deer_links>0&mouse_links>0&Lifestage=="Adult",
-                                            0,-1))),
-           linked_type = ifelse(selection==1,"Mouse",
-                                ifelse(selection==0,"Deer","N")),
-           links = ifelse(selection==1,mouse_links,
-                          ifelse(selection==0,deer_links,NA))) %>%
+    mutate(selection = case_when(
+             deer_links > 0 & mouse_links > 0 & Lifestage == "Nymph"  ~ rbinom(n(), size = 1, prob = N_prob),
+             deer_links > 0 & mouse_links > 0 & Lifestage == "Larvae" ~ rbinom(n(), size = 1, prob = L_prob),
+             deer_links > 0 & mouse_links > 0 & Lifestage == "Adult"  ~ 0,
+             TRUE ~ -1),
+           linked_type = case_when(
+             selection == 1 ~ "Mouse",
+             selection == 0 ~ "Deer",
+             TRUE ~ "N"),
+           links = case_when(
+             selection==1 ~ mouse_links,
+             selection==0 ~ deer_links,
+             TRUE ~ NA_real_)) %>%
     dplyr::select(-c(deer_links,mouse_links,selection)) %>%
     rbind(.,tick_agents %>% filter(links>0|dropped>0))  # This combines back with already linked ticks
   
@@ -208,10 +202,10 @@ if(season!="winter"){
   
   tick_agents <- tick_agents %>%
     mutate(links = ifelse(is.na(links)==T,0,links))}
-  }
-  #####
-  # Transfer pathogens
-  #####
+  
+#####
+# Transfer pathogens
+#####
   tick_agents <- tick_agents %>%
     mutate(transfer_type = case_when(links>0 & 
                                        attempted_pathogen_transfer == 0 &
@@ -291,8 +285,8 @@ if(season!="winter"){
     #                                     transfer_type == "m2tv1" ~ transfer_outcomes_v1[rbinom(n = 1, size = 1, prob = mouse_infect_tick_v1)+1],
     #                                     transfer_type == "None" ~ "None",
     #                                     TRUE ~ "None"))
-    mutate(Infection_status = case_when(transfer_type == "d2tv1" ~ transfer_outcomes_v1[rbinom(n = 1, size = 1, prob = deer_infect_tick_v1)+1],
-                                        transfer_type == "m2tha" ~ transfer_outcomes_ha[rbinom(n = 1, size = 1, prob = mouse_infect_tick_ha)+1],
+    mutate(Infection_status = case_when(transfer_type == "d2tv1" ~ transfer_outcomes_v1[rbinom(n = n(), size = 1, prob = deer_infect_tick_v1)+1],
+                                        transfer_type == "m2tha" ~ transfer_outcomes_ha[rbinom(n = n(), size = 1, prob = mouse_infect_tick_ha)+1],
                                         transfer_type == "None" ~ Infection_status,
                                         TRUE ~ "None"))
   
@@ -305,7 +299,7 @@ if(season!="winter"){
       #                             rbinom(n = 1, size = 1, prob = tick_infect_deer_ha),
       #                             0),
       V1_infected = ifelse(tick_agents[which(tick_agents$Agent_ID==tick_links),]$transfer_type == "t2dv1",
-                           rbinom(n = 1, size = 1, prob = tick_infect_deer_v1),
+                           rbinom(n = n(), size = 1, prob = tick_infect_deer_v1),
                            0)) %>%
     bind_rows(.,dmatches1)
   
@@ -315,7 +309,7 @@ if(season!="winter"){
   mouse_agents <- mouse_agents %>%
     filter(tick_links>1 & Ha_infected == 0) %>%
     mutate(Ha_infected = ifelse(tick_agents[which(tick_agents$Agent_ID==tick_links),]$transfer_type == "t2mha",
-                                rbinom(n = 1, size = 1, prob = tick_infect_mouse_ha),
+                                rbinom(n = n(), size = 1, prob = tick_infect_mouse_ha),
                                 0),
            # V1_infected = ifelse(tick_agents[which(tick_agents$Agent_ID==tick_links),]$transfer_type == "t2mv1",
            #                      rbinom(n = 1, size = 1, prob = tick_infect_deer_v1),0) 
@@ -329,12 +323,14 @@ if(season!="winter"){
 # Groom ticks
 #####  
   if(daytime=="day"){tick_agents <- tick_agents %>%
-    mutate(die = ifelse(time_on_host > 0 & linked_type == "Deer",
-                        rbinom(n=1,size=1,prob = deer_GR),
-                        ifelse(time_on_host > 0 & linked_type == "Mouse",
-                               rbinom(n=1,size=1,prob = mouse_GR),0))) %>% # deer_GR mouse_GR
-    mutate(die = ifelse(die==1,ifelse(rbinom(n=1,size=1,prob = Groom_survival)==1,
-                                      0,1),0)) # Groom survival function
+    mutate(die = case_when(
+      time_on_host > 0 & linked_type == "Deer"  ~ rbinom(n(), size = 1, prob = deer_GR),
+      time_on_host > 0 & linked_type == "Mouse" ~ rbinom(n(), size = 1, prob = mouse_GR),
+      TRUE ~ 0)) %>% 
+      mutate(die = case_when(
+        die == 1 & rbinom(n(), size = 1, prob = Groom_survival) == 1 ~ 0,
+        die == 1 ~ 1,
+        TRUE ~ 0)) # Groom survival function
   
   groom_list <- subset(tick_agents,tick_agents$die==1)$Agent_ID
   
@@ -346,43 +342,63 @@ if(season!="winter"){
   
   tick_agents <- tick_agents %>%
     filter(die==0)}
+#####  
+# Mate ticks
+#####
+if(daytime=="day"){mating_fn(tick_agents = tick_agents)}
+}  
+#####  
+# Tick timer
+#####
+tick_timer(tick_agents = tick_agents)
   
-  # Mate ticks
-  if(daytime=="day"){mating_fn(tick_agents = tick_agents)}
+#####  
+# Tick drop off
+#####
+tick_drop_fn(tick_agents = tick_agents)
+
+if(day>=lay_egg){ 
+##### 
+# Lay eggs
+#####
+lay_eggs(tick_agents = tick_agents)
+
+#####  
+# Tick molting
+#####
+tick_molting(tick_agents = tick_agents)
+}
+
+#####
+# Tick death
+#####
+tick_death(tick_agents = tick_agents)
+
+#####  
+# Host timer
+#####
+host_timer_fn(deer_agents = deer_agents,
+              mouse_agents = mouse_agents)
   
-  # Tick timer
-  tick_timer(tick_agents = tick_agents)
+#####
+# "Kill" hosts
+#####
+kill_hosts_fn(deer_agents = deer_agents,
+              mouse_agents = mouse_agents)
   
-  # Tick drop off
-  tick_drop_fn(tick_agents = tick_agents)
+#####
+# Compile results
+#####
+track_data(i = i,
+           tick_agents = tick_agents,
+           deer_agents = deer_agents,
+           mouse_agents = mouse_agents)
   
-  # Lay eggs
-  lay_eggs(tick_agents = tick_agents)
-  
-  # Tick molting
-  tick_molting(tick_agents = tick_agents)
-  
-  # Tick death
-  tick_death(tick_agents = tick_agents)
-  
-  # Host timer
-  host_timer_fn(deer_agents = deer_agents,
-                mouse_agents = mouse_agents)
-  
-  # "Kill" hosts
-  kill_hosts_fn(deer_agents = deer_agents,
-                mouse_agents = mouse_agents)
-  
-  
-  # Compile results
-  track_data(i = i,
-             tick_agents = tick_agents,
-             deer_agents = deer_agents,
-             mouse_agents = mouse_agents)
-  
-  if(i%%100==0){print(paste0("timestep ", i, ",day ",day," of year ", year))}
+if(i%%100==0){print(paste0("timestep ", i, ",day ",day," of year ", year))}
   #setTxtProgressBar(pb,i)
 }
+
+
 # end_time = Sys.time()
 # end_time-start_time
 #9.043 minutes to do network 3

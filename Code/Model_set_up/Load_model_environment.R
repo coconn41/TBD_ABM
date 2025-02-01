@@ -18,7 +18,8 @@ tick_agents = read.csv(paste0(getwd(),'/Cached_data/Tick_agents.csv'))[,-1] %>%
          num_ticks = 1,
          dropped = 0,
          time_since_fed = 0,
-         attempted_pathogen_transfer = 0)
+         attempted_pathogen_transfer = 0,
+         molt_death_immune = 0)
 
 jump_probability_df = read.csv(paste0(getwd(),"/Cached_data/jump_probability_df.csv"))[,-1]
 

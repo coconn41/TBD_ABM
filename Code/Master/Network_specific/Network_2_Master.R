@@ -59,8 +59,9 @@ source(paste0(getwd(),'/Code/Master/Compile_results.R'))
 
 # Model starting timing:
 year=1
-day=79 # January (31) + February (28) + March 20th for spring solstice = 30+28+20
+day=111 # January (31) + February (28) + March 20th for spring solstice = 30+28+20 nvm same as lay_egg
 daytime = "night"
+season = "spring"
 
 # Number of hourly timesteps
 go_timesteps = 8760*3

@@ -16,7 +16,7 @@ mating_fn = function(tick_agents){
            Lifestage=="Adult",
            links %in% multiple_deer$Agent_ID)
 unq_ind = 0
-  if(is.null(nrow(multiple_tick2$links))==FALSE){
+  if(length(multiple_tick2$links)>0){
     for(unq in unique(multiple_tick2$links)){
     unq_ind = unq_ind+1
     multiple_tick3 = multiple_tick2 %>% 
@@ -59,5 +59,9 @@ tick_agents <<- tick_agents %>%
   filter(!c(Agent_ID %in% mated_females2$Agent_ID)) %>%
   filter(!c(Agent_ID %in% dead_males2$Agent_ID)) %>%
   bind_rows(.,mated_females2)
+deer_agents <<- deer_agents %>%
+  mutate(tick_links = ifelse(tick_links %in% dead_males2$Agent_ID,0,tick_links))
+mouse_agents <<- mouse_agents %>%
+  mutate(tick_links = ifelse(tick_links %in% dead_males2$Agent_ID,0,tick_links))
 }
 }

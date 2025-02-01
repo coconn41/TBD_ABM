@@ -7,5 +7,13 @@ tick_timer = function(tick_agents){
                                  ifelse(dropped==1,time_on_host,0)),
            fed = ifelse(Lifestage == "Larvae" & time_on_host >= (3*24),1,
                         ifelse(Lifestage == "Nymph" & time_on_host >= (5*24),1,
-                               ifelse(Lifestage == "Adult" & sex == "female" & time_on_host >= (10*24),1,0)))) 
+                               ifelse(Lifestage == "Adult" & sex == "female" & time_on_host >= (10*24),1,0))),
+           molt_death_immune = case_when(Lifestage == "Nymph" &
+                                           season == "summer" &
+                                           molt_death_immune == 1 ~ 0,
+                                         Lifestage == "Adult" &
+                                           mated == 0 &
+                                           season == "fall" &
+                                           molt_death_immune == 1 ~ 0,
+                                         TRUE ~ molt_death_immune)) 
 }
