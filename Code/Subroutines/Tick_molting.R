@@ -2,15 +2,18 @@ sexes = c("male","female")
 tick_molting = function(tick_agents){
   tick_agents <<- tick_agents %>%
     mutate(molt = case_when(Lifestage == "Eggs" & 
-                              day > egg_to_larvae ~ 1, #find age to molt, dummy age in for now
+                              season != "fall" &
+                              season != "winter" &
+                                day > egg_to_larvae ~ 1, #find age to molt, dummy age in for now
                             Lifestage == "Larvae" & 
                               dropped == 1 & 
-                              day >= larvae_to_nymph_min &
+                                day >= larvae_to_nymph_min &
                               day <= larvae_to_nymph_max ~ 1,# find age to molt, dummy age in for now
                             Lifestage == "Nymph" & 
                               dropped == 1 & 
-                              day >= nymph_to_adult_min &
-                              day <= nymph_to_adult_max ~ 1,# find age to molt, dummy age in for now
+                              season == "fall" ~ 1,
+                             # day >= nymph_to_adult_min &
+                              #day <= nymph_to_adult_max ~ 1,# find age to molt, dummy age in for now
                             TRUE ~ 0)) %>%
     mutate(fed = ifelse(molt==1,0,fed),
            time_since_fed = ifelse(molt==1,0,fed),

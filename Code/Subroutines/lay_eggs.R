@@ -17,8 +17,6 @@ lay_eggs = function(tick_agents){
   tick_agents <<- tick_agents %>%
     mutate(Infection_status = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
                                      "None",Infection_status),
-           tick_age_wks = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
-                                 0,tick_age_wks),
            num_ticks = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
                               eggs_per_female,num_ticks),#Double check the 1000 eggs estimate
            transfer_type = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
@@ -42,5 +40,7 @@ lay_eggs = function(tick_agents){
            mated = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
                           0,mated),
          Agent_ID = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
-                           (max(.$Agent_ID)+1):(max(.$Agent_ID)+num_new_eggs),Agent_ID))}
+                           (max(.$Agent_ID)+1):(max(.$Agent_ID)+num_new_eggs),Agent_ID)) %>%
+    mutate(tick_age_wks = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                            0,tick_age_wks),)}
          

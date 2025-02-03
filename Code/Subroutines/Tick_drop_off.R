@@ -3,10 +3,11 @@ tick_drop_fn = function(tick_agents){
     filter(Lifestage == "Larvae",
            fed == 1,
            dropped == 0) %>%
+    rowwise() %>%
     mutate(dropped = sum(rbinom(n = num_ticks, size = 1, prob = 1/(12-time_since_fed))),
            num_ticks = num_ticks - dropped) 
-  
-if(nrow(L_ticks)!=0){ L_ticks2 = L_ticks %>%
+donext = TRUE
+if(nrow(L_ticks)!=0 & sum(L_ticks$dropped)>0){ L_ticks2 = L_ticks %>%
     uncount(dropped) %>%
     mutate(dropped = -1,
            Agent_ID = (max(tick_agents$Agent_ID)+1):((max(tick_agents$Agent_ID))+nrow(.)),
@@ -16,8 +17,8 @@ if(nrow(L_ticks)!=0){ L_ticks2 = L_ticks %>%
     mutate(dropped = 0)
   tick_agents <- tick_agents %>%
     mutate(dropped = ifelse(fed == 1 & Lifestage == "Adult",-1,
-                            ifelse(fed == 1 & Lifestage == "Nymph",-1,fed))) %>%
-    filter(!c(Agent_ID %in% L_ticks)) %>%
+                            ifelse(fed == 1 & Lifestage == "Nymph",-1,dropped))) %>%
+    filter(!c(Agent_ID %in% L_ticks$Agent_ID)) %>%
     bind_rows(.,L_ticks) %>%
     bind_rows(.,L_ticks2)
   
@@ -49,11 +50,13 @@ tick_agents <<- tick_agents %>%
                           ifelse(links>0&dropped==1&linked_type == "Mouse",
                                  mouse_agents[match(.$links,mouse_agents$Agent_ID),]$layer,layer))) %>%
     mutate(links = ifelse(links>0&dropped==1,0,links))
-  }
-if(nrow(L_ticks)==0){tick_agents <<- tick_agents %>%
+donext = FALSE
+}
+if(donext==TRUE){
+if(nrow(L_ticks)==0 | sum(L_ticks$dropped)==0){tick_agents <- tick_agents %>%
     mutate(dropped = ifelse(fed == 1 & Lifestage == "Adult",-1,
-                            ifelse(fed == 1 & Lifestage == "Nymph",-1,fed))) %>%
-    filter(!c(Agent_ID %in% L_ticks)) %>%
+                            ifelse(fed == 1 & Lifestage == "Nymph",-1,dropped))) %>%
+    filter(!c(Agent_ID %in% L_ticks$Agent_ID)) %>%
     bind_rows(.,L_ticks)
 
 dropped_IDs = tick_agents %>% filter(dropped==-1)
@@ -84,7 +87,7 @@ tick_agents <<- tick_agents %>%
                           ifelse(links>0&dropped==1&linked_type == "Mouse",
                                  mouse_agents[match(.$links,mouse_agents$Agent_ID),]$layer,layer))) %>%
                                 # mouse_agents[which(mouse_agents$Agent_ID==links),]$layer,layer))) #%>%
-    mutate(links = ifelse(links>0&dropped==1,0,links))}
+    mutate(links = ifelse(links>0&dropped==1,0,links))}}
 }
 
 

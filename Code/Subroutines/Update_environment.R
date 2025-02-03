@@ -1,8 +1,8 @@
 update_enviro = function(i,daylight){
-if(i%%8760==0){year<<-year+1}
 day_hour <<- (i%%24)+1
 if(day_hour==1){day <<- day+1}
 if(day==366){day <<- 1}
+if(day==1&day_hour==1){year <<- year+1}
 daytime <<- ifelse(day_hour >= daylight[which(daylight$dayofyear==(day%%262)+1),2]&
                    day_hour <daylight[which(daylight$dayofyear==(day%%262)+1),3],
                  "day",'night')

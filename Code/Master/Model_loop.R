@@ -21,7 +21,7 @@ spat_network = spat_network %>%
 
 #pb = txtProgressBar(min = 1, max = go_timesteps, initial = 1) 
 # start_time = Sys.time()
-for(i in 1:go_timesteps){#3695
+for(i in 3001:7270){#
   # Update environment
   
   
@@ -138,6 +138,7 @@ if(day>=lay_egg){
 # Attach ticks
 #####  
   if(daytime=="day"){T_matches1 <- tick_agents %>% 
+    filter(Lifestage!="Eggs") %>%
     filter(links==0&dropped==0)
   
   # This includes only ticks that are not linked to a host
@@ -170,37 +171,46 @@ if(day>=lay_egg){
                                       mouse_agents$network_ID),NA)) 
   
   T_matches5 = T_matches4 %>%
-    mutate(mouse_links = mouse_agents[.$mouse_links,]$Agent_ID)    
+    mutate(mouse_links = mouse_agents[.$mouse_links,]$Agent_ID)#%>% # Below is miscoded
+  # mutate(mouse_links = ifelse(Lifestage == "Larvae",ifelse(rbinom(n=1,
+  #                                                                size=1,
+  #                                                                prob=LA_probability)==1,
+  #                                                         mouse_links,0),
+  #                            ifelse(Lifestage == "Nymph",ifelse(rbinom(n=1,
+  #                                                                      size=1,
+  #                                                                      prob=NA_probability)==1,
+  #                                                               mouse_links,0),
+  #                                   ifelse(Lifestage == "Adult",ifelse(rbinom(n=1,
+  #                                                                             size=1,
+  #                                                                             prob=AA_probability)==1,
+  #                                                                      mouse_links,0),0)))) 
   
-  tick_agents <- T_matches5 %>%
-    mutate(selection = case_when(
-             deer_links > 0 & mouse_links > 0 & Lifestage == "Nymph"  ~ rbinom(n(), size = 1, prob = N_prob),
-             deer_links > 0 & mouse_links > 0 & Lifestage == "Larvae" ~ rbinom(n(), size = 1, prob = L_prob),
-             deer_links > 0 & mouse_links > 0 & Lifestage == "Adult"  ~ 0,
-             TRUE ~ -1),
-           linked_type = case_when(
-             selection == 1 ~ "Mouse",
-             selection == 0 ~ "Deer",
-             TRUE ~ "N"),
-           links = case_when(
-             selection==1 ~ mouse_links,
-             selection==0 ~ deer_links,
-             TRUE ~ NA_real_)) %>%
+  tick_agents <<- T_matches5 %>%
+    mutate(selection = ifelse(deer_links>0&mouse_links>0&Lifestage=="Nymph",
+                              rbinom(n=1,size = 1,prob = N_prob),
+                              ifelse(deer_links>0&mouse_links>0&Lifestage=="Larvae",
+                                     rbinom(n=1,size=1,prob = L_prob),
+                                     ifelse(deer_links>0&mouse_links>0&Lifestage=="Adult",
+                                            0,-1))),
+           linked_type = ifelse(selection==1,"Mouse",
+                                ifelse(selection==0,"Deer","N")),
+           links = ifelse(selection==1,mouse_links,
+                          ifelse(selection==0,deer_links,NA))) %>%
     dplyr::select(-c(deer_links,mouse_links,selection)) %>%
-    rbind(.,tick_agents %>% filter(links>0|dropped>0))  # This combines back with already linked ticks
+    rbind(.,tick_agents %>% filter(links>0|dropped>0|Lifestage=="Eggs"))  # This combines back with already linked ticks
   
   non_links = tick_agents %>% 
     filter(is.na(links)==F)
   
-  deer_agents <- deer_agents %>%
+  deer_agents <<- deer_agents %>%
     mutate(tick_links = non_links[match(Agent_ID,non_links$links),]$Agent_ID) %>%
     mutate(tick_links = ifelse(is.na(tick_links)==T,0,tick_links))
   
-  mouse_agents <- mouse_agents %>%
+  mouse_agents <<- mouse_agents %>%
     mutate(tick_links = non_links[match(Agent_ID,non_links$mouse_links),]$Agent_ID) %>%
     mutate(tick_links = ifelse(is.na(tick_links)==T,0,tick_links))
   
-  tick_agents <- tick_agents %>%
+  tick_agents <<- tick_agents %>%
     mutate(links = ifelse(is.na(links)==T,0,links))}
   
 #####

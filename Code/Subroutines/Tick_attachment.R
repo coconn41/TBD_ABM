@@ -15,10 +15,11 @@ N_prob = testing_data[1,3]/(testing_data[1,3]+testing_data[2,3])
 
 attach_ticks = function(tick_agents,deer_paths,mouse_agents,other_agents,
                         LA_probability,NA_probability,AA_probability){
-  start_time = Sys.time()
+  #start_time = Sys.time()
   # This includes only ticks that are not linked to a host
   # and also have not already succeeded in a bloodmeal
   T_matches1 <- tick_agents %>% 
+    filter(Lifestage!="Eggs") %>%
     filter(links==0&dropped==0)
   
   # This includes only ticks that are not linked to a host
@@ -77,7 +78,7 @@ attach_ticks = function(tick_agents,deer_paths,mouse_agents,other_agents,
            links = ifelse(selection==1,mouse_links,
                           ifelse(selection==0,deer_links,NA))) %>%
     dplyr::select(-c(deer_links,mouse_links,selection)) %>%
-    rbind(.,tick_agents %>% filter(links>0|dropped>0))  # This combines back with already linked ticks
+    rbind(.,tick_agents %>% filter(links>0|dropped>0|Lifestage=="Eggs"))  # This combines back with already linked ticks
   
   non_links = tick_agents %>% 
     filter(is.na(links)==F)
@@ -92,7 +93,7 @@ attach_ticks = function(tick_agents,deer_paths,mouse_agents,other_agents,
   
   tick_agents <<- tick_agents %>%
     mutate(links = ifelse(is.na(links)==T,0,links))
-  end_time = Sys.time()
-  end_time-start_time
+  # end_time = Sys.time()
+  # end_time-start_time
 
 }

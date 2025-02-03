@@ -58,13 +58,13 @@ source(paste0(getwd(),'/Code/Subroutines/Kill_hosts.R'))
 source(paste0(getwd(),'/Code/Master/Compile_results.R'))
 
 # Model starting timing:
-year=1
-day=111 # January (31) + February (28) + March 20th for spring solstice = 30+28+20 nvm same as lay_egg
+year=0
+day=265 
 daytime = "night"
-season = "spring"
+season = "fall"
 
 # Number of hourly timesteps
-go_timesteps = 8760*3
+go_timesteps = 2160+(8760*2)
 
 # Select network: either "all" or the network number
 net_select = 2
