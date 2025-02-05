@@ -6,12 +6,12 @@ tick_death = function(tick_agents){
       Lifestage == "Adult" & fed == 1 & dropped == 1 ~ rbinom(n(), size = 1, prob = A_rep_DR),
       TRUE ~ 0)) %>%
     mutate(un_replete_death = case_when(
-      Lifestage == "Larvae" & fed == 0 & dropped == 0 & (day/7) >= 40 ~ sum(rbinom(num_ticks, size = 1, prob = L_unfed_DR_o40)),
-      Lifestage == "Larvae" & fed == 0 & dropped == 0 & (day/7) < 40  ~ sum(rbinom(num_ticks, size = 1, prob = L_unfed_DR_lt40)),
-      Lifestage == "Nymph" & fed == 0 & dropped == 0 & (day/7) >= 40  ~ rbinom(n(), size = 1, prob = N_unfed_DR_o40),
-      Lifestage == "Nymph" & fed == 0 & dropped == 0 & (day/7) < 40   ~ rbinom(n(), size = 1, prob = N_unfed_DR_lt40),
-      Lifestage == "Adult" & fed == 0 & dropped == 0 & (day/7) >= 40  ~ rbinom(n(), size = 1, prob = A_unfed_DR_o40),
-      Lifestage == "Adult" & fed == 0 & dropped == 0 & (day/7) < 40   ~ rbinom(n(), size = 1, prob = A_unfed_DR_lt40),
+      Lifestage == "Larvae" & fed == 0 & dropped == 0 & links==0 & (day/7) >= 40 ~ rbinom(n(), size = num_ticks, prob = L_unfed_DR_o40),
+      Lifestage == "Larvae" & fed == 0 & dropped == 0 & links==0 & (day/7) < 40  ~ rbinom(n(), size = num_ticks, prob = L_unfed_DR_lt40),
+      Lifestage == "Nymph" & fed == 0 & dropped == 0 & links==0 & (day/7) >= 40  ~ rbinom(n(), size = num_ticks, prob = N_unfed_DR_o40),
+      Lifestage == "Nymph" & fed == 0 & dropped == 0 & links==0 & (day/7) < 40   ~ rbinom(n(), size = num_ticks, prob = N_unfed_DR_lt40),
+      Lifestage == "Adult" & fed == 0 & dropped == 0 & links==0 & (day/7) >= 40  ~ rbinom(n(), size = num_ticks, prob = A_unfed_DR_o40),
+      Lifestage == "Adult" & fed == 0 & dropped == 0 & links==0 &(day/7) < 40   ~ rbinom(n(), size = num_ticks, prob = A_unfed_DR_lt40),
       TRUE ~ 0)) %>%
     mutate(die = ifelse(replete_death+un_replete_death>=1,1,0)) %>%
     mutate(die = ifelse(Lifestage == "Larvae" & 
@@ -25,7 +25,10 @@ tick_death = function(tick_agents){
     mutate(die = ifelse(Lifestage == "Adult" & 
                           mated == 0 &
                           season == "summer" &
-                          molt_death_immune == 0,1,die))
+                          molt_death_immune == 0,1,die)) %>%
+    mutate(die = ifelse(Lifestage == "Adult" & 
+                          mated == 1 & 
+                          sex == "male",1,die))
   
   die_list <- tick_agents %>% filter(die==1)
   die_list = die_list$Agent_ID

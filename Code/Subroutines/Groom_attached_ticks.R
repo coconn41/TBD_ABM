@@ -1,20 +1,34 @@
 groom_fn = function(tick_agents,deer_agents){
-  tick_agents <- tick_agents %>%
-    mutate(die = ifelse(time_on_host > 0 & linked_type == "Deer",
-                        rbinom(n=1,size=1,prob = deer_GR),
-                        ifelse(time_on_host > 0 & linked_type == "Mouse",
-                               rbinom(n=1,size=1,prob = mouse_GR),0))) %>% # deer_GR mouse_GR
-    mutate(die = ifelse(die==1,ifelse(rbinom(n=1,size=1,prob = Groom_survival)==1,
-                                      0,1),0)) # Groom survival function
   
-  groom_list <<- subset(tick_agents,tick_agents$die==1)$Agent_ID
+  groomed_ticks_deer <- c()
   
-  deer_agents <<- deer_agents %>% 
-    mutate(tick_links = ifelse(tick_links %in% groom_list,0,tick_links))
+  deer_agents <<- deer_agents %>%
+    mutate(tick_links = map2(tick_links, groom_timer, ~ {
+      if (.y >= 1) {  
+        idx <- sample(length(.x), 1)  # Choose a random index
+        groomed_ticks_deer <<- c(groomed_ticks_deer, .x[idx])  # Store removed element
+        result <- .x[-idx]  # Remove the element
+        if (length(result) == 0) NA else result  # Replace empty list with NA
+      } else {
+        .x  
+      }
+    }))
+    
+  groomed_ticks_mice <- c() 
   
   mouse_agents <<- mouse_agents %>%
-    mutate(tick_links = ifelse(tick_links %in% groom_list,0,tick_links))
+    mutate(tick_links = map2(tick_links, groom_timer, ~ {
+      if (.y >= 1) {  
+        idx <- sample(length(.x), 1)  # Choose a random index
+        groomed_ticks_mice <<- c(groomed_ticks_mice, .x[idx])  # Store removed element
+        result <- .x[-idx]  # Remove the element
+        if (length(result) == 0) NA else result  # Replace empty list with NA
+      } else {
+        .x  
+      }
+    }))
   
-  tick_agents <<- tick_agents %>%
-    filter(die==0)
+  tick_agents <- tick_agents %>%
+    filter(!c(Agent_ID%in%groomed_ticks_deer),
+           !c(Agent_ID%in%groomed_ticks_mice))
 }

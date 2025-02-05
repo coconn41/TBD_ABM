@@ -25,6 +25,11 @@ track_data = function(i,deer_agents,mouse_agents,tick_agents){
       group_by(Lifestage,network_ID,layer) %>%
       summarise(Ha_perc = (length(which(Infection_status == "ha"))/n())*100,
                 v1_perc = (length(which(Infection_status == "v1"))/n())*100,
+                total_attached = length(which(links>0)),
+                total_fed = sum(fed),
+                total_dropped = sum(dropped),
+                total_molted = sum(molt),
+                total_mated = sum(mated),
                 total_ticks = sum(num_ticks),
                 Agent = "Tick",
                 year = year,

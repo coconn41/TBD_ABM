@@ -126,10 +126,14 @@ aspatial_network = network1 %>%
 reduced_patches = left_join(reduced_patches,network2)
 
 deer_agents = Host_agents %>% 
-  filter(Agent_type == "Deer") 
+  filter(Agent_type == "Deer") %>%
+  mutate(groom_timer = 0,
+         V1_infection_timer = 0)
 
 mouse_agents = Host_agents %>%
-  filter(Agent_type == "Mouse")
+  filter(Agent_type == "Mouse") %>%
+  mutate(groom_timer = 0,
+         Ha_infection_timer = 0)
 
 nymph_agents = tick_agents %>% filter(Lifestage=="Nymph")
 tick_agents = tick_agents %>% filter(Lifestage!="Nymph")

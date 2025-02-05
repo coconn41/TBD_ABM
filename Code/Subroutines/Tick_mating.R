@@ -59,9 +59,24 @@ tick_agents <<- tick_agents %>%
   filter(!c(Agent_ID %in% mated_females2$Agent_ID)) %>%
   filter(!c(Agent_ID %in% dead_males2$Agent_ID)) %>%
   bind_rows(.,mated_females2)
-deer_agents <<- deer_agents %>%
-  mutate(tick_links = ifelse(tick_links %in% dead_males2$Agent_ID,0,tick_links))
-mouse_agents <<- mouse_agents %>%
-  mutate(tick_links = ifelse(tick_links %in% dead_males2$Agent_ID,0,tick_links))
+
+# Below must filter out based on condition, use the same as grooming
+dm2_ids = unique(dead_males2$Agent_ID)
+
+deer_agents$tick_links = map(deer_agents$tick_links, ~ .x[!(.x %in% dm2_ids)])
+mouse_agents$tick_links = map(mouse_agents$tick_links, ~ .x[!(.x %in% dm2_ids)])
+
+# deer_agents <<- deer_agents %>%
+#   mutate(tick_links = map())
+#   map(deer_agents$links, ~ .x[!(.x %in% df2_set)])
+#   mutate(tick_links = map(tick_links, ~ .x[!(.x %in% dead_males2$Agent_ID)]))
+  #mutate(tick_links = map(tick_links, ~ discard(.x, ~ .x %in% dead_males2$Agent_ID)))
+  #mutate(tick_links = map(tick_links, ~ .x[!(.x %in% dead_males2$Agent_ID)])) # Update to use list
+#mutate(tick_links = ifelse(tick_links %in% dead_males2$Agent_ID,0,tick_links))
+# mouse_agents <<- mouse_agents %>%
+#   mutate(tick_links = map(tick_links, ~ .x[!(.x %in% dead_males2$Agent_ID)]))
+  #mutate(tick_links = map(tick_links, ~ discard(.x, ~ .x %in% dead_males2$Agent_ID)))
+  #mutate(tick_links = map(tick_links, ~ .x[!(.x %in% dead_males2$Agent_ID)]))
+  #mutate(tick_links = ifelse(tick_links %in% dead_males2$Agent_ID,0,tick_links)) # Update to use list
 }
 }

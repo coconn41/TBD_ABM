@@ -4,10 +4,12 @@ lay_eggs = function(tick_agents){
     mutate(tick_age_wks = ifelse(Lifestage=="Adult" & # This is a dummy to separate new eggs from old
                                    sex == "female" & 
                                    mated == 1 & 
+                                   season!="fall" &
                                    day >= lay_egg,# find tick egg laying timing)
                                  -1,tick_age_wks),
            Lifestage = ifelse(Lifestage=="Adult" & 
                                 sex == "female" & 
+                                season != "fall" &
                                 mated == 1 & 
                                 day >= lay_egg,# find tick egg laying timing
                               "Eggs",Lifestage))
@@ -42,5 +44,6 @@ lay_eggs = function(tick_agents){
          Agent_ID = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
                            (max(.$Agent_ID)+1):(max(.$Agent_ID)+num_new_eggs),Agent_ID)) %>%
     mutate(tick_age_wks = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
-                            0,tick_age_wks),)}
+                            0,tick_age_wks))
+  }
          

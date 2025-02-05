@@ -20,8 +20,8 @@ spat_network = spat_network %>%
 
 
 #pb = txtProgressBar(min = 1, max = go_timesteps, initial = 1) 
-# start_time = Sys.time()
-for(i in 3001:7270){#
+ start_time = Sys.time()
+for(i in 1251:8760){#2160
   # Update environment
   
   
@@ -185,59 +185,107 @@ if(day>=lay_egg){
   #                                                                             prob=AA_probability)==1,
   #                                                                      mouse_links,0),0)))) 
   
-  tick_agents <<- T_matches5 %>%
-    mutate(selection = ifelse(deer_links>0&mouse_links>0&Lifestage=="Nymph",
-                              rbinom(n=1,size = 1,prob = N_prob),
-                              ifelse(deer_links>0&mouse_links>0&Lifestage=="Larvae",
-                                     rbinom(n=1,size=1,prob = L_prob),
-                                     ifelse(deer_links>0&mouse_links>0&Lifestage=="Adult",
-                                            0,-1))),
-           linked_type = ifelse(selection==1,"Mouse",
-                                ifelse(selection==0,"Deer","N")),
-           links = ifelse(selection==1,mouse_links,
-                          ifelse(selection==0,deer_links,NA))) %>%
+  tick_agents <- T_matches5 %>%
+    mutate(selection = case_when(deer_links>0&mouse_links>0&Lifestage=="Nymph" ~ rbinom(n=n(),size = 1,prob = N_prob),
+                                 deer_links>0&mouse_links>0&Lifestage=="Larvae" ~ rbinom(n=n(),size=1,prob = L_prob),
+                                 deer_links>0&mouse_links>0&Lifestage=="Adult" ~ 0,
+                                 is.na(deer_links)==T & mouse_links>0 ~ 1,
+                                 deer_links > 0 & is.na(mouse_links)==T ~ 0,
+                                 TRUE ~ -1),
+           linked_type = case_when(selection == 1 ~ "Mouse",
+                                   selection == 0 ~ "Deer",
+                                   selection == -1 ~ "N",
+                                   TRUE ~ "N"),
+           links = case_when(selection == 1 ~ mouse_links,
+                             selection == 0 ~ deer_links,
+                             TRUE ~ NA_real_)) %>%
     dplyr::select(-c(deer_links,mouse_links,selection)) %>%
     rbind(.,tick_agents %>% filter(links>0|dropped>0|Lifestage=="Eggs"))  # This combines back with already linked ticks
   
-  non_links = tick_agents %>% 
-    filter(is.na(links)==F)
+  # non_links = tick_agents %>% 
+  #   filter(is.na(links)==F)
+   
+  deer_agents <- tick_agents %>%
+    filter(is.na(links)==F) %>%
+    group_by(links) %>%
+    summarise(Agent_ID = list(Agent_ID), .groups = "drop") %>%
+    rename(tick_links = "Agent_ID",
+           Agent_ID = "links") %>%
+    right_join(deer_agents, #%>% 
+               #  mutate(tick_links = ifelse(tick_links==0,NA_real_,tick_links)),
+               by = "Agent_ID") %>%
+    mutate(combined_list = mapply(function(a,b) {
+      unique(c(a,b))
+    }, tick_links.x, tick_links.y, SIMPLIFY = FALSE)
+    ) %>%
+    select(-c(tick_links.x,tick_links.y)) %>%
+    rename(tick_links = "combined_list")
   
-  deer_agents <<- deer_agents %>%
-    mutate(tick_links = non_links[match(Agent_ID,non_links$links),]$Agent_ID) %>%
-    mutate(tick_links = ifelse(is.na(tick_links)==T,0,tick_links))
+  # deer_agents <- deer_agents %>%
+  #   mutate(tick_links = non_links[match(Agent_ID,non_links$links),]$Agent_ID) %>%
+  #   mutate(tick_links = ifelse(is.na(tick_links)==T,0,tick_links))
   
-  mouse_agents <<- mouse_agents %>%
-    mutate(tick_links = non_links[match(Agent_ID,non_links$mouse_links),]$Agent_ID) %>%
-    mutate(tick_links = ifelse(is.na(tick_links)==T,0,tick_links))
+  mouse_agents <- tick_agents %>%
+    filter(is.na(links)==F) %>%
+    group_by(links) %>%
+    summarise(Agent_ID = list(Agent_ID), .groups = "drop") %>%
+    rename(tick_links = "Agent_ID",
+           Agent_ID = "links") %>%
+    right_join(mouse_agents,#%>% 
+                # mutate(tick_links = ifelse(tick_links==0,NA_real_,tick_links)),
+               by = "Agent_ID") %>%
+    mutate(combined_list = mapply(function(a,b) {
+      unique(c(a,b))
+    }, tick_links.x, tick_links.y, SIMPLIFY = FALSE)
+    ) %>%
+    select(-c(tick_links.x,tick_links.y)) %>%
+    rename(tick_links = "combined_list")
   
-  tick_agents <<- tick_agents %>%
-    mutate(links = ifelse(is.na(links)==T,0,links))}
+  # mouse_agents <- mouse_agents %>%
+  #   mutate(tick_links = non_links[match(Agent_ID,non_links$mouse_links),]$Agent_ID) %>%
+  #   mutate(tick_links = ifelse(is.na(tick_links)==T,0,tick_links))
+  
+  tick_agents <- tick_agents %>%
+    mutate(links = ifelse(is.na(links)==T,0,links))
+  }
   
 #####
 # Transfer pathogens
 #####
+if(exists('deer_paths')==F){tick_agents$transfer_type = "None"}
+if(exists('deer_paths')==T){
   tick_agents <- tick_agents %>%
     mutate(transfer_type = case_when(links>0 & 
+                                       time_on_host >24 &
+                                       sex == "female" &
                                        attempted_pathogen_transfer == 0 &
                                        linked_type == "Deer" &
                                        Infection_status == "v1" &
                                        deer_agents[match(links,deer_agents$Agent_ID),]$V1_infected==0 ~ "t2dv1",
                                      links>0 & 
+                                       time_on_host >24 &
+                                       sex == "female" &
                                        attempted_pathogen_transfer == 0 &
                                        linked_type == "Deer" &
                                        Infection_status == "None" &
                                        deer_agents[match(links,deer_agents$Agent_ID),]$V1_infected==1 ~ "d2tv1",
                                      links>0 & 
+                                       time_on_host >24 &
+                                       sex == "female" &
                                        attempted_pathogen_transfer == 0 &
                                        linked_type == "Deer" &
                                        Infection_status == "None" &
                                        deer_agents[match(links,deer_agents$Agent_ID),]$V1_infected==0 ~ "None",
                                      links>0 & 
+                                       time_on_host >24 &
+                                       sex == "female" &
                                        attempted_pathogen_transfer == 0 &
                                        linked_type == "Mouse" &
                                        Infection_status == "ha" &
                                        deer_agents[match(links,deer_agents$Agent_ID),]$Ha_infected==0 ~ "t2mha",
                                      links>0 & 
+                                       time_on_host >24 &
+                                       sex == "female" &
                                        attempted_pathogen_transfer == 0 &
                                        linked_type == "Mouse" &
                                        Infection_status == "None" &
@@ -299,63 +347,184 @@ if(day>=lay_egg){
                                         transfer_type == "m2tha" ~ transfer_outcomes_ha[rbinom(n = n(), size = 1, prob = mouse_infect_tick_ha)+1],
                                         transfer_type == "None" ~ Infection_status,
                                         TRUE ~ "None"))
+
+  # dmatches1 <- deer_agents %>%
+  #   mutate(tick_links = as.list(ifelse(tick_links==0,NA_real_,tick_links))) %>%
+  #   filter(is.na(tick_links)==TRUE | V1_infected == 1) 
+
+  d_matches1 <- deer_agents %>%
+    filter(is.na(tick_links)==TRUE | V1_infected == 1)
   
-  dmatches1 <- deer_agents %>%
-    filter(tick_links == 0 | V1_infected == 1)
+  t2dv1_ids <- tick_agents$Agent_ID[tick_agents$transfer_type == "t2dv1"]
   
   deer_agents <- deer_agents %>%
-    filter(tick_links>1 & V1_infected == 0) %>%
-    mutate(#Ha_infected = ifelse(tick_agents[which(tick_agents$Agent_ID==tick_links),]$transfer_type == "t2dha",
-      #                             rbinom(n = 1, size = 1, prob = tick_infect_deer_ha),
-      #                             0),
-      V1_infected = ifelse(tick_agents[which(tick_agents$Agent_ID==tick_links),]$transfer_type == "t2dv1",
-                           rbinom(n = n(), size = 1, prob = tick_infect_deer_v1),
-                           0)) %>%
-    bind_rows(.,dmatches1)
+    filter(!is.na(tick_links) & V1_infected == 0)
+  
+  deer_agents$tick_links <- map(deer_agents$tick_links, ~ .x[!is.na(.x)])
+  deer_agents$transfer_count <- vapply(deer_agents$tick_links, function(x) sum(x %in% t2dv1_ids), integer(1))
+  new_infections <- rbinom(n = nrow(deer_agents), size = deer_agents$transfer_count, prob = tick_infect_deer_v1) > 0
+  deer_agents$V1_infected <- ifelse(deer_agents$V1_infected == 0 & new_infections, 1, deer_agents$V1_infected)
+  deer_agents <- deer_agents %>%
+    rbind(.,d_matches1)
+  # deer_agents <- deer_agents %>%
+  #   filter(is.na(tick_links)==FALSE & V1_infected == 0) %>%
+  #   mutate(tick_links = map(tick_links, ~ .x[!is.na(.x)]),
+  #          transfer_count = map_int(tick_links, ~ sum(.x %in% tick_agents$Agent_ID[tick_agents$transfer_type %in% "t2dv1"])),
+  #          V1_infected = ifelse(V1_infected==0,
+  #                               ifelse(rbinom(n = n(),
+  #                                      size = transfer_count,
+  #                                      prob = tick_infect_deer_v1)>0,1,V1_infected))) %>%
+  #   bind_rows(.,dmatches1)
   
   m_matches1 <- mouse_agents %>%
-    filter(tick_links==0 | Ha_infected == 1)
+    filter(is.na(tick_links)==TRUE | Ha_infected == 1)
+  
+  t2mha_ids <- tick_agents$Agent_ID[tick_agents$transfer_type == "t2mha"]
   
   mouse_agents <- mouse_agents %>%
-    filter(tick_links>1 & Ha_infected == 0) %>%
-    mutate(Ha_infected = ifelse(tick_agents[which(tick_agents$Agent_ID==tick_links),]$transfer_type == "t2mha",
-                                rbinom(n = n(), size = 1, prob = tick_infect_mouse_ha),
-                                0),
-           # V1_infected = ifelse(tick_agents[which(tick_agents$Agent_ID==tick_links),]$transfer_type == "t2mv1",
-           #                      rbinom(n = 1, size = 1, prob = tick_infect_deer_v1),0) 
-    ) %>%
-    bind_rows(.,m_matches1)
+    filter(!is.na(tick_links) & Ha_infected == 0)
+  
+  mouse_agents$tick_links <- map(mouse_agents$tick_links, ~ .x[!is.na(.x)])
+  mouse_agents$transfer_count <- vapply(mouse_agents$tick_links, function(x) sum(x %in% t2mha_ids), integer(1))
+  new_infections <- rbinom(n = nrow(mouse_agents), size = mouse_agents$transfer_count, prob = tick_infect_mouse_ha) > 0
+  mouse_agents$Ha_infected <- ifelse(mouse_agents$Ha_infected == 0 & new_infections, 1, mouse_agents$Ha_infected)
+  mouse_agents <- mouse_agents %>%
+    rbind(.,m_matches1)
+  
+  # mouse_agents <- mouse_agents %>%
+  #   filter(is.na(tick_links)==FALSE & Ha_infected == 0) %>%
+  #   mutate(tick_links = map(tick_links, ~ .x[!is.na(.x)]),
+  #          transfer_count = map_int(tick_links, ~ sum(.x %in% tick_agents$Agent_ID[tick_agents$transfer_type %in% "t2mha"])),
+  #          Ha_infected = ifelse(Ha_infected==0,
+  #                               ifelse(rbinom(n = n(),
+  #                                             size = transfer_count,
+  #                                             prob = tick_infect_mouse_ha)>0,1,Ha_infected))) %>%
+  #   bind_rows(.,m_matches1)
   
   tick_agents <- tick_agents %>%
     mutate(transfer_type = "None",
            attempted_pathogen_transfer = ifelse(links>0 & Infection_status != "None",1,0))
+}
 #####  
 # Groom ticks
 #####  
-  if(daytime=="day"){tick_agents <- tick_agents %>%
-    mutate(die = case_when(
-      time_on_host > 0 & linked_type == "Deer"  ~ rbinom(n(), size = 1, prob = deer_GR),
-      time_on_host > 0 & linked_type == "Mouse" ~ rbinom(n(), size = 1, prob = mouse_GR),
-      TRUE ~ 0)) %>% 
-      mutate(die = case_when(
-        die == 1 & rbinom(n(), size = 1, prob = Groom_survival) == 1 ~ 0,
-        die == 1 ~ 1,
-        TRUE ~ 0)) # Groom survival function
+  if(daytime=="day"){groomed_ticks_deer <- c()
   
-  groom_list <- subset(tick_agents,tick_agents$die==1)$Agent_ID
+  deer_agents <- deer_agents %>%
+    mutate(tick_links = map2(tick_links, groom_timer, ~ {
+      if (.y >= 1) {  
+        idx <- sample(length(.x), 1)  # Choose a random index
+        groomed_ticks_deer <<- c(groomed_ticks_deer, .x[idx])  # Store removed element
+        result <- .x[-idx]  # Remove the element
+        if (length(result) == 0) NA else result  # Replace empty list with NA
+      } else {
+        .x  
+      }
+    }))
   
-  deer_agents <- deer_agents %>% 
-    mutate(tick_links = ifelse(tick_links %in% groom_list,0,tick_links))
+  groomed_ticks_mice <- c() 
   
   mouse_agents <- mouse_agents %>%
-    mutate(tick_links = ifelse(tick_links %in% groom_list,0,tick_links))
+    mutate(tick_links = map2(tick_links, groom_timer, ~ {
+      if (.y >= 1) {  
+        idx <- sample(length(.x), 1)  # Choose a random index
+        groomed_ticks_mice <<- c(groomed_ticks_mice, .x[idx])  # Store removed element
+        result <- .x[-idx]  # Remove the element
+        if (length(result) == 0) NA else result  # Replace empty list with NA
+      } else {
+        .x  
+      }
+    }))
   
   tick_agents <- tick_agents %>%
-    filter(die==0)}
+    filter(!c(Agent_ID%in%groomed_ticks_deer),
+           !c(Agent_ID%in%groomed_ticks_mice))
+  }
 #####  
 # Mate ticks
 #####
-if(daytime=="day"){mating_fn(tick_agents = tick_agents)}
+if(daytime=="day"){
+  multiple_tick = tick_agents %>%
+    filter(links > 0,
+           Lifestage == "Adult",
+           mated != 1) %>%
+    group_by(links) %>%
+    summarise(tot = n()) %>%
+    ungroup() %>%
+    filter(tot > 1)
+  
+  multiple_deer = deer_agents %>%
+    filter(Agent_ID %in% multiple_tick$links)
+  
+  multiple_tick2 = tick_agents %>%
+    filter(mated!=1,
+           Lifestage=="Adult",
+           links %in% multiple_deer$Agent_ID)
+  unq_ind = 0
+  if(length(multiple_tick2$links)>0){
+    for(unq in unique(multiple_tick2$links)){
+      unq_ind = unq_ind+1
+      multiple_tick3 = multiple_tick2 %>% 
+        filter(links==unq)
+      females = multiple_tick3 %>%
+        filter(sex=="female")
+      males = multiple_tick3 %>%
+        filter(sex=="male")
+      if(nrow(females)!=0&nrow(males)!=0){
+        if(nrow(females)==nrow(males)){
+          mated_females = females %>%
+            mutate(mated=1)
+          dead_males = males}
+        if(nrow(females)>nrow(males)){
+          mated_females = females
+          mated_females[sample(x = nrow(females), size = nrow(males)),]$mated = 1
+          mated_females = mated_females %>%
+            filter(mated==1)
+          dead_males = males}
+        if(nrow(females)<nrow(males)){
+          mated_females = females %>%
+            mutate(mated=1)
+          dead_males = males
+          dead_males[sample(x = nrow(males), size = nrow(females)),]$mated = 1}}
+      if(nrow(females)==0|nrow(males)==0){
+        mated_females = NULL
+        dead_males = NULL
+      }
+      if(unq_ind==1){mated_females2 = mated_females
+      dead_males2 = dead_males}
+      if(unq_ind>1){mated_females2 = rbind(mated_females,mated_females2)
+      dead_males2 = rbind(dead_males,dead_males2)}
+      # tick_agents <<- tick_agents %>%
+      #   filter(!c(Agent_ID %in% mated_females$Agent_ID)) %>%
+      #   filter(!c(Agent_ID %in% dead_males$Agent_ID)) %>%
+      #   bind_rows(.,mated_females)
+      
+    }
+    tick_agents <- tick_agents %>%
+      filter(!c(Agent_ID %in% mated_females2$Agent_ID)) %>%
+      filter(!c(Agent_ID %in% dead_males2$Agent_ID)) %>%
+      bind_rows(.,mated_females2)
+    
+    # Below must filter out based on condition, use the same as grooming
+    dm2_ids = unique(dead_males2$Agent_ID)
+    
+    deer_agents$tick_links = map(deer_agents$tick_links, ~ .x[!(.x %in% dm2_ids)])
+    mouse_agents$tick_links = map(mouse_agents$tick_links, ~ .x[!(.x %in% dm2_ids)])
+    
+    # deer_agents <<- deer_agents %>%
+    #   mutate(tick_links = map())
+    #   map(deer_agents$links, ~ .x[!(.x %in% df2_set)])
+    #   mutate(tick_links = map(tick_links, ~ .x[!(.x %in% dead_males2$Agent_ID)]))
+    #mutate(tick_links = map(tick_links, ~ discard(.x, ~ .x %in% dead_males2$Agent_ID)))
+    #mutate(tick_links = map(tick_links, ~ .x[!(.x %in% dead_males2$Agent_ID)])) # Update to use list
+    #mutate(tick_links = ifelse(tick_links %in% dead_males2$Agent_ID,0,tick_links))
+    # mouse_agents <<- mouse_agents %>%
+    #   mutate(tick_links = map(tick_links, ~ .x[!(.x %in% dead_males2$Agent_ID)]))
+    #mutate(tick_links = map(tick_links, ~ discard(.x, ~ .x %in% dead_males2$Agent_ID)))
+    #mutate(tick_links = map(tick_links, ~ .x[!(.x %in% dead_males2$Agent_ID)]))
+    #mutate(tick_links = ifelse(tick_links %in% dead_males2$Agent_ID,0,tick_links)) # Update to use list
+  }
+}
 }  
 #####  
 # Tick timer
@@ -365,7 +534,97 @@ tick_timer(tick_agents = tick_agents)
 #####  
 # Tick drop off
 #####
-tick_drop_fn(tick_agents = tick_agents)
+  L_ticks = tick_agents %>%
+    filter(Lifestage == "Larvae",
+           fed == 1,
+           dropped == 0) %>%
+    mutate(dropped = sum(rbinom(n = n(), size = num_ticks, prob = 1/(12-time_since_fed))),
+           num_ticks = num_ticks - dropped) 
+  donext = TRUE
+  if(nrow(L_ticks)!=0 & sum(L_ticks$dropped)>0){ L_ticks2 = L_ticks %>%
+    uncount(dropped) %>%
+    mutate(dropped = -1,
+           Agent_ID = (max(tick_agents$Agent_ID)+1):((max(tick_agents$Agent_ID))+nrow(.)),
+           num_ticks = 1)
+  
+  L_ticks = L_ticks %>%
+    mutate(dropped = 0)
+  tick_agents <- tick_agents %>%
+    mutate(dropped = ifelse(fed == 1 & Lifestage == "Adult",-1,
+                            ifelse(fed == 1 & Lifestage == "Nymph",-1,dropped))) %>%
+    filter(!c(Agent_ID %in% L_ticks$Agent_ID)) %>%
+    bind_rows(.,L_ticks) %>%
+    bind_rows(.,L_ticks2)
+  
+  dropped_IDs = tick_agents %>% filter(dropped==-1)
+  dropped_IDs = dropped_IDs$Agent_ID
+  
+  deer_agents$tick_links = map(deer_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)])
+  mouse_agents$tick_links = map(mouse_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)])
+  
+  tick_agents <<- tick_agents %>%
+    mutate(dropped = ifelse(dropped==-1,1,dropped)) %>%
+    mutate(row = ifelse(links>0&dropped==1&linked_type == "Deer",
+                        deer_agents[match(.$links,deer_agents$Agent_ID),]$row,
+                        #deer_agents[which(deer_agents$Agent_ID==links),]$row,
+                        ifelse(links>0&dropped==1&linked_type == "Mouse",
+                               mouse_agents[match(.$links,mouse_agents$Agent_ID),]$row,row)),
+           #mouse_agents[which(mouse_agents$Agent_ID==links),]$row,row)),
+           col = ifelse(links>0&dropped==1&linked_type == "Deer",
+                        deer_agents[match(.$links,deer_agents$Agent_ID),]$col,
+                        #  deer_agents[which(deer_agents$Agent_ID==links),]$col,
+                        ifelse(links>0&dropped==1&linked_type == "Mouse",
+                               mouse_agents[match(.$links,mouse_agents$Agent_ID),]$col,col)),
+           #mouse_agents[which(mouse_agents$Agent_ID==links),]$col,col)),
+           layer = ifelse(links>0&dropped==1&linked_type == "Deer",
+                          deer_agents[match(.$links,deer_agents$Agent_ID),]$layer,
+                          #deer_agents[which(deer_agents$Agent_ID==links),]$layer,
+                          ifelse(links>0&dropped==1&linked_type == "Mouse",
+                                 mouse_agents[match(.$links,mouse_agents$Agent_ID),]$layer,layer))) %>%
+    mutate(links = ifelse(links>0&dropped==1,0,links))
+  donext = FALSE
+  }
+  if(donext==TRUE){
+    if(nrow(L_ticks)==0 | sum(L_ticks$dropped)==0){tick_agents <- tick_agents %>%
+      mutate(dropped = ifelse(fed == 1 & Lifestage == "Adult",-1,
+                              ifelse(fed == 1 & Lifestage == "Nymph",-1,dropped))) %>%
+      filter(!c(Agent_ID %in% L_ticks$Agent_ID)) %>%
+      bind_rows(.,L_ticks)
+    
+    dropped_IDs = tick_agents %>% filter(dropped==-1)
+    dropped_IDs = dropped_IDs$Agent_ID
+    
+    deer_agents$tick_links = map(deer_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)])
+    mouse_agents$tick_links = map(mouse_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)])
+    
+    # deer_agents <<- deer_agents %>%
+    #   mutate(tick_links = ifelse(tick_links%in%dropped_IDs,0,tick_links))
+    # mouse_agents <<- mouse_agents %>%
+    #   mutate(tick_links = ifelse(tick_links%in%dropped_IDs,0,tick_links))
+    
+    tick_agents <- tick_agents %>%
+      mutate(dropped = ifelse(dropped==-1,1,dropped)) %>%
+      mutate(row = ifelse(links>0&dropped==1&linked_type == "Deer",
+                          deer_agents[match(.$links,deer_agents$Agent_ID),]$row,
+                          #deer_agents[which(deer_agents$Agent_ID==links),]$row,
+                          ifelse(links>0&dropped==1&linked_type == "Mouse",
+                                 mouse_agents[match(.$links,mouse_agents$Agent_ID),]$row,row)),
+             #mouse_agents[which(mouse_agents$Agent_ID==links),]$row,row)),
+             col = ifelse(links>0&dropped==1&linked_type == "Deer",
+                          deer_agents[match(.$links,deer_agents$Agent_ID),]$col,
+                          #  deer_agents[which(deer_agents$Agent_ID==links),]$col,
+                          ifelse(links>0&dropped==1&linked_type == "Mouse",
+                                 mouse_agents[match(.$links,mouse_agents$Agent_ID),]$col,col)),
+             #mouse_agents[which(mouse_agents$Agent_ID==links),]$col,col)),
+             layer = ifelse(links>0&dropped==1&linked_type == "Deer",
+                            deer_agents[match(.$links,deer_agents$Agent_ID),]$layer,
+                            #deer_agents[which(deer_agents$Agent_ID==links),]$layer,
+                            ifelse(links>0&dropped==1&linked_type == "Mouse",
+                                   mouse_agents[match(.$links,mouse_agents$Agent_ID),]$layer,layer))) %>%
+      # mouse_agents[which(mouse_agents$Agent_ID==links),]$layer,layer))) #%>%
+      mutate(links = ifelse(links>0&dropped==1,0,links))
+    }
+  }
 
 if(day>=lay_egg){ 
 ##### 
@@ -404,18 +663,14 @@ track_data(i = i,
            deer_agents = deer_agents,
            mouse_agents = mouse_agents)
   
-if(i%%100==0){print(paste0("timestep ", i, ",day ",day," of year ", year))}
-  #setTxtProgressBar(pb,i)
+if(i%%100==0){print(paste0("timestep ", i, ",day ",day," of year ", year))
+  save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
+  }
 }
+# Fix compiler
+ end_time = Sys.time()
+ end_time-start_time
 
-
-# end_time = Sys.time()
-# end_time-start_time
-#9.043 minutes to do network 3
-  
-  # Update tick processes (Lay eggs, molt, die)
-  
-  # Track population data
   
   
 
