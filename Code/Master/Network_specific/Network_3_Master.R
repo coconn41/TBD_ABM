@@ -64,7 +64,7 @@ daytime = "night"
 season = "fall"
 
 # Number of hourly timesteps
-go_timesteps = 2160+(8760*2)
+go_timesteps = (8760*5)
 
 # Select network: either "all" or the network number
 net_select = 3

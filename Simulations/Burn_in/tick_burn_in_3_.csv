@@ -1,7 +1,0 @@
-"","County","Site","layer","metric","gridrows","gridcols","Agent_type","row","col","network_ID","Agent_ID","Lifestage","Infection_status","links","time_on_host","fed","mated","sex","time_since_mating","tick_age_wks","die","linked_type","num_ticks","dropped","time_since_fed","attempted_pathogen_transfer","transfer_type","molt"
-"1","Cattaraugus","Allegany State Park",26184,0.856787587335839,4802,4802,"Adult",2085,3105,3,3413158,"Adult","None",0,0,0,0,"female",0,65.1428571428571,0,NA,1,0,0,0,"None",0
-"2","Cattaraugus","Allegany State Park",26184,0.856787587335839,4802,4802,"Adult",861,1128,3,3413159,"Adult","None",0,0,0,0,"male",0,65.1428571428571,0,NA,1,0,0,0,"None",0
-"3","Cattaraugus","Allegany State Park",26184,0.856787587335839,4802,4802,"Adult",1128,3944,3,3413160,"Adult","None",0,0,0,0,"female",0,65.1428571428571,0,NA,1,0,0,0,"None",0
-"4","Cattaraugus","Allegany State Park",26184,0.856787587335839,4802,4802,"Adult",3979,1532,3,3413161,"Adult","None",0,0,0,0,"male",0,65.1428571428571,0,NA,1,0,0,0,"None",0
-"5","Cattaraugus","Allegany State Park",26184,0.856787587335839,4802,4802,"Adult",1718,430,3,3413162,"Adult","None",0,0,0,0,"female",0,65.1428571428571,0,NA,1,0,0,0,"None",0
-"6","Cattaraugus","Allegany State Park",26184,0.856787587335839,4802,4802,"Adult",1262,1899,3,3413163,"Adult","None",0,0,0,0,"female",0,65.1428571428571,0,NA,1,0,0,0,"None",0
