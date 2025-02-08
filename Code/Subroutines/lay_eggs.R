@@ -4,13 +4,17 @@ lay_eggs = function(tick_agents){
     mutate(tick_age_wks = ifelse(Lifestage=="Adult" & # This is a dummy to separate new eggs from old
                                    sex == "female" & 
                                    mated == 1 & 
+                                   dropped == 1 &
                                    season!="fall" &
+                                   season!="winter" &
                                    day >= lay_egg,# find tick egg laying timing)
                                  -1,tick_age_wks),
            Lifestage = ifelse(Lifestage=="Adult" & 
                                 sex == "female" & 
                                 season != "fall" &
+                                season!="winter" &
                                 mated == 1 & 
+                                dropped == 1 &
                                 day >= lay_egg,# find tick egg laying timing
                               "Eggs",Lifestage))
   

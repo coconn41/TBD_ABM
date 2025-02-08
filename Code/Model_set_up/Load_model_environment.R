@@ -123,16 +123,17 @@ aspatial_network = network1 %>%
   mutate(sample_probability = inverse_sinuousity / sum(inverse_sinuousity))
   
 
-reduced_patches = left_join(reduced_patches,network2)
+reduced_patches = left_join(reduced_patches,network2) %>%
+  st_drop_geometry()
 
 deer_agents = Host_agents %>% 
   filter(Agent_type == "Deer") %>%
-  mutate(groom_timer = 0,
+  mutate(#groom_timer = 0,
          V1_infection_timer = 0)
 
 mouse_agents = Host_agents %>%
   filter(Agent_type == "Mouse") %>%
-  mutate(groom_timer = 0,
+  mutate(#groom_timer = 0,
          Ha_infection_timer = 0)
 
 nymph_agents = tick_agents %>% filter(Lifestage=="Nymph")

@@ -55,6 +55,8 @@ tick_infect_deer_ha = 1 # 0.0665 # Need a citation for this?
 #####
 
 eggs_per_female = 1000 # Sonenshine 1991, but still apriori
+deer_attach_prob = .1 # A priori
+mouse_attach_prob = .1  # A priori
 
 # A priori:
 # Larval drop off within 12 hours

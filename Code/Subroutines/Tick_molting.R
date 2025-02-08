@@ -15,6 +15,10 @@ tick_molting = function(tick_agents){
                              # day >= nymph_to_adult_min &
                               #day <= nymph_to_adult_max ~ 1,# find age to molt, dummy age in for now
                             TRUE ~ 0)) %>%
+    mutate(die = case_when(molt==1 ~ case_when(Lifestage == "Nymph" & rbinom(n(),size = 1, prob = N_molt_success) == 0 ~ 1,
+                                              Lifestage == "Larvae" & rbinom(n(),size = 1, prob = L_molt_success) == 0 ~ 1,
+                                              TRUE ~ 0),
+                          TRUE ~ 0)) %>%
     mutate(fed = ifelse(molt==1,0,fed),
            time_since_fed = ifelse(molt==1,0,fed),
            dropped = ifelse(molt==1,0,dropped),
@@ -24,9 +28,10 @@ tick_molting = function(tick_agents){
            links = ifelse(molt==1,0,links),
            time_on_host = ifelse(molt==1,0,time_on_host),
            molt_death_immune = ifelse(molt==1,1,0),
-           Lifestage = ifelse(molt==1 & Lifestage=="Eggs","Larvae",
-                              ifelse(molt==1 & Lifestage=="Larvae","Nymph",
-                                     ifelse(molt==1 & Lifestage=="Nymph","Adult",Lifestage)))) %>%
+           Lifestage = case_when(molt == 1 & Lifestage == "Eggs" ~ "Larvae",
+                                 molt == 1 & Lifestage == "Larvae" ~ "Nymph",
+                                 molt == 1 & Lifestage == "Nymph" ~ "Adult",
+                                 TRUE ~ Lifestage)) %>%
     mutate(sex = ifelse(sex=="none" & Lifestage == "Adult",
                         sample(sexes,size=1),sex)) %>%
     mutate(molt = 0)
