@@ -620,7 +620,7 @@ track_data(i = i,
            mouse_agents = mouse_agents)
   
 if(i%%100==0){print(paste0("timestep ", i, ",day ",day," of year ", year))
-  save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
+ # save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
   }
 }
 end_time = Sys.time()
