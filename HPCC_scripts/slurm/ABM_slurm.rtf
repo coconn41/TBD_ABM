@@ -5,15 +5,17 @@
 #SBATCH --partition=adamw
 #SBATCH --job-name "TBD_ABM model run"
 #SBATCH --nodes=1
-#SBATCH --ntasks=1
+#SBATCH --array=1-8%8
+#SBATCH --ntasks=8
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=100G
+#SBATCH --mem=250G
+#SBATCH --distribution=block
 #SBATCH  -C INTEL
 #SBATCH --time=240:00:00 
 #SBATCH --mail-user=collinoc@buffalo.edu
 #SBATCH --mail-type=begin
 #SBATCH --mail-type=end
-#SBATCH -o TBD_ABM.out
+#SBATCH --output=TBD_ABM_net_%A_%a.out  # %A = Job ID, %a = Array Task ID
 
 
   # Specify directories needed and sif file
@@ -31,8 +33,8 @@
 
   # execute the function run_verbose.sh (which in turn runs the function run.R, which in turn calls tar_make())
 
-  singularity exec \
+  srun singularity exec \
   --bind $PROJECT_FOLDER:$PROJECT_FOLDER \
   --bind $APPTAINER_CACHEDIR/tmp:/tmp \
   --bind $APPTAINER_CACHEDIR/run:/run \
-  $SIF_PATH/$SIF_FILE ./Cluster_TBD_ABM/HPCC_scripts/verbose/TBD_ABM_verbose.sh
+  $SIF_PATH/$SIF_FILE ./Cluster_TBD_ABM/HPCC_scripts/verbose/TBD_ABM_verbose_net_${SLURM_ARRAY_TASK_ID}.sh
