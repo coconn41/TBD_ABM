@@ -619,7 +619,7 @@ track_data(i = i,
            deer_agents = deer_agents,
            mouse_agents = mouse_agents)
   
-if(i%%100==0){print(paste0("timestep ", i, ",day ",day," of year ", year))
+if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in network ",net_select))
  # save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
   }
 }
