@@ -22,19 +22,35 @@ if(net_select!="all"){
 #pb = txtProgressBar(min = 1, max = go_timesteps, initial = 1) 
 #start_time = Sys.time()
 for(i in 1:go_timesteps){
+ 
+  
+  #####
   # Update environment
+  #####
+  day_hour <- (i%%24)+1
+  if(day_hour==1){day <- day+1}
+  if(day==366){day <- 1}
+  if(day==1&day_hour==1){year <- year+1}
+  daytime <- ifelse(day_hour >= daylight[which(daylight$dayofyear==(day%%262)+1),2]&
+                       day_hour <daylight[which(daylight$dayofyear==(day%%262)+1),3],
+                     "day",'night')
+  if(day==79){season <- "spring"}
+  if(day==171){season <- "summer"}
+  if(day==265){season <- "fall"}
+  if(day==355){season <- "winter"}
   
-  
-  update_enviro(i,daylight)
-  
+  #####
   # Add nymphs in during summer of Year 1
+  #####
   if(year==1&day==171 & exists("nymph_agents")){
     tick_agents = rbind(tick_agents,nymph_agents %>%
                           mutate(att_prob = NA))
     remove(nymph_agents)
   }
   
+  #####
   # Move mice
+  #####
   if(daytime=="day"){mouse_agents <- mouse_agents %>%
     mutate(movement = case_when(row==gridrows & !col%in%c(1,gridcols) ~ as.numeric(sample(c(1:6),nrow(.),replace=T)),
                                 row==1 & !col%in%c(1,gridcols) ~ as.numeric(sample(c(4:9),nrow(.),replace=T)),
@@ -75,7 +91,9 @@ for(i in 1:go_timesteps){
   # Move others
   #other_movement(other_agents,daytime)
   
+  #####
   # Move deer
+  #####
   if(daytime=="day"){deer_agents <- deer_agents %>%
     mutate(possibility_row_min = row-100,
            possibility_row_max = row+100,
@@ -111,8 +129,10 @@ for(i in 1:go_timesteps){
            layer = new_patch,
            locs = paste0(row,",",col,",",network_ID),
            jump_patch = 0) }
-  if(day>=lay_egg){  
+  if(day>=lay_egg){
+    #####
     # Create deer paths
+    #####
     if(daytime=="day"){deer_paths <- deer_agents %>%
       filter(jump_patch==0) %>%
       select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col) %>%
@@ -485,7 +505,24 @@ for(i in 1:go_timesteps){
   #####  
   # Tick timer
   #####
-  tick_timer(tick_agents = tick_agents)
+  tick_agents <- tick_agents %>%
+    mutate(tick_age_wks = ifelse(Lifestage!="Eggs",tick_age_wks+(1/168),0), # hours per week
+           time_since_mating = ifelse(mated==1,time_since_mating+1,0),
+           time_since_fed = ifelse(fed==1,time_since_fed + 1,0),
+           time_on_host = ifelse(links>0&dropped==0,time_on_host+1,
+                                 ifelse(dropped==1,time_on_host,0)),
+           fed = case_when(Lifestage == "Larvae" & time_on_host >= (3*24) & dropped == 0 ~ 1,
+                           Lifestage == "Nymph" & time_on_host >=(5*24) & dropped == 0 ~ 1,
+                           Lifestage == "Adult" & time_on_host >=(10*24) & dropped == 0 ~ 1,
+                           TRUE ~ fed),
+           molt_death_immune = case_when(Lifestage == "Nymph" &
+                                           season == "summer" &
+                                           molt_death_immune == 1 ~ 0,
+                                         Lifestage == "Adult" &
+                                           mated == 0 &
+                                           season == "fall" &
+                                           molt_death_immune == 1 ~ 0,
+                                         TRUE ~ molt_death_immune)) 
   
   #####  
   # Tick drop off
@@ -586,38 +623,253 @@ for(i in 1:go_timesteps){
     ##### 
     # Lay eggs
     #####
-    lay_eggs(tick_agents = tick_agents)
+    tick_agents <- tick_agents %>%
+      mutate(tick_age_wks = ifelse(Lifestage=="Adult" & # This is a dummy to separate new eggs from old
+                                     sex == "female" & 
+                                     mated == 1 & 
+                                     dropped == 1 &
+                                     season!="fall" &
+                                     season!="winter" &
+                                     day >= lay_egg,# find tick egg laying timing)
+                                   -1,tick_age_wks),
+             Lifestage = ifelse(Lifestage=="Adult" & 
+                                  sex == "female" & 
+                                  season != "fall" &
+                                  season!="winter" &
+                                  mated == 1 & 
+                                  dropped == 1 &
+                                  day >= lay_egg,# find tick egg laying timing
+                                "Eggs",Lifestage))
+    
+    num_new_eggs = length(which(tick_agents$tick_age_wks==-1))
+    
+    tick_agents <- tick_agents %>%
+      mutate(Infection_status = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                                       "None",Infection_status),
+             num_ticks = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                                eggs_per_female,num_ticks),#Double check the 1000 eggs estimate
+             transfer_type = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                                    "None",transfer_type),
+             attempted_pathogen_transfer = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                                                  0,attempted_pathogen_transfer),
+             time_since_fed = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                                     0,time_since_fed),
+             dropped = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                              0,dropped),
+             linked_type = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                                  "None",linked_type),
+             time_since_mating = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                                        0,time_since_mating),
+             tick_age_wks = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                                   0,tick_age_wks),
+             links = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                            0,links),
+             sex = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                          "none",sex),
+             mated = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                            0,mated),
+             Agent_ID = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                               (max(.$Agent_ID)+1):(max(.$Agent_ID)+num_new_eggs),Agent_ID)) %>%
+      mutate(tick_age_wks = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
+                                   0,tick_age_wks))
     
     #####  
     # Tick molting
     #####
-    tick_molting(tick_agents = tick_agents)
+    tick_agents <- tick_agents %>%
+      mutate(molt = case_when(Lifestage == "Eggs" & 
+                                season != "fall" &
+                                season != "winter" &
+                                day > egg_to_larvae ~ 1, #find age to molt, dummy age in for now
+                              Lifestage == "Larvae" & 
+                                dropped == 1 & 
+                                day >= larvae_to_nymph_min &
+                                day <= larvae_to_nymph_max ~ 1,# find age to molt, dummy age in for now
+                              Lifestage == "Nymph" & 
+                                dropped == 1 & 
+                                season == "fall" ~ 1,
+                              # day >= nymph_to_adult_min &
+                              #day <= nymph_to_adult_max ~ 1,# find age to molt, dummy age in for now
+                              TRUE ~ 0)) %>%
+      mutate(die = case_when(molt==1 ~ case_when(Lifestage == "Nymph" & rbinom(n(),size = 1, prob = N_molt_success) == 0 ~ 1,
+                                                 Lifestage == "Larvae" & rbinom(n(),size = 1, prob = L_molt_success) == 0 ~ 1,
+                                                 TRUE ~ 0),
+                             TRUE ~ 0)) %>%
+      mutate(fed = ifelse(molt==1,0,fed),
+             time_since_fed = ifelse(molt==1,0,fed),
+             dropped = ifelse(molt==1,0,dropped),
+             die = ifelse(molt==1,0,die),
+             time_since_mating = ifelse(molt==1,0,time_since_mating),
+             mated = ifelse(molt==1,0,mated),
+             links = ifelse(molt==1,0,links),
+             time_on_host = ifelse(molt==1,0,time_on_host),
+             molt_death_immune = ifelse(molt==1,1,0),
+             Lifestage = case_when(molt == 1 & Lifestage == "Eggs" ~ "Larvae",
+                                   molt == 1 & Lifestage == "Larvae" ~ "Nymph",
+                                   molt == 1 & Lifestage == "Nymph" ~ "Adult",
+                                   TRUE ~ Lifestage)) %>%
+      mutate(sex = ifelse(sex=="none" & Lifestage == "Adult",
+                          sample(sexes,size=1),sex)) %>%
+      mutate(molt = 0)
   }
   
   #####
   # Tick death
   #####
-  tick_death(tick_agents = tick_agents)
+  tick_agents <- tick_agents %>%
+    mutate(replete_death = case_when(
+      Lifestage == "Larvae" & fed == 1 & dropped == 1 ~ rbinom(n(), size = 1, prob = L_rep_DR),
+      Lifestage == "Nymph" & fed == 1 & dropped == 1 ~ rbinom(n(), size = 1, prob = N_rep_DR),
+      Lifestage == "Adult" & fed == 1 & dropped == 1 ~ rbinom(n(), size = 1, prob = A_rep_DR),
+      Lifestage == "Eggs" ~ rbinom(n(), size = num_ticks, prob = egg_mort_rate),
+      TRUE ~ 0)) %>%
+    mutate(un_replete_death = case_when(
+      Lifestage == "Larvae" & fed == 0 & dropped == 0 & links==0 & (day/7) >= 40 ~ rbinom(n(), size = num_ticks, prob = L_unfed_DR_o40),
+      Lifestage == "Larvae" & fed == 0 & dropped == 0 & links==0 & (day/7) < 40  ~ rbinom(n(), size = num_ticks, prob = L_unfed_DR_lt40),
+      Lifestage == "Nymph" & fed == 0 & dropped == 0 & links==0 & (day/7) >= 40  ~ rbinom(n(), size = num_ticks, prob = N_unfed_DR_o40),
+      Lifestage == "Nymph" & fed == 0 & dropped == 0 & links==0 & (day/7) < 40   ~ rbinom(n(), size = num_ticks, prob = N_unfed_DR_lt40),
+      Lifestage == "Adult" & fed == 0 & dropped == 0 & links==0 & (day/7) >= 40  ~ rbinom(n(), size = num_ticks, prob = A_unfed_DR_o40),
+      Lifestage == "Adult" & fed == 0 & dropped == 0 & links==0 &(day/7) < 40   ~ rbinom(n(), size = num_ticks, prob = A_unfed_DR_lt40),
+      TRUE ~ 0)) %>%
+    mutate(num_ticks = case_when(Lifestage=="Eggs" ~ num_ticks - replete_death,
+                                 TRUE ~ num_ticks)) %>%
+    mutate(die = ifelse(replete_death+un_replete_death>=1,1,0),
+           die = case_when(Lifestage == "Eggs" & die == 1 ~ 0,
+                           Lifestage == "Eggs" & num_ticks == 0 ~ 1,
+                           Lifestage == "Larvae" & fed == 0 & dropped == 0 & season == "fall" ~ 1,
+                           Lifestage == "Nymph" & fed == 0 & season == "fall" & molt_death_immune == 0 ~ 1,
+                           Lifestage == "Adult" & mated == 0 & season == "summer" & molt_death_immune == 0 ~ 1,
+                           Lifestage == "Adult" & mated == 1 & sex == "male" ~ 1, 
+                           TRUE ~ die))
+  
+  die_list <- tick_agents %>% filter(die==1)
+  die_list = die_list$Agent_ID
+  
+  deer_agents <- deer_agents %>% 
+    mutate(tick_links = map(tick_links, ~ .x[!(.x %in% die_list)]))
+  # mutate(tick_links = ifelse(tick_links %in% die_list,0,tick_links))
+  
+  mouse_agents <- mouse_agents %>%
+    mutate(tick_links = map(tick_links, ~ .x[!(.x %in% die_list)]))
+  #mutate(tick_links = ifelse(tick_links %in% die_list,0,tick_links))
+  
+  tick_agents <- tick_agents %>%
+    mutate(die = ifelse(Lifestage=="Larvae" & un_replete_death > 0,0,die),
+           num_ticks = ifelse(Lifestage=="Larvae" & un_replete_death > 0,
+                              num_ticks-un_replete_death,num_ticks)) %>%
+    filter(num_ticks >= 0,
+           die == 0) %>%
+    dplyr::select(-c(replete_death,un_replete_death))
   
   #####  
   # Host timer
   #####
-  host_timer_fn(deer_agents = deer_agents,
-                mouse_agents = mouse_agents)
+  mouse_agents <- mouse_agents %>%
+    mutate(Age = Age+1,
+           Ha_infection_timer = case_when(Ha_infected == 1 & Ha_infection_timer==0 ~ 1,
+                                          Ha_infected == 1 & Ha_infection_timer>0 ~ Ha_infection_timer + 1,
+                                          TRUE ~ 0))
+  # Ha_infection_timer = ifelse(Ha_infected==1 & Ha_infection_timer==0,1,
+  #                             ifelse(Ha_infected==1 & Ha_infection_timer>0,
+  #                                    Ha_infection_timer + 1,0)),
+  # V1_infection_timer = ifelse(V1_infected==1 & V1_infection_timer==0,1,
+  #                             ifelse(V1_infected==1 & V1_infection_timer>0,
+  #                                    V1_infection_timer+1,0)),
+  # groom_timer = case_when(groom_timer > 1 ~ 0,
+  #                         is.na(tick_links) == F ~ groom_timer + mouse_GR,
+  #                         is.na(tick_links) == T ~ 0,
+  #                         TRUE ~ groom_timer))
+  deer_agents <- deer_agents %>%
+    mutate(Age = Age+1,
+           # Ha_infection_timer = ifelse(Ha_infected==1 & Ha_infection_timer==0,1,
+           #                             ifelse(Ha_infected==1 & Ha_infection_timer>0,
+           #                                    Ha_infection_timer + 1,0)),
+           V1_infection_timer = case_when(V1_infected==1 & V1_infection_timer==0 ~ 1,
+                                          V1_infected==1 & V1_infection_timer>0 ~ V1_infection_timer+1,
+                                          TRUE ~ 0))
+  # V1_infection_timer = ifelse(V1_infected==1 & V1_infection_timer==0,1,
+  #                             ifelse(V1_infected==1 & V1_infection_timer>0,
+  #                                    V1_infection_timer+1,0)),
+  # groom_timer = case_when(groom_timer > 1 ~ 0,
+  #                         is.na(tick_links) == F ~ groom_timer + deer_GR,
+  #                         is.na(tick_links) == T ~ 0,
+  #                         TRUE ~ groom_timer))
   
   #####
   # "Kill" hosts
   #####
-  kill_hosts_fn(deer_agents = deer_agents,
-                mouse_agents = mouse_agents)
+  deer_agents <- deer_agents %>%
+    mutate(Kill = case_when(Age==(11*24*365) ~ 1,
+                            TRUE ~ as.numeric(rbinom(n = n(),
+                                                     size = 1,
+                                                     prob = 1/(11*24*365))))) %>% # Maximum lifespan equal 11 years
+    mutate(Age = ifelse(Kill==1,0,Age),
+           Ha_infected = ifelse(Kill==1,0,Ha_infected),
+           V1_infected = ifelse(Kill==1,0,V1_infected),
+           Kill = 0)
+  
+  mouse_agents <- mouse_agents %>%
+    mutate(Kill = case_when(Age==(2*24*365)~1,
+                            TRUE ~ as.numeric(rbinom(n = n(),
+                                                     size=1,
+                                                     prob = 1/(2*24*365))))) %>% # Maximum lifespan equal 2 years
+    mutate(Age = ifelse(Kill==1,0,Age),
+           Ha_infected = ifelse(Kill==1,0,Ha_infected),
+           V1_infected = ifelse(Kill==1,0,V1_infected),
+           Kill = 0)
   
   #####
   # Compile results
   #####
-  track_data(i = i,
-             tick_agents = tick_agents,
-             deer_agents = deer_agents,
-             mouse_agents = mouse_agents)
+  deer_data <- deer_agents %>%
+    group_by(network_ID,layer) %>%
+    summarise(tot_v1_infected = sum(V1_infected,na.rm=T),
+              V1_perc = sum(V1_infected,na.rm=T)/n()) %>%
+    mutate(day_of_year = day,
+           season = season,
+           timestep = i,
+           year = year,
+           day_of_year = day,
+           network = net_select,
+           Agent = "Deer")
+  mouse_data<- mouse_agents %>%
+    group_by(network_ID,layer) %>%
+    summarise(tot_ha_infected = sum(Ha_infected,na.rm=T),
+              Ha_perc = sum(Ha_infected)/n()) %>%
+    mutate(day_of_year = day,
+           timestep = i,
+           season = season,
+           year = year,
+           day_of_year = day,
+           network = net_select,
+           Agent = "Mice")
+  tick_data <- tick_agents %>%
+    group_by(Lifestage,network_ID,layer) %>%
+    summarise(Ha_perc = (length(which(Infection_status == "ha"))/n())*100,
+              v1_perc = (length(which(Infection_status == "v1"))/n())*100,
+              total_attached = length(which(links>0)),
+              total_fed = sum(fed),
+              total_dropped = sum(dropped),
+              total_molted = sum(molt),
+              total_mated = sum(mated),
+              total_ticks = sum(num_ticks),
+              Agent = "Tick",
+              year = year,
+              timestep = i,
+              day_of_year = day,
+              network = net_select,
+              season = season)
+  # }
+  if(i==1){#24){
+    deer_data2 <- deer_data
+    mouse_data2 <- mouse_data
+    tick_data2 <- tick_data
+  }
+  if(i>1){#24){
+    deer_data2 <- rbind(deer_data,deer_data2)
+    mouse_data2 <- rbind(mouse_data,mouse_data2)
+    tick_data2 <- rbind(tick_data,tick_data2)
+  }
   
   if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in network ",net_select))
     # save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
