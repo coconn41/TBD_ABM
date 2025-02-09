@@ -70,7 +70,7 @@ go_timesteps = (8760*5)
 net_select = 5
 
 # RUN model:
-source(paste0(getwd(),'/Code/Master/Model_loop.R'))
+source(paste0(getwd(),'/Code/Master/Network_specific/Model_loop_5.R'))
 
 # Save results:
 
