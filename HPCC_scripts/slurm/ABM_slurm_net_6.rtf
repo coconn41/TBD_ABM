@@ -1,16 +1,16 @@
 #!/bin/bash
 #
-#SBATCH --cluster=ub-hpc
-#SBATCH --qos=general-compute
-#SBATCH --partition=general-compute
+#SBATCH --cluster=faculty
+#SBATCH --qos=adamw
+#SBATCH --partition=adamw
 #SBATCH --job-name "TBD_ABM network 6 model run"
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=1
 #SBATCH --distribution=block
-#SBATCH --mem=12G
+#SBATCH --mem=25G
 #SBATCH  -C INTEL
-#SBATCH --time=72:00:00 
+#SBATCH --time=240:00:00 
 #SBATCH --mail-user=collinoc@buffalo.edu
 #SBATCH --mail-type=begin
 #SBATCH --mail-type=end
