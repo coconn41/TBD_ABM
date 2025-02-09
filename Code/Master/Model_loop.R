@@ -20,7 +20,7 @@ spat_network = spat_network %>%
 
 
 #pb = txtProgressBar(min = 1, max = go_timesteps, initial = 1) 
-start_time = Sys.time()
+#start_time = Sys.time()
 for(i in 1:go_timesteps){
   # Update environment
   
@@ -623,8 +623,8 @@ if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in net
  # save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
   }
 }
-end_time = Sys.time()
-end_time - start_time
+# end_time = Sys.time()
+# end_time - start_time
 
   
   
