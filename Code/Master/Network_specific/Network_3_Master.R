@@ -1,5 +1,5 @@
 # If on running via a HPCC slurm script, set wd
-setwd("/user/collinoc/Cluster_TBD_ABM/")
+#setwd("/user/collinoc/Cluster_TBD_ABM/")
 
 # Clear model environment:
 rm(list=ls())
@@ -64,7 +64,7 @@ daytime = "night"
 season = "fall"
 
 # Number of hourly timesteps
-go_timesteps = (8760*5)
+go_timesteps = (8760*1)
 
 # Select network: either "all" or the network number
 net_select = 3
