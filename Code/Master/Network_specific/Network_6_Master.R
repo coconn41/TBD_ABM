@@ -86,9 +86,9 @@ write.csv(tick_data2,paste0(getwd(),"/Simulations/Ticks/Tick_results_network_",
 
 # Save burn in:
 
-write.csv(deer_agents,paste0(getwd(),"/Simulations/Burn_in/deer_burn_in_",
+write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Simulations/Burn_in/deer_burn_in_",
                              net_select,"_.csv"))
-write.csv(mouse_agents,paste0(getwd(),"/Simulations/Burn_in/mouse_burn_in_",
+write.csv(unnest_wider(mouse_agents,tick_links,names_sep="_"),paste0(getwd(),"/Simulations/Burn_in/mouse_burn_in_",
                               net_select,"_.csv"))
 write.csv(tick_agents,paste0(getwd(),"/Simulations/Burn_in/tick_burn_in_",
                              net_select,"_.csv"))
