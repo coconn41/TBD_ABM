@@ -21,7 +21,7 @@ if(net_select!="all"){
 
 #pb = txtProgressBar(min = 1, max = go_timesteps, initial = 1) 
 #start_time = Sys.time()
-for(i in 1:go_timesteps){
+for(i in 1:100){
   
   
   #####
@@ -875,9 +875,9 @@ for(i in 1:go_timesteps){
      save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
   }
   if(i%%10000==0){
-    write.csv(unnest(deer_agents,cols=tick_links),paste0(getwd(),"/Debugging/Network_",net_select,"/deer_debug_df_",
+    write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/deer_debug_df_",
                                                          i,"_.csv"))
-    write.csv(unnest(mouse_agents,cols=tick_links),paste0(getwd(),"/Debugging/Network_",net_select,"/mouse_debug_df_",
+    write.csv(unnest_wider(mouse_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/mouse_debug_df_",
                                                           i,"_.csv"))
     write.csv(tick_agents,paste0(getwd(),"/Debugging/Network_",net_select,"/tick_debug_df_",
                                  i,"_.csv"))
