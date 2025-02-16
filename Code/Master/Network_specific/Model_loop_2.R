@@ -875,9 +875,9 @@ for(i in 1:go_timesteps){
     # save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
   }
   if(i%%10000==0){
-    write.csv(deer_agents,paste0(getwd(),"/Debugging/Network_",net_select,"/deer_debug_df_",
+    write.csv(unnest(deer_agents,cols=tick_links),paste0(getwd(),"/Debugging/Network_",net_select,"/deer_debug_df_",
                                  i,"_.csv"))
-    write.csv(mouse_agents,paste0(getwd(),"/Debugging/Network_",net_select,"/mouse_debug_df_",
+    write.csv(unnest(mouse_agents,cols=tick_links),paste0(getwd(),"/Debugging/Network_",net_select,"/mouse_debug_df_",
                                   i,"_.csv"))
     write.csv(tick_agents,paste0(getwd(),"/Debugging/Network_",net_select,"/tick_debug_df_",
                                  i,"_.csv"))

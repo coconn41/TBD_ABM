@@ -73,7 +73,7 @@ net_select = 5
 source(paste0(getwd(),'/Code/Master/Network_specific/Model_loop_5.R'))
 
 # Save results:
-
+if(i==go_timesteps){
 write.csv(deer_data2,paste0(getwd(),"/Simulations/Deer/Deer_results_network_",
                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
                             "_.csv"))
@@ -92,3 +92,4 @@ write.csv(mouse_agents,paste0(getwd(),"/Simulations/Burn_in/mouse_burn_in_",
                               net_select,"_.csv"))
 write.csv(tick_agents,paste0(getwd(),"/Simulations/Burn_in/tick_burn_in_",
                              net_select,"_.csv"))
+}
