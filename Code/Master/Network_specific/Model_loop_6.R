@@ -21,7 +21,7 @@ if(net_select!="all"){
 
 #pb = txtProgressBar(min = 1, max = go_timesteps, initial = 1) 
 #start_time = Sys.time()
-for(i in 1:100){
+for(i in 1:go_timesteps){
   
   
   #####
