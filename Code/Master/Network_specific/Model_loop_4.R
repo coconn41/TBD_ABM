@@ -708,8 +708,11 @@ for(i in 1:go_timesteps){
                                    molt == 1 & Lifestage == "Larvae" ~ "Nymph",
                                    molt == 1 & Lifestage == "Nymph" ~ "Adult",
                                    TRUE ~ Lifestage)) %>%
-      mutate(sex = ifelse(sex=="none" & Lifestage == "Adult",
-                          sample(sexes,size=1),sex)) %>%
+      mutate(sex2 = ifelse(sex=="none" & Lifestage == "Adult",
+                           rbinom(n=n(),size=1,prob=.5),-1),
+             sex = ifelse(sex2==1,"male",
+                          ifelse(sex2==0,"female",sex))) %>%
+      dplyr::select(-sex2) %>%
       mutate(molt = 0)
   }
   

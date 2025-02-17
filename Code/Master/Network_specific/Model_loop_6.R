@@ -708,8 +708,11 @@ for(i in 1:go_timesteps){
                                    molt == 1 & Lifestage == "Larvae" ~ "Nymph",
                                    molt == 1 & Lifestage == "Nymph" ~ "Adult",
                                    TRUE ~ Lifestage)) %>%
-      mutate(sex = ifelse(sex=="none" & Lifestage == "Adult",
-                          sample(sexes,size=1),sex)) %>%
+      mutate(sex2 = ifelse(sex=="none" & Lifestage == "Adult",
+                           rbinom(n=n(),size=1,prob=.5),-1),
+             sex = ifelse(sex2==1,"male",
+                          ifelse(sex2==0,"female",sex))) %>%
+      dplyr::select(-sex2) %>%
       mutate(molt = 0)
   }
   
@@ -874,13 +877,14 @@ for(i in 1:go_timesteps){
   if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in network ",net_select))
      #save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
   }
-  if(i%%10000==0){
-    write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/deer_debug_df_",
-                                                         i,"_.csv"))
-    write.csv(unnest_wider(mouse_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/mouse_debug_df_",
-                                                          i,"_.csv"))
-    write.csv(tick_agents,paste0(getwd(),"/Debugging/Network_",net_select,"/tick_debug_df_",
-                                 i,"_.csv"))
+  if(i%%5000==0){
+    save.image(file = paste0(getwd(),"/Debugging/Network_6/net_6_timestep_",i,".RData"))
+    # write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/deer_debug_df_",
+    #                                                      i,"_.csv"))
+    # write.csv(unnest_wider(mouse_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/mouse_debug_df_",
+    #                                                       i,"_.csv"))
+    # write.csv(tick_agents,paste0(getwd(),"/Debugging/Network_",net_select,"/tick_debug_df_",
+    #                              i,"_.csv"))
     write.csv(deer_data2,paste0(getwd(),"/Debugging/Network_",net_select,"/Deer_results_debug_",
                                 net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
                                 "_.csv"))
