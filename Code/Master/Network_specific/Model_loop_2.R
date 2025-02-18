@@ -660,8 +660,6 @@ for(i in 1:go_timesteps){
                                   "None",linked_type),
              time_since_mating = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
                                         0,time_since_mating),
-             tick_age_wks = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
-                                   0,tick_age_wks),
              links = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
                             0,links),
              sex = ifelse(Lifestage=="Eggs" & tick_age_wks == -1,
