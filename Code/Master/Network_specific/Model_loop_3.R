@@ -876,22 +876,23 @@ for(i in 1:go_timesteps){
     # save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
   }
   if(i%%5000==0){
-    save.image(file = paste0(getwd(),"/Debugging/Network_6/net_6_timestep_",i,".RData"))
+    save.image(file = paste0(getwd(),"/Debugging/Network_",
+                             net_select,"/net_",net_select,"_timestep_",i,".RData"))
     # write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/deer_debug_df_",
     #                                                      i,"_.csv"))
     # write.csv(unnest_wider(mouse_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/mouse_debug_df_",
     #                                                       i,"_.csv"))
     # write.csv(tick_agents,paste0(getwd(),"/Debugging/Network_",net_select,"/tick_debug_df_",
-    #                              i,"_.csv"))
-    write.csv(deer_data2,paste0(getwd(),"/Debugging/Network_",net_select,"/Deer_results_debug_",
-                                net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
-                                "_.csv"))
-    write.csv(mouse_data2,paste0(getwd(),"/Debugging/Network_",net_select,"/Mouse_results_debug_",
-                                 net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
-                                 "_.csv"))
-    write.csv(tick_data2,paste0(getwd(),"/Debugging/Network_",net_select,"/Tick_results_debug_",
-                                net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
-                                "_.csv"))
+    # #                              i,"_.csv"))
+    # write.csv(deer_data2,paste0(getwd(),"/Debugging/Network_",net_select,"/Deer_results_debug_",
+    #                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
+    #                             "_.csv"))
+    # write.csv(mouse_data2,paste0(getwd(),"/Debugging/Network_",net_select,"/Mouse_results_debug_",
+    #                              net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
+    #                              "_.csv"))
+    # write.csv(tick_data2,paste0(getwd(),"/Debugging/Network_",net_select,"/Tick_results_debug_",
+    #                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
+    #                             "_.csv"))
   }
 }
 # end_time = Sys.time()
