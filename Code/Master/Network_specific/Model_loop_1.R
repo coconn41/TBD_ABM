@@ -289,15 +289,17 @@ for(i in 1:go_timesteps){
       tick_agents <- tick_agents %>%
         mutate(transfer_type = case_when(links>0 & 
                                            time_on_host >=24 &
-                                           sex == "female" &
-                                           Lifestage != "Eggs" &
+                                           ((sex == "female" & Lifestage == "Adult") |
+                                              (Lifestage == "Larvae") |
+                                              (Lifestage == "Nymph")) &
                                            attempted_pathogen_transfer == 0 &
                                            linked_type == "Deer" &
                                            Infection_status == "v1" &
                                            deer_agents[match(links,deer_agents$Agent_ID),]$V1_infected==0 ~ "t2dv1",
                                          links>0 & 
-                                           sex == "female" &
-                                           Lifestage != "Eggs" &
+                                           ((sex == "female" & Lifestage == "Adult") |
+                                              (Lifestage == "Larvae") |
+                                              (Lifestage == "Nymph")) &
                                            attempted_pathogen_transfer == 0 &
                                            linked_type == "Deer" &
                                            Infection_status == "None" &
@@ -312,15 +314,17 @@ for(i in 1:go_timesteps){
                                          #   deer_agents[match(links,deer_agents$Agent_ID),]$V1_infected==0 ~ "None",
                                          links>0 & 
                                            time_on_host >=24 &
-                                           sex == "female" &
-                                           Lifestage != "Eggs" &
+                                           ((sex == "female" & Lifestage == "Adult") |
+                                              (Lifestage == "Larvae") |
+                                              (Lifestage == "Nymph")) &
                                            attempted_pathogen_transfer == 0 &
                                            linked_type == "Mouse" &
                                            Infection_status == "ha" &
                                            mouse_agents[match(links,mouse_agents$Agent_ID),]$Ha_infected==0 ~ "t2mha",
                                          links>0 & 
-                                           sex == "female" &
-                                           Lifestage != "Eggs" &
+                                           ((sex == "female" & Lifestage == "Adult") |
+                                              (Lifestage == "Larvae") |
+                                              (Lifestage == "Nymph")) &
                                            attempted_pathogen_transfer == 0 &
                                            linked_type == "Mouse" &
                                            Infection_status == "None" &

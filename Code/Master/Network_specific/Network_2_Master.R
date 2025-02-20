@@ -72,8 +72,10 @@ net_select = 2
 # Parameter modification:
 deer_attach_prob = .25
 mouse_attach_prob = .25
-deer_trans_param = 1#deer_infect_tick_v1
-mouse_trans_param = 1#mouse_infect_tick_ha
+deer_infect_tick_v1 =  0.0094
+mouse_infect_tick_ha = 0.0665
+deer_trans_param = deer_infect_tick_v1
+mouse_trans_param = mouse_infect_tick_ha
 
 
 # RUN model:
