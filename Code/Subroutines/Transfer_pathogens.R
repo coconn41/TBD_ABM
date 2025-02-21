@@ -45,8 +45,10 @@ transfer_pathogens = function(tick_agents, deer_agents, mouse_agents){
                                          Infection_status == "None" &
                                          mouse_agents[match(links,mouse_agents$Agent_ID),]$Ha_infected==1 ~ "m2tha",
                                        TRUE ~ "None")) %>%
-      mutate(Infection_status = case_when(transfer_type == "d2tv1" ~ transfer_outcomes_v1[rbinom(n = n(), size = 1, prob = deer_infect_tick_v1)+1],
-                                          transfer_type == "m2tha" ~ transfer_outcomes_ha[rbinom(n = n(), size = 1, prob = mouse_infect_tick_ha)+1],
+      mutate(Infection_status = case_when(transfer_type == "d2tv1" & Lifestage != "Larvae" ~ transfer_outcomes_v1[rbinom(n = n(), size = 1, prob = deer_infect_tick_v1)+1],
+                                          transfer_type == "m2tha" & Lifestage != "Larvae" ~ transfer_outcomes_ha[rbinom(n = n(), size = 1, prob = mouse_infect_tick_ha)+1],
+                                          transfer_type == "d2tv1" & Lifestage == "Larvae" ~ "v1",
+                                          transfer_type == "m2tha" & Lifestage == "Larvae" ~ "ha",
                                           transfer_type == "None" ~ Infection_status,
                                           TRUE ~ Infection_status))
     
