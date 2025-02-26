@@ -128,12 +128,12 @@ reduced_patches = left_join(reduced_patches,network2) %>%
 
 deer_agents = Host_agents %>% 
   filter(Agent_type == "Deer") %>%
-  mutate(#groom_timer = 0,
+  mutate(Age = round(runif(n = n(), min = 0, max = (24*365*11))),
          V1_infection_timer = 0)
 
 mouse_agents = Host_agents %>%
   filter(Agent_type == "Mouse") %>%
-  mutate(#groom_timer = 0,
+  mutate(Age = round(runif(n = n(), min = 0, max = (24*365*2))),
          Ha_infection_timer = 0)
 
 nymph_agents = tick_agents %>% filter(Lifestage=="Nymph")

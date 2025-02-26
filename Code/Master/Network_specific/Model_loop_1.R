@@ -832,6 +832,7 @@ for(i in 1:go_timesteps){
   deer_data <- deer_agents %>%
     group_by(network_ID,layer) %>%
     summarise(tot_v1_infected = sum(V1_infected,na.rm=T),
+              tot_deer = n(),
               V1_perc = sum(V1_infected,na.rm=T)/n()) %>%
     mutate(day_of_year = day,
            season = season,
@@ -843,6 +844,7 @@ for(i in 1:go_timesteps){
   mouse_data<- mouse_agents %>%
     group_by(network_ID,layer) %>%
     summarise(tot_ha_infected = sum(Ha_infected,na.rm=T),
+              tot_mice = n(),
               Ha_perc = sum(Ha_infected)/n()) %>%
     mutate(day_of_year = day,
            timestep = i,
@@ -855,11 +857,13 @@ for(i in 1:go_timesteps){
     group_by(Lifestage,network_ID,layer) %>%
     summarise(Ha_perc = (length(which(Infection_status == "ha"))/n())*100,
               v1_perc = (length(which(Infection_status == "v1"))/n())*100,
-              total_attached = length(which(links>0)),
-              total_fed = sum(fed),
-              total_dropped = sum(dropped),
-              total_molted = sum(molt),
-              total_mated = sum(mated),
+              tot_v1 = length(which(Infection_status == "v1")),
+              tot_ha = length(which(Infection_status == "ha")),
+              #total_attached = length(which(links>0)),
+              #total_fed = sum(fed),
+              # total_dropped = sum(dropped),
+              #total_molted = sum(molt),
+              #total_mated = sum(mated),
               total_ticks = sum(num_ticks),
               Agent = "Tick",
               year = year,

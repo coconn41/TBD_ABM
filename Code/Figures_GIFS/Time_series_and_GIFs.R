@@ -1,14 +1,28 @@
-load(paste0(getwd(),'/'))
-source(paste0(getwd(),"/Code/Model_set_up/Load_libraries.R"))
+# Debugging load:
+#load(paste0(getwd(),'/Debugging/Network_6/net_6_timestep_40000.RData'))
+# Burn in load:
+load(paste0(getwd(),'/Simulations/Attach_25/Pathogen_50/Network_6/BI_attach_25_path_trans_50.RData'))
 library(tidyverse)
 library(tmap)
 library(gifski)
-
+library(tmaptools)
+library(sf)
+#####
+# Rename at factor:
+#####
+tick_data2 = tick_data2 %>%
+  mutate(Lifestage = case_when(Lifestage=="Nymph" ~ "Nymphs",
+                               Lifestage=="Adult" ~ "Adults",
+                               TRUE ~ Lifestage),
+         Lifestage = factor(Lifestage,
+                            levels = c("Eggs","Larvae","Nymphs","Adults")),
+         simulation_day = (day_of_year+(year*365))-264,
+         simulation_week = ceiling(simulation_day/7))
 #####
 # Calculate Ha percentage in mice:
 #####
 ggplot(data = mouse_data2 %>% filter(Ha_perc>0) %>% mutate(tot_mice = tot_ha_infected/Ha_perc) %>%
-         group_by(timestep) %>% summarize(Ha_perc = sum(tot_ha_infected)/(tot_mice)), #%>%
+         group_by(timestep) %>% summarize(Ha_perc = (sum(tot_ha_infected)/sum(tot_mice))*100), #%>%
          # mutate(Ha_perc = ifelse(Ha_perc == NaN,0,
          #                         ifelse(is.na(Ha_perc)==T,0,Ha_perc))),
        aes(x=timestep,y=Ha_perc))+
@@ -17,7 +31,7 @@ ggplot(data = mouse_data2 %>% filter(Ha_perc>0) %>% mutate(tot_mice = tot_ha_inf
 # Calculate V1 percentage in deer:
 #####
 ggplot(data = deer_data2 %>% filter(V1_perc>0) %>% mutate(tot_deer = tot_v1_infected/V1_perc) %>%
-         group_by(timestep) %>% summarize(V1_perc = sum(tot_v1_infected)/sum(tot_deer)),
+         group_by(timestep) %>% summarize(V1_perc = (sum(tot_v1_infected)/sum(tot_deer))*100),
        aes(x=timestep,y=V1_perc))+
   geom_line()
 
@@ -34,6 +48,7 @@ ggplot(data = tick_data2 %>%
          pivot_longer(c(v1_perc,Ha_perc)),
        aes(x=timestep,y=value,color=name))+
   geom_line()+
+  coord_cartesian(ylim = c(0,8))+
   facet_wrap(.~Lifestage,scales='free_y')
 #####
 # Calculate tick populations:
@@ -69,46 +84,101 @@ tm_patches = read_sf(paste0(getwd(),'/Cached_data/Reduced_patches.shp')) %>%
   filter(!duplicated(layer))
 
 td_join_dat = tick_data2 %>%
-  filter(Lifestage=="Adult") %>%
+  #filter(Lifestage=="Adult") %>%
   mutate(tot_ha_pos = round(total_ticks*(Ha_perc/100)),
          tot_v1_pos = round(total_ticks*(v1_perc/100))) %>%
-  group_by(layer,year,day_of_year) %>%
+  group_by(Lifestage,layer,simulation_week,year,season,simulation_day) %>%
   summarize(tot_ha_pos = sum(tot_ha_pos,na.rm=T),
             tot_v1_pos = sum(tot_v1_pos,na.rm=T),
-            total_ticks = round(mean(total_ticks,na.rm=T))) %>%
-  mutate(simulation_day = (day_of_year+(year*365))-264,
-         Ha_perc = tot_ha_pos/total_ticks,
-         v1_perc = tot_v1_pos/total_ticks)
+            total_ticks = sum(total_ticks,na.rm=T)) %>%
+  mutate(ha_perc = (tot_ha_pos/total_ticks)*100,
+         v1_perc = (tot_v1_pos/total_ticks)*100)
+
+td_join_dat = expand.grid(Lifestage = c("Eggs","Larvae","Nymphs","Adults"),
+                 layer = unique(td_join_dat$layer),
+                 simulation_day = min(td_join_dat$simulation_day):max(td_join_dat$simulation_day)) %>%
+                 #simulation_week = min(td_join_dat$simulation_week):max(td_join_dat$simulation_week)) %>%
+  mutate(total_ticks = 0,
+         tot_v1_pos = 0,
+         tot_ha_pos = 0) %>% 
+  rbind(.,td_join_dat %>%
+          ungroup() %>%
+          select(c(Lifestage,layer,simulation_day,total_ticks,tot_v1_pos,tot_ha_pos))) %>% 
+  left_join(.,td_join_dat %>%
+              ungroup() %>%
+              select(simulation_day,season,year) %>%
+              distinct(),by='simulation_day') %>%
+  mutate(simulation_week = ceiling(simulation_day/7)) %>%
+  group_by(Lifestage,layer,simulation_week,year,season) %>%
+  summarize(tot_ha_pos = sum(tot_ha_pos,na.rm=T),
+            tot_v1_pos = sum(tot_v1_pos,na.rm=T),
+            total_ticks = sum(total_ticks,na.rm=T),
+            v1_perc = ifelse(total_ticks!=0,(tot_v1_pos/total_ticks)*100,0),
+            ha_perc = ifelse(total_ticks!=0,(tot_ha_pos/total_ticks)*100,0))
+  
 
 spatial_join_dat = left_join(td_join_dat,tm_patches) %>%
   st_set_geometry(.,value='geometry') %>%
-  mutate(tick_density = total_ticks/(hectare*10000))
+  mutate(tick_density = (total_ticks/(24*7))/(hectare*10000),
+         ha_ERI = tick_density * (ha_perc/100),
+         v1_ERI = tick_density * (v1_perc/100))
+
+txt_df = spatial_join_dat %>%
+  st_drop_geometry() %>%
+  ungroup() %>%
+  select(Lifestage,simulation_week,season,layer,year) %>%
+  mutate(txt = paste0("Season = ",season,"\n year = ",year),
+         lon = st_bbox(tm_patches)[3],
+         lat = st_bbox(tm_patches)[2]) %>%
+  st_as_sf(.,coords=c('lon','lat')) %>%
+  st_set_crs(.,value=st_crs(tm_patches)) 
 ######
 # GIF of v1 percentage in ticks
 #####
 m1=tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
-  tm_polygons()+
-tm_shape(spatial_join_dat)+
+  tm_borders()+
+tm_shape(spatial_join_dat %>%
+           filter(Lifestage != "Eggs"))+
   tm_polygons(col='v1_perc',
-              breaks = c(0,.5,1,1.5,2,4,8,10,100))+#Ha_perc
-  tm_facets(along='simulation_day')
+              title = "Ap-v1 (%)",
+              breaks = c(0,.5,1,1.5,2,4,8,10,100),
+              palette = get_brewer_pal("Blues",n=8))+
+  tm_facets(by="Lifestage",
+            nrow = 1,ncol=3,along='simulation_week')+
+  tm_shape(txt_df %>%
+             filter(Lifestage != "Eggs"))+
+  tm_text(text = 'txt',
+          size=.75,
+          ymod=1,xmod=-2.5)+
+  tm_facets(by="Lifestage",
+            nrow = 1,ncol=3,along='simulation_week')
 
 tmap_animation(tm = m1,
                filename = paste0(getwd(),'/Figures/Animations/Network_6_v1.gif'),
-               fps = 25)
+               fps = 7)
 #####
 # Ha percentage in ticks GIF
 #####
 m2=tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
   tm_polygons()+
-  tm_shape(spatial_join_dat)+
-  tm_polygons(col='Ha_perc',
+  tm_shape(spatial_join_dat %>%
+             filter(Lifestage!="Eggs"))+
+  tm_polygons(col='ha_perc',
+              title = "Ap-ha (%)",
+              palette = get_brewer_pal("Reds",n=8),
               breaks = c(0,.5,1,1.5,2,4,8,10,100))+
-  tm_facets(along='simulation_day')
+  tm_facets(by = "Lifestage", nrow = 1, ncol = 3, along='simulation_week')+
+  tm_shape(txt_df %>%
+             filter(Lifestage != "Eggs"))+
+  tm_text(text = 'txt',
+          size=.75,
+          ymod=1,xmod=-2.5)+
+  tm_facets(by="Lifestage",
+            nrow = 1,ncol=3,along='simulation_week')
 
 tmap_animation(tm = m2,
                filename = paste0(getwd(),'/Figures/Animations/Network_6_ha.gif'),
-               fps = 25)
+               fps = 7)
 #####
 # Tick density GIF
 #####
@@ -116,9 +186,64 @@ m3=tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
   tm_polygons()+
   tm_shape(spatial_join_dat)+
   tm_polygons(col='tick_density',
-              breaks = c(0,0.001,0.0025,0.005,0.01,0.015,0.02,0.025,0.04,.2))+
-  tm_facets(along='simulation_day')
+              title = "Tick density",
+              palette = viridisLite::viridis(n=10,option='plasma'),
+              breaks = c(0,0.001,0.0025,0.005,0.01,0.015,0.02,0.025,0.04,.2,100))+
+  tm_facets(by = "Lifestage",
+            nrow = 1,
+            ncol = 4,
+            along='simulation_week')+
+  tm_shape(txt_df)+
+  tm_text(text = 'txt',
+          size=.75,
+          ymod=1,xmod=-2.5)+
+  tm_facets(by="Lifestage",
+            nrow = 1,ncol=4,along='simulation_week')
 
-tmap_animation(tm = m3,
+  tmap_animation(tm = m3,
                filename = paste0(getwd(),'/Figures/Animations/Network_6_ticks.gif'),
-               fps = 25)
+               fps = 7)
+  
+m4 = tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
+  tm_polygons()+
+  tm_shape(spatial_join_dat %>% filter(Lifestage!="Eggs"))+
+  tm_polygons(col='ha_ERI',
+              title = "Ap-ha ERI",
+              palette = get_brewer_pal("Reds",n=7),
+              breaks=c(0,.00005,.0001,.00015,.0002,.0004,.002,.02))+
+  tm_facets(by = "Lifestage",
+            nrow = 1,
+            ncol = 3,
+            along='simulation_week')+
+  tm_shape(txt_df %>% filter(Lifestage!="Eggs"))+
+  tm_text(text = 'txt',
+          size=.75,
+          ymod=1,xmod=-2.5)+
+  tm_facets(by="Lifestage",
+            nrow = 1,ncol=3,along='simulation_week')
+
+tmap_animation(tm = m4,
+               filename = paste0(getwd(),'/Figures/Animations/Network_6_Ha_ERI.gif'),
+               fps = 7)
+
+m5 = tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
+  tm_polygons()+
+  tm_shape(spatial_join_dat %>% filter(Lifestage!="Eggs"))+
+  tm_polygons(col='v1_ERI',
+              title = "Ap-v1 ERI",
+              palette = get_brewer_pal("Blues",n=9),
+              breaks=c(0,.0005,.001,.0015,.002,.003,.004,.005,.02,5))+
+  tm_facets(by = "Lifestage",
+            nrow = 1,
+            ncol = 3,
+            along='simulation_week')+
+  tm_shape(txt_df%>% filter(Lifestage!="Eggs"))+
+  tm_text(text = 'txt',
+          size=.75,
+          ymod=1,xmod=-2.5)+
+  tm_facets(by="Lifestage",
+            nrow = 1,ncol=3,along='simulation_week')
+
+tmap_animation(tm = m5,
+               filename = paste0(getwd(),'/Figures/Animations/Network_6_v1_ERI.gif'),
+               fps = 7)

@@ -500,6 +500,9 @@ tick_timer(tick_agents = tick_agents)
   if(nrow(L_ticks)!=0 & sum(L_ticks$dropped)>0){ L_ticks2 = L_ticks %>%
     uncount(dropped) %>%
     mutate(dropped = -1,
+           Infection_status = case_when(Infection_status == "v1" ~ transfer_outcomes_v1[rbinom(n = n(), size = 1, prob = deer_infect_tick_v1)+1],
+                                        Infection_status == "ha" ~ transfer_outcomes_ha[rbinom(n = n(), size = 1, prob = mouse_infect_tick_ha)+1],
+                                        TRUE ~ "None"),
            Agent_ID = (max(tick_agents$Agent_ID)+1):((max(tick_agents$Agent_ID))+nrow(.)),
            num_ticks = 1)
   

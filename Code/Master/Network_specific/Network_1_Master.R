@@ -70,8 +70,8 @@ go_timesteps = (8760*5)
 net_select = 1
 
 # Parameter modification:
-deer_attach_prob = .25
-mouse_attach_prob = .25
+deer_attach_prob = .5
+mouse_attach_prob = .5
 deer_infect_tick_v1 =  0.0094
 mouse_infect_tick_ha = 0.0665
 deer_trans_param = deer_infect_tick_v1
@@ -982,7 +982,7 @@ for(i in 1:go_timesteps){
 }
 
 # Save results:
-if(i==go_timesteps){
+if(i==(8760*5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
   save.image(file = paste0(getwd(),"/Simulations/Attach_",substring(deer_attach_prob*100,1,3),

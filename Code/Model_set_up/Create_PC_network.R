@@ -24,10 +24,12 @@ for(i in 1:8){
     list_i = shortest_paths(network_graph_df,
                             from=V(network_graph_df)[a],
                             to=V(network_graph_df))
+    bind = 0
     for(b in 1:length(list_i$vpath)){
       if(length(as.numeric(attributes(list_i$vpath[[b]])$names))==1){next}
-      if(b==1){value=as.numeric(attributes(list_i$vpath[[b]][2])$names)} 
-      if(b>1){value2=as.numeric(attributes(list_i$vpath[[b]][2])$names)
+      bind=bind+1
+      if(bind==1){value=as.numeric(attributes(list_i$vpath[[b]][2])$names)} 
+      if(bind>1){value2=as.numeric(attributes(list_i$vpath[[b]][2])$names)
       value=c(value2,value)}
     }
     if(a==1){direct_df = data.frame(origin_ID = rep(as.numeric(attributes(list_i$vpath[[b]][1])$names),

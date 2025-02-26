@@ -982,7 +982,7 @@ for(i in 1:go_timesteps){
 }
 
 # Save results:
-if(i==go_timesteps){
+if(i==(8760*5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
   save.image(file = paste0(getwd(),"/Simulations/Attach_",substring(deer_attach_prob*100,1,3),

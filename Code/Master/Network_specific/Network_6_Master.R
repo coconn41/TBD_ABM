@@ -70,9 +70,9 @@ go_timesteps = (8760*5)
 net_select = 6
 
 # Parameter modification:
-deer_attach_prob = .25
-mouse_attach_prob = .25
-deer_infect_tick_v1 =  0.0094
+deer_attach_prob = .30
+mouse_attach_prob = .30
+deer_infect_tick_v1 = 0.0094
 mouse_infect_tick_ha = 0.0665
 deer_trans_param = deer_infect_tick_v1
 mouse_trans_param = mouse_infect_tick_ha
@@ -82,22 +82,16 @@ mouse_trans_param = mouse_infect_tick_ha
 source(paste0(getwd(),'/Code/Master/Network_specific/Model_loop_6.R'))
 
 # Save results:
-if(i==go_timesteps){
+if(i==(8760*5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
-  save.image(file = paste0(getwd(),"/Simulations/Attach_",substring(deer_attach_prob*100,1,3),
-                           "/Pathogen_",substring(pathogen_label,1,3),"/Network_",net_select,
-                           "/BI_attach_",deer_attach_prob*100,
+  save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/BI_attach_",deer_attach_prob*100,
                            "_path_trans_",substring(pathogen_label,1,3),".RData"))}
 if(i>(8760*5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
-  save.image(file = paste0(getwd(),"/Simulations/Attach_",substring(deer_attach_prob*100,1,3),
-                           "/Pathogen_",substring(pathogen_label,1,3),"/Network_",net_select,
-                           "/post_BI_attach_",deer_attach_prob*100,
-                           "_path_trans_",substring(pathogen_label,1,3),
-                           i/8760,"_simyears.RData"))
-}
+  save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/timestep_",i,"_attach_",deer_attach_prob*100,
+                           "_path_trans_",substring(pathogen_label,1,3),".RData"))}
 # write.csv(deer_data2,paste0(getwd(),"/Simulations/Deer/Deer_results_network_",
 #                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
 #                             "_.csv"))
