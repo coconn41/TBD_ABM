@@ -36,4 +36,4 @@
   --bind $PROJECT_FOLDER:$PROJECT_FOLDER \
   --bind $APPTAINER_CACHEDIR/tmp:/tmp \
   --bind $APPTAINER_CACHEDIR/run:/run \
-  $SIF_PATH/$SIF_FILE ./Cluster_TBD_ABM/HPCC_scripts/verbose/TBD_ABM_verbose_net_6.sh
+  $SIF_PATH/$SIF_FILE numactl --cpunodebind=0 --membind=0 ./Cluster_TBD_ABM/HPCC_scripts/verbose/TBD_ABM_verbose_net_6.sh
