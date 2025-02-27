@@ -70,15 +70,14 @@ go_timesteps = (8760*5)
 net_select = 1
 
 # Parameter modification:
-deer_attach_prob = .5
-mouse_attach_prob = .5
+deer_attach_prob = .275
+mouse_attach_prob = .275
 deer_infect_tick_v1 =  0.0094
 mouse_infect_tick_ha = 0.0665
 deer_trans_param = deer_infect_tick_v1
 mouse_trans_param = mouse_infect_tick_ha
 
 
-# RUN model:
 if(net_select!="all"){
   deer_agents = deer_agents %>% 
     filter(network_ID == net_select)
@@ -98,6 +97,64 @@ if(net_select!="all"){
     filter(network_ID == net_select)
   spat_network = spat_network %>%
     filter(network_ID == net_select)}
+
+
+#pb = txtProgressBar(min = 1, max = go_timesteps, initial = 1) 
+#start_time = Sys.time()
+
+#####
+# Clear useless variables:
+#####
+deer_agents = deer_agents %>% 
+  select(-c(County,Site,metric,Ha_infected,Ha_infection_timer))
+mouse_agents = mouse_agents %>%
+  select(-c(County,Site,metric,V1_infected,V1_infection_timer))
+tick_agents = tick_agents %>%
+  select(-c(County,Site,metric))
+
+#####
+# Preallocate compiler data frames:
+#####
+tdflength = length(unique(mouse_agents$layer))*4*go_timesteps
+hdflength = length(unique(mouse_agents$layer))*go_timesteps
+tick_data2 = data.frame(Lifestage = character(tdflength),
+                        network_ID = numeric(tdflength),
+                        layer = numeric(tdflength),
+                        ha_perc = numeric(tdflength),
+                        v1_perc = numeric(tdflength),
+                        tot_v1 = numeric(tdflength),
+                        tot_ha = numeric(tdflength),
+                        total_ticks = numeric(tdflength),
+                        Agent = character(tdflength),
+                        year = numeric(tdflength),
+                        timestep = numeric(tdflength),
+                        day_of_year = numeric(tdflength),
+                        network = numeric(tdflength),
+                        season = character(tdflength),
+                        simulation_day = numeric(tdflength),
+                        simulation_week = numeric(tdflength))
+deer_data2 = data.frame(network_ID = numeric(hdflength),
+                        layer = numeric(hdflength),
+                        tot_v1_infected = numeric(hdflength),
+                        tot_deer = numeric(hdflength),
+                        v1_perc = numeric(hdflength),
+                        day_of_year = numeric(hdflength),
+                        season = character(hdflength),
+                        timestep = numeric(hdflength),
+                        year = numeric(hdflength),
+                        network = numeric(hdflength),
+                        Agent = character(hdflength))
+mouse_data2 = data.frame(network_ID = numeric(hdflength),
+                         layer = numeric(hdflength),
+                         tot_ha_infected = numeric(hdflength),
+                         tot_mice = numeric(hdflength),
+                         ha_perc = numeric(hdflength),
+                         day_of_year = numeric(hdflength),
+                         season = character(hdflength),
+                         timestep = numeric(hdflength),
+                         year = numeric(hdflength),
+                         network = numeric(hdflength),
+                         Agent = character(hdflength))
 
 for(i in 1:go_timesteps){
   
@@ -207,10 +264,10 @@ for(i in 1:go_timesteps){
            layer = new_patch,
            locs = paste0(row,",",col,",",network_ID),
            jump_patch = 0) }
+  #####
+  # Create deer paths
+  #####
   if(day>=lay_egg){
-    #####
-    # Create deer paths
-    #####
     if(daytime=="day"){deer_paths <- deer_agents %>%
       filter(jump_patch==0) %>%
       select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col) %>%
@@ -408,8 +465,10 @@ for(i in 1:go_timesteps){
                                            Infection_status == "None" &
                                            mouse_agents[match(links,mouse_agents$Agent_ID),]$Ha_infected==1 ~ "m2tha",
                                          TRUE ~ "None")) %>%
-        mutate(Infection_status = case_when(transfer_type == "d2tv1" ~ transfer_outcomes_v1[rbinom(n = n(), size = 1, prob = deer_infect_tick_v1)+1],
-                                            transfer_type == "m2tha" ~ transfer_outcomes_ha[rbinom(n = n(), size = 1, prob = mouse_infect_tick_ha)+1],
+        mutate(Infection_status = case_when(transfer_type == "d2tv1" & Lifestage != "Larvae" ~ transfer_outcomes_v1[rbinom(n = n(), size = 1, prob = deer_infect_tick_v1)+1],
+                                            transfer_type == "m2tha" & Lifestage != "Larvae" ~ transfer_outcomes_ha[rbinom(n = n(), size = 1, prob = mouse_infect_tick_ha)+1],
+                                            transfer_type == "d2tv1" & Lifestage == "Larvae" ~ "v1",
+                                            transfer_type == "m2tha" & Lifestage == "Larvae" ~ "ha",
                                             transfer_type == "None" ~ Infection_status,
                                             TRUE ~ Infection_status))
       
@@ -790,7 +849,8 @@ for(i in 1:go_timesteps){
              Lifestage = case_when(molt == 1 & Lifestage == "Eggs" ~ "Larvae",
                                    molt == 1 & Lifestage == "Larvae" ~ "Nymph",
                                    molt == 1 & Lifestage == "Nymph" ~ "Adult",
-                                   TRUE ~ Lifestage)) %>%
+                                   TRUE ~ Lifestage),
+             attempted_pathogen_transfer = ifelse(molt == 1,0,attempted_pathogen_transfer)) %>%
       mutate(sex2 = ifelse(sex=="none" & Lifestage == "Adult",
                            rbinom(n=n(),size=1,prob=.5),-1),
              sex = ifelse(sex2==1,"male",
@@ -854,7 +914,9 @@ for(i in 1:go_timesteps){
     mutate(Age = Age+1,
            Ha_infection_timer = case_when(Ha_infected == 1 & Ha_infection_timer==0 ~ 1,
                                           Ha_infected == 1 & Ha_infection_timer>0 ~ Ha_infection_timer + 1,
-                                          TRUE ~ 0))
+                                          TRUE ~ 0),
+           Ha_infected = case_when(Ha_infection_timer >= (55*24) ~ 0,
+                                   TRUE ~ Ha_infected))
   # Ha_infection_timer = ifelse(Ha_infected==1 & Ha_infection_timer==0,1,
   #                             ifelse(Ha_infected==1 & Ha_infection_timer>0,
   #                                    Ha_infection_timer + 1,0)),
@@ -867,19 +929,11 @@ for(i in 1:go_timesteps){
   #                         TRUE ~ groom_timer))
   deer_agents <- deer_agents %>%
     mutate(Age = Age+1,
-           # Ha_infection_timer = ifelse(Ha_infected==1 & Ha_infection_timer==0,1,
-           #                             ifelse(Ha_infected==1 & Ha_infection_timer>0,
-           #                                    Ha_infection_timer + 1,0)),
            V1_infection_timer = case_when(V1_infected==1 & V1_infection_timer==0 ~ 1,
                                           V1_infected==1 & V1_infection_timer>0 ~ V1_infection_timer+1,
-                                          TRUE ~ 0))
-  # V1_infection_timer = ifelse(V1_infected==1 & V1_infection_timer==0,1,
-  #                             ifelse(V1_infected==1 & V1_infection_timer>0,
-  #                                    V1_infection_timer+1,0)),
-  # groom_timer = case_when(groom_timer > 1 ~ 0,
-  #                         is.na(tick_links) == F ~ groom_timer + deer_GR,
-  #                         is.na(tick_links) == T ~ 0,
-  #                         TRUE ~ groom_timer))
+                                          TRUE ~ 0),
+           V1_infected = case_when(V1_infection_timer >= (28*24) ~ 0,
+                                   TRUE ~ V1_infected))
   
   #####
   # "Kill" hosts
@@ -890,7 +944,7 @@ for(i in 1:go_timesteps){
                                                      size = 1,
                                                      prob = 1/(11*24*365))))) %>% # Maximum lifespan equal 11 years
     mutate(Age = ifelse(Kill==1,0,Age),
-           Ha_infected = ifelse(Kill==1,0,Ha_infected),
+           # Ha_infected = ifelse(Kill==1,0,Ha_infected),
            V1_infected = ifelse(Kill==1,0,V1_infected),
            Kill = 0)
   
@@ -901,7 +955,7 @@ for(i in 1:go_timesteps){
                                                      prob = 1/(2*24*365))))) %>% # Maximum lifespan equal 2 years
     mutate(Age = ifelse(Kill==1,0,Age),
            Ha_infected = ifelse(Kill==1,0,Ha_infected),
-           V1_infected = ifelse(Kill==1,0,V1_infected),
+           # V1_infected = ifelse(Kill==1,0,V1_infected),
            Kill = 0)
   
   #####
@@ -910,6 +964,7 @@ for(i in 1:go_timesteps){
   deer_data <- deer_agents %>%
     group_by(network_ID,layer) %>%
     summarise(tot_v1_infected = sum(V1_infected,na.rm=T),
+              tot_deer = n(),
               V1_perc = sum(V1_infected,na.rm=T)/n()) %>%
     mutate(day_of_year = day,
            season = season,
@@ -921,23 +976,26 @@ for(i in 1:go_timesteps){
   mouse_data<- mouse_agents %>%
     group_by(network_ID,layer) %>%
     summarise(tot_ha_infected = sum(Ha_infected,na.rm=T),
-              Ha_perc = sum(Ha_infected)/n()) %>%
+              tot_mice = n(),
+              ha_perc = sum(Ha_infected)/n()) %>%
     mutate(day_of_year = day,
-           timestep = i,
            season = season,
+           timestep = i,
            year = year,
            day_of_year = day,
            network = net_select,
            Agent = "Mice")
   tick_data <- tick_agents %>%
     group_by(Lifestage,network_ID,layer) %>%
-    summarise(Ha_perc = (length(which(Infection_status == "ha"))/n())*100,
+    summarise(ha_perc = (length(which(Infection_status == "ha"))/n())*100,
               v1_perc = (length(which(Infection_status == "v1"))/n())*100,
-              total_attached = length(which(links>0)),
-              total_fed = sum(fed),
-              total_dropped = sum(dropped),
-              total_molted = sum(molt),
-              total_mated = sum(mated),
+              tot_v1 = length(which(Infection_status == "v1")),
+              tot_ha = length(which(Infection_status == "ha")),
+              #total_attached = length(which(links>0)),
+              #total_fed = sum(fed),
+              # total_dropped = sum(dropped),
+              #total_molted = sum(molt),
+              #total_mated = sum(mated),
               total_ticks = sum(num_ticks),
               Agent = "Tick",
               year = year,
@@ -945,24 +1003,49 @@ for(i in 1:go_timesteps){
               day_of_year = day,
               network = net_select,
               season = season)
+  
+  oldw <- getOption("warn")
+  options(warn = -1)
+  
+  if(i==1){
+    deer_data2[i:(i+(nrow(deer_data)-1)),] = deer_data
+    mouse_data2[i:(i+(nrow(mouse_data)-1)),] = mouse_data
+    tick_data2[i:(i+(nrow(tick_data)-1)),] = tick_data
+  }
+  if(i>1){
+    deer_data2[ldj:(ldj+(nrow(deer_data)-1)),] = deer_data
+    mouse_data2[lmj:(lmj+(nrow(mouse_data)-1)),] = mouse_data
+    tick_data2[ltj:(ltj+(nrow(tick_data)-1)),] = tick_data
+  }
+  options(warn = oldw)
+  if(i==1){
+    ltj = nrow(tick_data)+1
+    ldj = nrow(deer_data)+1
+    lmj = nrow(mouse_data)+1
+  }
+  if(i>1){
+    ltj = ltj+nrow(tick_data)
+    ldj = ldj+nrow(deer_data)
+    lmj = lmj+nrow(mouse_data)
+  }
   # }
-  if(i==1){#24){
-    deer_data2 <- deer_data
-    mouse_data2 <- mouse_data
-    tick_data2 <- tick_data
-  }
-  if(i>1){#24){
-    deer_data2 <- rbind(deer_data,deer_data2)
-    mouse_data2 <- rbind(mouse_data,mouse_data2)
-    tick_data2 <- rbind(tick_data,tick_data2)
-  }
+  #  if(i==1){#24){
+  #    deer_data2 <- deer_data
+  #    mouse_data2 <- mouse_data
+  #    tick_data2 <- tick_data
+  #  }
+  #  if(i>1){#24){
+  #    deer_data2 <- rbind(deer_data,deer_data2)
+  #    mouse_data2 <- rbind(mouse_data,mouse_data2)
+  #    tick_data2 <- rbind(tick_data,tick_data2)
+  #  }
   
   if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in network ",net_select))
-    # save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
+    #save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
   }
   if(i%%5000==0){
-    save.image(file = paste0(getwd(),"/Debugging/Network_",
-                             net_select,"/net_",net_select,"_timestep_",i,".RData"))
+    save.image(file = paste0(getwd(),"/Debugging/Network_",net_select,
+                             "/net_",net_select,"_timestep_",i,".RData"))
     # write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/deer_debug_df_",
     #                                                      i,"_.csv"))
     # write.csv(unnest_wider(mouse_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/mouse_debug_df_",
@@ -973,13 +1056,15 @@ for(i in 1:go_timesteps){
     #                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
     #                             "_.csv"))
     # write.csv(mouse_data2,paste0(getwd(),"/Debugging/Network_",net_select,"/Mouse_results_debug_",
-    #                              net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
-    #                              "_.csv"))
+    #                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
+    #                             "_.csv"))
     # write.csv(tick_data2,paste0(getwd(),"/Debugging/Network_",net_select,"/Tick_results_debug_",
     #                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
     #                             "_.csv"))
   }
 }
+# end_time = Sys.time()
+# end_time - start_time
 
 # Save results:
 if(i==(8760*5)){

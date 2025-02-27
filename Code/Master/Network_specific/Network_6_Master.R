@@ -70,13 +70,12 @@ go_timesteps = (8760*5)
 net_select = 6
 
 # Parameter modification:
-deer_attach_prob = .30
-mouse_attach_prob = .30
+deer_attach_prob = .275
+mouse_attach_prob = .275
 deer_infect_tick_v1 = 0.0094
 mouse_infect_tick_ha = 0.0665
 deer_trans_param = deer_infect_tick_v1
 mouse_trans_param = mouse_infect_tick_ha
-
 
 # RUN model:
 source(paste0(getwd(),'/Code/Master/Network_specific/Model_loop_6.R'))
