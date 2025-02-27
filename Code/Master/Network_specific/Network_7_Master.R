@@ -179,7 +179,8 @@ for(i in 1:go_timesteps){
   #####
   if(year==1&day==171 & exists("nymph_agents")){
     tick_agents = rbind(tick_agents,nymph_agents %>%
-                          mutate(att_prob = NA))
+                          mutate(att_prob = NA) %>%
+                          select(-c(County,Site,metric)))
     remove(nymph_agents)
   }
   
