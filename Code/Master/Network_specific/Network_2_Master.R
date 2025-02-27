@@ -1069,16 +1069,10 @@ for(i in 1:go_timesteps){
 if(i==(8760*5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
-  save.image(file = paste0(getwd(),"/Simulations/Attach_",substring(deer_attach_prob*100,1,3),
-                           "/Pathogen_",substring(pathogen_label,1,3),"/Network_",net_select,
-                           "/BI_attach_",deer_attach_prob*100,
+  save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/BI_attach_",deer_attach_prob*100,
                            "_path_trans_",substring(pathogen_label,1,3),".RData"))}
 if(i>(8760*5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
-  save.image(file = paste0(getwd(),"/Simulations/Attach_",substring(deer_attach_prob*100,1,3),
-                           "/Pathogen_",substring(pathogen_label,1,3),"/Network_",net_select,
-                           "/post_BI_attach_",deer_attach_prob*100,
-                           "_path_trans_",substring(pathogen_label,1,3),
-                           i/8760,"_simyears.RData"))
-}
+  save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/timestep_",i,"_attach_",deer_attach_prob*100,
+                           "_path_trans_",substring(pathogen_label,1,3),".RData"))}
