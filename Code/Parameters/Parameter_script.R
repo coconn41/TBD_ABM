@@ -38,11 +38,11 @@ nymph_to_adult_max = 258 + 30 # September 15th + 30 day = October 15th
 #####
 # Parameters from other sources
 #####
-mouse_infect_tick_ha = 0.0665 # Keesing ASTMH 2014
+mouse_infect_tick_ha = 1#0.0665 # Keesing ASTMH 2014
 #mouse_infect_tick_v1 = 0.0094 # Keesing ASTMH 2014
 tick_infect_mouse_ha = 1 # 0.0665 # Need a citation for this?
 #tick_infect_mouse_v1 = 1 # 0.0094 # Need a citation for this?
-deer_infect_tick_v1 = 0.0094 # Massung EID 2005
+deer_infect_tick_v1 = 1#0.0094 # Massung EID 2005
 #deer_infect_tick_ha = 0.0665 # Massung EID 2005
 tick_infect_deer_v1 = 1 # 0.0094 # Need a citation for this?
 #tick_infect_deer_ha = 1 # 0.0665 # Need a citation for this?
