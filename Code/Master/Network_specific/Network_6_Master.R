@@ -914,9 +914,9 @@ for(i in 1:go_timesteps){
     mutate(Age = Age+1,
            Ha_infection_timer = case_when(Ha_infected == 1 & Ha_infection_timer==0 ~ 1,
                                           Ha_infected == 1 & Ha_infection_timer>0 ~ Ha_infection_timer + 1,
-                                          TRUE ~ 0),
-           Ha_infected = case_when(Ha_infection_timer >= (55*24) ~ 0,
-                                   TRUE ~ Ha_infected))
+                                          TRUE ~ 0))#
+           # Ha_infected = case_when(Ha_infection_timer >= (55*24) ~ 0,
+           #                         TRUE ~ Ha_infected))
   # Ha_infection_timer = ifelse(Ha_infected==1 & Ha_infection_timer==0,1,
   #                             ifelse(Ha_infected==1 & Ha_infection_timer>0,
   #                                    Ha_infection_timer + 1,0)),
@@ -931,9 +931,9 @@ for(i in 1:go_timesteps){
     mutate(Age = Age+1,
            V1_infection_timer = case_when(V1_infected==1 & V1_infection_timer==0 ~ 1,
                                           V1_infected==1 & V1_infection_timer>0 ~ V1_infection_timer+1,
-                                          TRUE ~ 0),
-           V1_infected = case_when(V1_infection_timer >= (28*24) ~ 0,
-                                   TRUE ~ V1_infected))
+                                          TRUE ~ 0))
+           # V1_infected = case_when(V1_infection_timer >= (28*24) ~ 0,
+           #                         TRUE ~ V1_infected))
   
   #####
   # "Kill" hosts
