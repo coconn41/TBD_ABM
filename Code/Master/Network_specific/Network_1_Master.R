@@ -70,13 +70,12 @@ go_timesteps = (8760*5)
 net_select = 1
 
 # Parameter modification:
-deer_attach_prob = .275
-mouse_attach_prob = .275
-deer_infect_tick_v1 = 1# 0.0094
-mouse_infect_tick_ha =1# 0.0665
+deer_attach_prob = .25
+mouse_attach_prob = .25
+#deer_infect_tick_v1 =1# 0.0094
+#mouse_infect_tick_ha =1# 0.0665
 deer_trans_param = deer_infect_tick_v1
 mouse_trans_param = mouse_infect_tick_ha
-
 
 if(net_select!="all"){
   deer_agents = deer_agents %>% 
@@ -156,6 +155,17 @@ mouse_data2 = data.frame(network_ID = numeric(hdflength),
                          network = numeric(hdflength),
                          Agent = character(hdflength))
 
+starting_layers = unique(mouse_agents$layer)
+
+deer_agents = deer_agents %>%
+  mutate(V1_infected = case_when(layer%in%starting_layers & V1_infected==0 ~ rbinom(n=n(),size=1,prob=.289),
+                                 TRUE ~ V1_infected),
+         V1_infection_timer = 0)
+mouse_agents = mouse_agents %>%
+  mutate(Ha_infected = case_when(layer%in%starting_layers & Ha_infected == 0 ~ rbinom(n=n(),size=1,prob=.5),
+                                 TRUE ~ Ha_infected),
+         Ha_infection_timer = 0)
+
 for(i in 1:go_timesteps){
   
   
@@ -182,6 +192,16 @@ for(i in 1:go_timesteps){
                           mutate(att_prob = NA) %>%
                           select(-c(County,Site,metric)))
     remove(nymph_agents)
+    # Add prevalences too:
+    deer_agents = deer_agents %>%
+      mutate(V1_infected = case_when(layer%in%starting_layers & V1_infected==0 ~ rbinom(n=n(),size=1,prob=.289),
+                                     TRUE ~ V1_infected))
+    mouse_agents = mouse_agents %>%
+      mutate(Ha_infected = case_when(layer%in%starting_layers & Ha_infected == 0 ~ rbinom(n=n(),size=1,prob=.5),
+                                     TRUE ~ Ha_infected))
+    # 28.9 Percent of Deer (Massung 2005)
+    # 50 Percent of Mice (Keesing 2012)
+    
   }
   
   #####
@@ -430,8 +450,8 @@ for(i in 1:go_timesteps){
                                               (Lifestage == "Nymph")) &
                                            attempted_pathogen_transfer == 0 &
                                            linked_type == "Deer" &
-                                           Infection_status == "v1" &
-                                           deer_agents[match(links,deer_agents$Agent_ID),]$V1_infected==0 ~ "t2dv1",
+                                           Infection_status == "v1" ~ "t2dv1",#&
+                                         #deer_agents[match(links,deer_agents$Agent_ID),]$V1_infected==0 ~ "t2dv1",
                                          links>0 & 
                                            ((sex == "female" & Lifestage == "Adult") |
                                               (Lifestage == "Larvae") |
@@ -455,8 +475,8 @@ for(i in 1:go_timesteps){
                                               (Lifestage == "Nymph")) &
                                            attempted_pathogen_transfer == 0 &
                                            linked_type == "Mouse" &
-                                           Infection_status == "ha" &
-                                           mouse_agents[match(links,mouse_agents$Agent_ID),]$Ha_infected==0 ~ "t2mha",
+                                           Infection_status == "ha" ~ "t2mha",#&
+                                         # mouse_agents[match(links,mouse_agents$Agent_ID),]$Ha_infected==0 ~ "t2mha",
                                          links>0 & 
                                            ((sex == "female" & Lifestage == "Adult") |
                                               (Lifestage == "Larvae") |
@@ -485,6 +505,7 @@ for(i in 1:go_timesteps){
       deer_agents$transfer_count <- vapply(deer_agents$tick_links, function(x) sum(x %in% t2dv1_ids), integer(1))
       new_infections <- rbinom(n = nrow(deer_agents), size = deer_agents$transfer_count, prob = tick_infect_deer_v1) > 0
       deer_agents$V1_infected <- ifelse(deer_agents$V1_infected == 0 & new_infections, 1, deer_agents$V1_infected)
+      deer_agents$V1_infection_timer = ifelse(new_infections,0,deer_agents$V1_infection_timer)
       deer_agents = subset(deer_agents, select = -c(transfer_count))
       deer_agents <- deer_agents %>%
         rbind(.,d_matches1)
@@ -501,6 +522,7 @@ for(i in 1:go_timesteps){
       mouse_agents$transfer_count <- vapply(mouse_agents$tick_links, function(x) sum(x %in% t2mha_ids), integer(1))
       new_infections <- rbinom(n = nrow(mouse_agents), size = mouse_agents$transfer_count, prob = tick_infect_mouse_ha) > 0
       mouse_agents$Ha_infected <- ifelse(mouse_agents$Ha_infected == 0 & new_infections, 1, mouse_agents$Ha_infected)
+      mouse_agents$Ha_infection_timer = ifelse(new_infections,0,mouse_agents$Ha_infection_timer)
       mouse_agents = subset(mouse_agents, select = -c(transfer_count))
       mouse_agents <- mouse_agents %>%
         rbind(.,m_matches1)
@@ -916,8 +938,8 @@ for(i in 1:go_timesteps){
            Ha_infection_timer = case_when(Ha_infected == 1 & Ha_infection_timer==0 ~ 1,
                                           Ha_infected == 1 & Ha_infection_timer>0 ~ Ha_infection_timer + 1,
                                           TRUE ~ 0))#,
-           # Ha_infected = case_when(Ha_infection_timer >= (55*24) ~ 0,
-           #                         TRUE ~ Ha_infected))
+  # Ha_infected = case_when(Ha_infection_timer >= (55*24) ~ 0,
+  #                         TRUE ~ Ha_infected))
   # Ha_infection_timer = ifelse(Ha_infected==1 & Ha_infection_timer==0,1,
   #                             ifelse(Ha_infected==1 & Ha_infection_timer>0,
   #                                    Ha_infection_timer + 1,0)),
@@ -933,8 +955,8 @@ for(i in 1:go_timesteps){
            V1_infection_timer = case_when(V1_infected==1 & V1_infection_timer==0 ~ 1,
                                           V1_infected==1 & V1_infection_timer>0 ~ V1_infection_timer+1,
                                           TRUE ~ 0))#,
-           # V1_infected = case_when(V1_infection_timer >= (28*24) ~ 0,
-           #                         TRUE ~ V1_infected))
+  # V1_infected = case_when(V1_infection_timer >= (28*24) ~ 0,
+  #                         TRUE ~ V1_infected))
   
   #####
   # "Kill" hosts
@@ -1078,3 +1100,23 @@ if(i>(8760*5)){
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
   save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/timestep_",i,"_attach_",deer_attach_prob*100,
                            "_path_trans_",substring(pathogen_label,1,3),".RData"))}
+# write.csv(deer_data2,paste0(getwd(),"/Simulations/Deer/Deer_results_network_",
+#                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
+#                             "_.csv"))
+# write.csv(mouse_data2,paste0(getwd(),"/Simulations/Mice/Mouse_results_network_",
+#                              net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
+#                              "_.csv"))
+# write.csv(tick_data2,paste0(getwd(),"/Simulations/Ticks/Tick_results_network_",
+#                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
+#                             "_.csv"))
+
+# Save burn in:
+# save.image(file = paste0(getwd(),"/Simulations/Burn_in/Burn_in_environment_",
+#                          net_select,".RData"))
+# write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Simulations/Burn_in/deer_burn_in_",
+#                              net_select,"_.csv"))
+# write.csv(unnest_wider(mouse_agents,tick_links,names_sep="_"),paste0(getwd(),"/Simulations/Burn_in/mouse_burn_in_",
+#                               net_select,"_.csv"))
+# write.csv(tick_agents,paste0(getwd(),"/Simulations/Burn_in/tick_burn_in_",
+#                              net_select,"_.csv"))
+

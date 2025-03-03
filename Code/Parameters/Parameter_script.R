@@ -38,13 +38,25 @@ nymph_to_adult_max = 258 + 30 # September 15th + 30 day = October 15th
 #####
 # Parameters from other sources
 #####
-mouse_infect_tick_ha = 1#0.0665 # Keesing ASTMH 2014
+mouse_infect_tick_ha = .15 # Keesing ASTMH 2014
+tick_infect_mouse_ha = .0665 # Keesing ASTMH 2014
+deer_infect_tick_v1 = 1 # Use proportion from Massung EID 2005:
+tick_infect_deer_v1 = .2894 # Massung EID 2005
+# In 2000: 53 of 73 F ticks were positive for Ap-v1 (.7260274)
+# In 2000: 4 of 64 M ticks were positive for Ap-v1 (.0625)
+# In 2001: 37 of 129 ticks were positive for Ap-v1 (.2868217)
+# In 2001: 10 of 65 ticks were positive for Ap-v1 (.1538462)
+# .7260274 - .0625 = .6635274
+# .2868217 - .1538462 = .1329755
+# mean = .3982515 or 39.82515 percent
+# Because this number is higher than the infection prevalence of deer,
+# we have to assume that deer always infect ticks when exposed
+
+# Throw away 2002: low sample size
+
 #mouse_infect_tick_v1 = 0.0094 # Keesing ASTMH 2014
-tick_infect_mouse_ha = 1 # 0.0665 # Need a citation for this?
 #tick_infect_mouse_v1 = 1 # 0.0094 # Need a citation for this?
-deer_infect_tick_v1 = 1#0.0094 # Massung EID 2005
 #deer_infect_tick_ha = 0.0665 # Massung EID 2005
-tick_infect_deer_v1 = 1 # 0.0094 # Need a citation for this?
 #tick_infect_deer_ha = 1 # 0.0665 # Need a citation for this?
 
  # Reichard Vector-Borne and Zoonotic Diseases 2009, WTD became PCR negative after 28 days
