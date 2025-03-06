@@ -65,6 +65,7 @@ season = "fall"
 
 # Number of hourly timesteps
 go_timesteps = (8760*5)
+start_time = 1
 
 # Select network: either "all" or the network number
 net_select = 1
@@ -160,13 +161,91 @@ starting_layers = unique(mouse_agents$layer)
 deer_agents = deer_agents %>%
   mutate(V1_infected = case_when(layer%in%starting_layers & V1_infected==0 ~ rbinom(n=n(),size=1,prob=.289),
                                  TRUE ~ V1_infected),
-         V1_infection_timer = 0)
+         V1_infection_timer = 0,
+         susceptible = ifelse(V1_infected==1,1,0),
+         tick_links = 0)
 mouse_agents = mouse_agents %>%
-  mutate(Ha_infected = case_when(layer%in%starting_layers & Ha_infected == 0 ~ rbinom(n=n(),size=1,prob=.5),
+  mutate(Ha_infected = case_when(layer%in%starting_layers & Ha_infected == 0 ~ rbinom(n=n(),size=1,prob=.39),
                                  TRUE ~ Ha_infected),
-         Ha_infection_timer = 0)
+         Ha_infection_timer = 0,
+         susceptible = ifelse(Ha_infected==1,1,0),
+         tick_links = 0)
 
-for(i in 1:go_timesteps){
+rfdb = FALSE
+#####
+# Run from debug:
+#####
+if(rfdb==T){
+  #load(paste0(getwd(),'/Debugging/Network_6/net_6_timestep_25000.RData'))
+  load(paste0(getwd(),'/Simulations/Network_6/timestep_61320_attach_25_path_trans_100.RData'))
+  source(paste0(getwd(),'/Code/Model_set_up/Load_libraries.R'))
+  options(dplyr.summarise.inform = FALSE)
+  print(i)
+  start_time = i+1
+  go_timesteps = (8760*10)
+  
+  tick_data2 = tick_data2 %>%
+    filter(Lifestage!="")
+  deer_data2 = deer_data2 %>%
+    filter(season!="")
+  mouse_data2 = mouse_data2 %>%
+    filter(season!="")
+  
+  tdflength = length(unique(mouse_agents$layer))*4*(go_timesteps)
+  hdflength = length(unique(mouse_agents$layer))*(go_timesteps)
+  
+  tick_data3 = data.frame(Lifestage = character(tdflength),
+                          network_ID = numeric(tdflength),
+                          layer = numeric(tdflength),
+                          ha_perc = numeric(tdflength),
+                          v1_perc = numeric(tdflength),
+                          tot_v1 = numeric(tdflength),
+                          tot_ha = numeric(tdflength),
+                          total_ticks = numeric(tdflength),
+                          Agent = character(tdflength),
+                          year = numeric(tdflength),
+                          timestep = numeric(tdflength),
+                          day_of_year = numeric(tdflength),
+                          network = numeric(tdflength),
+                          season = character(tdflength),
+                          simulation_day = numeric(tdflength),
+                          simulation_week = numeric(tdflength))
+  deer_data3 = data.frame(network_ID = numeric(hdflength),
+                          layer = numeric(hdflength),
+                          tot_v1_infected = numeric(hdflength),
+                          tot_deer = numeric(hdflength),
+                          v1_perc = numeric(hdflength),
+                          day_of_year = numeric(hdflength),
+                          season = character(hdflength),
+                          timestep = numeric(hdflength),
+                          year = numeric(hdflength),
+                          network = numeric(hdflength),
+                          Agent = character(hdflength))
+  mouse_data3 = data.frame(network_ID = numeric(hdflength),
+                           layer = numeric(hdflength),
+                           tot_ha_infected = numeric(hdflength),
+                           tot_mice = numeric(hdflength),
+                           ha_perc = numeric(hdflength),
+                           day_of_year = numeric(hdflength),
+                           season = character(hdflength),
+                           timestep = numeric(hdflength),
+                           year = numeric(hdflength),
+                           network = numeric(hdflength),
+                           Agent = character(hdflength))
+  tick_data3[c(1:nrow(tick_data2)),]=tick_data2
+  mouse_data3[c(1:nrow(mouse_data2)),]=mouse_data2
+  deer_data3[c(1:nrow(deer_data2)),]=deer_data2
+  
+  tick_data2 = tick_data3
+  mouse_data2 = mouse_data3
+  deer_data2 = deer_data3
+  rm(tick_data3,mouse_data3,deer_data3)
+  
+  set.seed(1)
+}
+
+
+for(i in start_time:go_timesteps){
   
   
   #####
@@ -195,10 +274,12 @@ for(i in 1:go_timesteps){
     # Add prevalences too:
     deer_agents = deer_agents %>%
       mutate(V1_infected = case_when(layer%in%starting_layers & V1_infected==0 ~ rbinom(n=n(),size=1,prob=.289),
-                                     TRUE ~ V1_infected))
+                                     TRUE ~ V1_infected),
+             susceptible = ifelse(V1_infected==1,1,0))
     mouse_agents = mouse_agents %>%
-      mutate(Ha_infected = case_when(layer%in%starting_layers & Ha_infected == 0 ~ rbinom(n=n(),size=1,prob=.5),
-                                     TRUE ~ Ha_infected))
+      mutate(Ha_infected = case_when(layer%in%starting_layers & Ha_infected == 0 ~ rbinom(n=n(),size=1,prob=.39),
+                                     TRUE ~ Ha_infected),
+             susceptible = ifelse(Ha_infected==1,1,0))
     # 28.9 Percent of Deer (Massung 2005)
     # 50 Percent of Mice (Keesing 2012)
     
@@ -291,6 +372,7 @@ for(i in 1:go_timesteps){
   if(day>=lay_egg){
     if(daytime=="day"){deer_paths <- deer_agents %>%
       filter(jump_patch==0) %>%
+      filter(lengths(tick_links)<100) %>% # This is new
       select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col) %>%
       rowwise() %>%
       mutate(cells = list(bresenham_line(old_col, old_row, new_col, new_row))) %>%
@@ -341,16 +423,17 @@ for(i in 1:go_timesteps){
     T_matches3 <- T_matches2 %>%
       mutate(deer_links = deer_paths[deer_links,]$Agent_ID)
     
-    
+    available_mouse_agents = mouse_agents %>% # Updated
+      filter(lengths(tick_links)<50) # Updated
     T_matches4 = T_matches3 %>%
       mutate(mouse_links = match(paste0(.$row,",",
                                         .$col,",",
                                         .$layer,",",
                                         .$network_ID),
-                                 paste0(mouse_agents$row,",",
-                                        mouse_agents$col,",",
-                                        mouse_agents$layer,",",
-                                        mouse_agents$network_ID),NA),
+                                 paste0(available_mouse_agents$row,",", # Updated
+                                        available_mouse_agents$col,",", # Updated
+                                        available_mouse_agents$layer,",", # Updated
+                                        available_mouse_agents$network_ID),NA), # Updated
              att_prob = rbinom(n = n(),
                                size = 1,
                                prob = mouse_attach_prob)) %>%
@@ -450,8 +533,9 @@ for(i in 1:go_timesteps){
                                               (Lifestage == "Nymph")) &
                                            attempted_pathogen_transfer == 0 &
                                            linked_type == "Deer" &
-                                           Infection_status == "v1" ~ "t2dv1",#&
-                                         #deer_agents[match(links,deer_agents$Agent_ID),]$V1_infected==0 ~ "t2dv1",
+                                           Infection_status == "v1" &
+                                           deer_agents[match(links,deer_agents$Agent_ID),]$susceptible==1 ~ "t2dv1",
+                                         # deer_agents[match(links,deer_agents$Agent_ID),]$V1_infected==0 ~ "t2dv1",
                                          links>0 & 
                                            ((sex == "female" & Lifestage == "Adult") |
                                               (Lifestage == "Larvae") |
@@ -475,8 +559,9 @@ for(i in 1:go_timesteps){
                                               (Lifestage == "Nymph")) &
                                            attempted_pathogen_transfer == 0 &
                                            linked_type == "Mouse" &
-                                           Infection_status == "ha" ~ "t2mha",#&
-                                         # mouse_agents[match(links,mouse_agents$Agent_ID),]$Ha_infected==0 ~ "t2mha",
+                                           Infection_status == "ha" &
+                                           mouse_agents[match(links,mouse_agents$Agent_ID),]$susceptible==1 ~ "t2mha",
+                                         #mouse_agents[match(links,mouse_agents$Agent_ID),]$Ha_infected==0 
                                          links>0 & 
                                            ((sex == "female" & Lifestage == "Adult") |
                                               (Lifestage == "Larvae") |
@@ -965,21 +1050,32 @@ for(i in 1:go_timesteps){
     mutate(Kill = case_when(Age==(11*24*365) ~ 1,
                             TRUE ~ as.numeric(rbinom(n = n(),
                                                      size = 1,
-                                                     prob = 1/(11*24*365))))) %>% # Maximum lifespan equal 11 years
+                                                     prob = 1/(11*24*365))))) # Maximum lifespan equal 11 years
+  dkl = unlist(subset(deer_agents,deer_agents$Kill==1)$tick_links)
+  deer_agents <- deer_agents %>%
     mutate(Age = ifelse(Kill==1,0,Age),
+           tick_links = ifelse(Kill==1,NA,tick_links),
            # Ha_infected = ifelse(Kill==1,0,Ha_infected),
            V1_infected = ifelse(Kill==1,0,V1_infected),
-           Kill = 0)
+           Kill = 0,
+           susceptible = ifelse(Kill==1,rbinom(n=n(),size=1,prob=.289),susceptible))
   
   mouse_agents <- mouse_agents %>%
     mutate(Kill = case_when(Age==(2*24*365)~1,
                             TRUE ~ as.numeric(rbinom(n = n(),
                                                      size=1,
-                                                     prob = 1/(2*24*365))))) %>% # Maximum lifespan equal 2 years
+                                                     prob = 1/(2*24*365))))) # Maximum lifespan equal 2 years
+  mkl = unlist(subset(mouse_agents,mouse_agents$Kill==1)$tick_links)
+  mouse_agents <- mouse_agents %>%
     mutate(Age = ifelse(Kill==1,0,Age),
+           tick_links = ifelse(Kill==1,NA,tick_links),
            Ha_infected = ifelse(Kill==1,0,Ha_infected),
            # V1_infected = ifelse(Kill==1,0,V1_infected),
-           Kill = 0)
+           Kill = 0,
+           susceptible = ifelse(Kill==1,rbinom(n=n(),size=1,prob=.39),susceptible))
+  
+  tick_agents = tick_agents %>%
+    filter(!(Agent_ID %in% c(mkl,dkl)))
   
   #####
   # Compile results
@@ -1100,23 +1196,3 @@ if(i>(8760*5)){
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
   save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/timestep_",i,"_attach_",deer_attach_prob*100,
                            "_path_trans_",substring(pathogen_label,1,3),".RData"))}
-# write.csv(deer_data2,paste0(getwd(),"/Simulations/Deer/Deer_results_network_",
-#                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
-#                             "_.csv"))
-# write.csv(mouse_data2,paste0(getwd(),"/Simulations/Mice/Mouse_results_network_",
-#                              net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
-#                              "_.csv"))
-# write.csv(tick_data2,paste0(getwd(),"/Simulations/Ticks/Tick_results_network_",
-#                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
-#                             "_.csv"))
-
-# Save burn in:
-# save.image(file = paste0(getwd(),"/Simulations/Burn_in/Burn_in_environment_",
-#                          net_select,".RData"))
-# write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Simulations/Burn_in/deer_burn_in_",
-#                              net_select,"_.csv"))
-# write.csv(unnest_wider(mouse_agents,tick_links,names_sep="_"),paste0(getwd(),"/Simulations/Burn_in/mouse_burn_in_",
-#                               net_select,"_.csv"))
-# write.csv(tick_agents,paste0(getwd(),"/Simulations/Burn_in/tick_burn_in_",
-#                              net_select,"_.csv"))
-

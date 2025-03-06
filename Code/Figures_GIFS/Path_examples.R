@@ -19,7 +19,7 @@ df = as.data.frame(baserast,xy=TRUE)
 set.seed(3)
 agent = data.frame(x = c(125,runif(n=1,min=125-100,max=125+100)),
                    y = c(125,runif(n=1,min=125-100,max=125+100)),
-                   timestep = c(1,2))
+                   timestep = c(0,1))
 
 lines = data.frame(x = c(25,25,225,225,25),
                    y = c(25,225,225,25,25))

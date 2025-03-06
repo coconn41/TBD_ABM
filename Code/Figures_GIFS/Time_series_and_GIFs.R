@@ -1,7 +1,7 @@
 # Debugging load:
-load(paste0(getwd(),'/Debugging/Network_6/net_6_timestep_10000.RData'))
+load(paste0(getwd(),'/Debugging/Network_6/net_6_timestep_15000.RData'))
 # Burn in load:
-#load(paste0(getwd(),'/Simulations/Attach_25/Pathogen_50/Network_6/BI_attach_25_path_trans_50.RData'))
+#load(paste0(getwd(),'/Simulations/Network_6/timestep_61320_attach_25_path_trans_100.RData'))
 library(tidyverse)
 library(tmap)
 library(gifski)
@@ -46,6 +46,8 @@ ggplot(data = deer_data2 %>%
 # Calculate pathogen prevalence in ticks
 #####
 ggplot(data = tick_data2 %>% 
+         # filter(Lifestage=="Larvae"|
+         #          Lifestage=="Nymphs") %>%
          group_by(timestep,Lifestage) %>%
          summarize(total_ticks = sum(total_ticks,na.rm=T),
                    v1_perc = sum(tot_v1)/sum(total_ticks)*100,
@@ -53,12 +55,18 @@ ggplot(data = tick_data2 %>%
          pivot_longer(c(v1_perc,ha_perc)),
        aes(x=timestep,y=value,color=name))+
   geom_line()+
-  coord_cartesian(ylim = c(0,8))+
-  facet_wrap(.~Lifestage,scales='free_y')
+  coord_cartesian(ylim = c(0,100))+
+  facet_wrap(.~Lifestage,scales='free_y')#+
+  geom_vline(xintercept = c(0,2160,4296,6504,8760,
+                            (2160+8760),(4296+8760),(6504+8760),(8760*2),
+                            (2160+(8760*2)),(4296+(8760*2)),(6504+(8760*2)),(8760*3)))
+                           # (2160+(8760*3)),(4296+(8760*3)),(6504+(8760*3)),(8760*4),
+                      #      (2160+(8760*4)),(4296+(8760*4)),(6504+(8760*4)),(8760*5)))
+
 #####
 # Calculate tick populations:
 #####
-ggplot(data = tick_data2 %>% group_by(timestep,Lifestage) %>% summarize(total_ticks = sum(total_ticks,na.rm=T)),
+ggplot(data = tick_data2 %>%group_by(timestep,Lifestage) %>% summarize(total_ticks = sum(total_ticks,na.rm=T)),
        aes(x=timestep,y=total_ticks))+
   geom_line()+
   facet_wrap(.~Lifestage,scales='free_y',ncol=1)+

@@ -38,10 +38,10 @@ nymph_to_adult_max = 258 + 30 # September 15th + 30 day = October 15th
 #####
 # Parameters from other sources
 #####
-mouse_infect_tick_ha = .15 # Keesing ASTMH 2014
-tick_infect_mouse_ha = .0665 # Keesing ASTMH 2014
+mouse_infect_tick_ha = .158 # Keesing ASTMH 2014
+tick_infect_mouse_ha = 1#.39 # Keesing ASTMH 2014 (estimate based on figure)
 deer_infect_tick_v1 = 1 # Use proportion from Massung EID 2005:
-tick_infect_deer_v1 = .2894 # Massung EID 2005
+tick_infect_deer_v1 = 1#.2894 # Massung EID 2005
 # In 2000: 53 of 73 F ticks were positive for Ap-v1 (.7260274)
 # In 2000: 4 of 64 M ticks were positive for Ap-v1 (.0625)
 # In 2001: 37 of 129 ticks were positive for Ap-v1 (.2868217)
