@@ -1162,7 +1162,7 @@ for(i in start_time:go_timesteps){
   if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in network ",net_select))
     #save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
   }
-  if(i%%5000==0){
+  if(i%%1000==0){
     save.image(file = paste0(getwd(),"/Debugging/Network_",net_select,
                              "/net_",net_select,"_timestep_",i,".RData"))
     # write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/deer_debug_df_",
