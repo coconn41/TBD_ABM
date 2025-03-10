@@ -66,7 +66,7 @@ tick_infect_deer_v1 = 1#.2894 # Massung EID 2005
 # Need new source for below:
 #####
 
-eggs_per_female = 1000 # Sonenshine 1991, but still apriori
+eggs_per_female = 1500 # Sonenshine 1991, but still apriori
 deer_attach_prob = .1 # A priori
 mouse_attach_prob = .1  # A priori
 

@@ -171,7 +171,7 @@ mouse_agents = mouse_agents %>%
          susceptible = 1,#ifelse(Ha_infected==1,1,0),
          tick_links = 0)
 
-rfdb = TRUE
+rfdb = FALSE
 #####
 # Run from debug:
 #####
@@ -331,50 +331,78 @@ for(i in start_time:go_timesteps){
   #####
   # Move deer
   #####
-  if(daytime=="day"){deer_agents <- deer_agents %>%
-    mutate(possibility_row_min = row-100,
-           possibility_row_max = row+100,
-           possibility_col_min = col-100,
-           possiblitiy_col_max = col+100) %>%
-    group_by(Agent_ID) %>%
-    mutate(new_row = sample(possibility_row_min:possibility_row_max,size = 1),
-           new_col = sample(possibility_col_min:possiblitiy_col_max,size = 1)) %>%
-    mutate(jump_patch = ifelse(new_row<=0|new_col<=0,1,0)) %>%
-    mutate(new_patch = ifelse(jump_patch == 1,
-                              sample(subset(jump_probability_df,
-                                            origin_ID==layer&
-                                              network_ID==network_ID)$destination_ID,
-                                     size = 1,
-                                     prob = subset(jump_probability_df,
-                                                   origin_ID==layer,
-                                                   network_ID==network_ID)$probability),
-                              layer)) %>%
-    mutate(new_row = ifelse(new_patch!=layer,round(runif(n=1,
-                                                         min = 0,
-                                                         max = subset(reduced_patches,# %>% st_drop_geometry(),
-                                                                      layer==layer)$gridrows)),
-                            new_row),
-           new_col = ifelse(new_patch!=layer,round(runif(n=1,
-                                                         min = 0,
-                                                         max = subset(reduced_patches,# %>% st_drop_geometry(),
-                                                                      layer==layer)$gridcols)),
-                            new_col)) %>%
-    mutate(old_row = row,
-           old_col = col,
-           row = new_row,
-           col = new_col,
-           layer = new_patch,
-           locs = paste0(row,",",col,",",network_ID),
-           jump_patch = 0) }
-  #####
-  # Create deer paths
-  #####
   if(day>=lay_egg){
-    if(daytime=="day"){deer_paths <- deer_agents %>%
-      filter(jump_patch==0) %>%
+    if(daytime=="day"){deer_agents <- deer_agents %>%
+      mutate(possibility_row_min = row-100,
+             possibility_row_max = row+100,
+             possibility_col_min = col-100,
+             possiblitiy_col_max = col+100) %>%
+      group_by(Agent_ID) %>%
+      mutate(new_row = sample(possibility_row_min:possibility_row_max,size = 1),
+             new_col = sample(possibility_col_min:possiblitiy_col_max,size = 1),
+             old_row = row,
+             old_col = col) %>%
+      mutate(jump_patch = ifelse(new_row<=0|new_col<=0,1,0))
+    
+    
+    deer_paths1 <- deer_agents %>%
       filter(lengths(tick_links)<100) %>% # This is new
-      select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col) %>%
+      select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col,gridrows,gridcols) %>%
       rowwise() %>%
+      mutate(cells = list(bresenham_line(old_col, old_row, new_col, new_row))) %>%
+      ungroup() %>%
+      unnest(cells) %>%
+      mutate(row = cells[,1],
+             col = cells[,2]) %>%
+      filter(row >= 1 & row <= gridrows & col >= 1 & col <= gridcols) %>%
+      select(Agent_ID,network_ID,layer,row,col) %>%
+      distinct() %>%
+      group_by(network_ID,layer,row,col) %>%
+      mutate(locs = paste0(row,",",
+                           col,",",
+                           layer,",",
+                           network_ID)) %>%
+      ungroup() %>%
+      group_by(Agent_ID) %>%
+      mutate(prob = runif(min=0,max=1,n=1)) %>%
+      arrange(prob)
+    
+    deer_agents <- deer_agents %>%
+      mutate(new_patch = ifelse(jump_patch == 1,
+                                sample(subset(jump_probability_df,
+                                              origin_ID==layer&
+                                                network_ID==network_ID)$destination_ID,
+                                       size = 1,
+                                       prob = subset(jump_probability_df,
+                                                     origin_ID==layer,
+                                                     network_ID==network_ID)$probability),
+                                layer)) %>%
+      mutate(new_row = ifelse(new_patch!=layer,round(runif(n=1,
+                                                           min = 0.5,
+                                                           max = subset(reduced_patches,# %>% st_drop_geometry(),
+                                                                        layer==layer)$gridrows)),
+                              new_row),
+             new_col = ifelse(new_patch!=layer,round(runif(n=1,
+                                                           min = 0.5,
+                                                           max = subset(reduced_patches,# %>% st_drop_geometry(),
+                                                                        layer==layer)$gridcols)),
+                              new_col)) %>%
+      mutate(gridrows = ifelse(new_patch!=layer,gridrows,gridrows),
+             gridcols = ifelse(new_patch!=layer,gridcols,gridcols)) %>%
+      mutate(old_row = row,
+             old_col = col,
+             row = new_row,
+             col = new_col,
+             layer = new_patch,
+             locs = paste0(row,",",col,",",network_ID))
+    
+    deer_paths <- deer_agents %>%
+      filter(jump_patch==1) %>%
+      filter(lengths(tick_links)<100) %>% # This is new
+      select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col,gridrows,gridcols) %>%
+      rowwise() %>%
+      mutate(old_col = round(runif(n(),min = 0.5, max = gridcols+.5)),
+             old_row = round(runif(n(),min = 0.5, max = gridrows+.5))) %>%
       mutate(cells = list(bresenham_line(old_col, old_row, new_col, new_row))) %>%
       ungroup() %>%
       unnest(cells) %>%
@@ -390,7 +418,10 @@ for(i in start_time:go_timesteps){
       ungroup() %>%
       group_by(Agent_ID) %>%
       mutate(prob = runif(min=0,max=1,n=1)) %>%
-      arrange(prob)}
+      arrange(prob) %>%
+      bind_rows(.,deer_paths1)
+    remove(deer_paths1)}
+    
     
     #####    
     # Attach ticks
@@ -1196,23 +1227,4 @@ if(i>(8760*5)){
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
   save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/timestep_",i,"_attach_",deer_attach_prob*100,
                            "_path_trans_",substring(pathogen_label,1,3),"alt.RData"))}
-# write.csv(deer_data2,paste0(getwd(),"/Simulations/Deer/Deer_results_network_",
-#                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
-#                             "_.csv"))
-# write.csv(mouse_data2,paste0(getwd(),"/Simulations/Mice/Mouse_results_network_",
-#                              net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
-#                              "_.csv"))
-# write.csv(tick_data2,paste0(getwd(),"/Simulations/Ticks/Tick_results_network_",
-#                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
-#                             "_.csv"))
-
-# Save burn in:
-# save.image(file = paste0(getwd(),"/Simulations/Burn_in/Burn_in_environment_",
-#                          net_select,".RData"))
-# write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Simulations/Burn_in/deer_burn_in_",
-#                              net_select,"_.csv"))
-# write.csv(unnest_wider(mouse_agents,tick_links,names_sep="_"),paste0(getwd(),"/Simulations/Burn_in/mouse_burn_in_",
-#                               net_select,"_.csv"))
-# write.csv(tick_agents,paste0(getwd(),"/Simulations/Burn_in/tick_burn_in_",
-#                              net_select,"_.csv"))
 

@@ -171,7 +171,7 @@ mouse_agents = mouse_agents %>%
          susceptible = 1,#ifelse(Ha_infected==1,1,0),
          tick_links = 0)
 
-rfdb = TRUE
+rfdb = FALSE
 #####
 # Run from debug:
 #####
@@ -331,50 +331,78 @@ for(i in start_time:go_timesteps){
   #####
   # Move deer
   #####
-  if(daytime=="day"){deer_agents <- deer_agents %>%
-    mutate(possibility_row_min = row-100,
-           possibility_row_max = row+100,
-           possibility_col_min = col-100,
-           possiblitiy_col_max = col+100) %>%
-    group_by(Agent_ID) %>%
-    mutate(new_row = sample(possibility_row_min:possibility_row_max,size = 1),
-           new_col = sample(possibility_col_min:possiblitiy_col_max,size = 1)) %>%
-    mutate(jump_patch = ifelse(new_row<=0|new_col<=0,1,0)) %>%
-    mutate(new_patch = ifelse(jump_patch == 1,
-                              sample(subset(jump_probability_df,
-                                            origin_ID==layer&
-                                              network_ID==network_ID)$destination_ID,
-                                     size = 1,
-                                     prob = subset(jump_probability_df,
-                                                   origin_ID==layer,
-                                                   network_ID==network_ID)$probability),
-                              layer)) %>%
-    mutate(new_row = ifelse(new_patch!=layer,round(runif(n=1,
-                                                         min = 0,
-                                                         max = subset(reduced_patches,# %>% st_drop_geometry(),
-                                                                      layer==layer)$gridrows)),
-                            new_row),
-           new_col = ifelse(new_patch!=layer,round(runif(n=1,
-                                                         min = 0,
-                                                         max = subset(reduced_patches,# %>% st_drop_geometry(),
-                                                                      layer==layer)$gridcols)),
-                            new_col)) %>%
-    mutate(old_row = row,
-           old_col = col,
-           row = new_row,
-           col = new_col,
-           layer = new_patch,
-           locs = paste0(row,",",col,",",network_ID),
-           jump_patch = 0) }
-  #####
-  # Create deer paths
-  #####
   if(day>=lay_egg){
-    if(daytime=="day"){deer_paths <- deer_agents %>%
-      filter(jump_patch==0) %>%
+    if(daytime=="day"){deer_agents <- deer_agents %>%
+      mutate(possibility_row_min = row-100,
+             possibility_row_max = row+100,
+             possibility_col_min = col-100,
+             possiblitiy_col_max = col+100) %>%
+      group_by(Agent_ID) %>%
+      mutate(new_row = sample(possibility_row_min:possibility_row_max,size = 1),
+             new_col = sample(possibility_col_min:possiblitiy_col_max,size = 1),
+             old_row = row,
+             old_col = col) %>%
+      mutate(jump_patch = ifelse(new_row<=0|new_col<=0,1,0))
+    
+    
+    deer_paths1 <- deer_agents %>%
       filter(lengths(tick_links)<100) %>% # This is new
-      select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col) %>%
+      select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col,gridrows,gridcols) %>%
       rowwise() %>%
+      mutate(cells = list(bresenham_line(old_col, old_row, new_col, new_row))) %>%
+      ungroup() %>%
+      unnest(cells) %>%
+      mutate(row = cells[,1],
+             col = cells[,2]) %>%
+      filter(row >= 1 & row <= gridrows & col >= 1 & col <= gridcols) %>%
+      select(Agent_ID,network_ID,layer,row,col) %>%
+      distinct() %>%
+      group_by(network_ID,layer,row,col) %>%
+      mutate(locs = paste0(row,",",
+                           col,",",
+                           layer,",",
+                           network_ID)) %>%
+      ungroup() %>%
+      group_by(Agent_ID) %>%
+      mutate(prob = runif(min=0,max=1,n=1)) %>%
+      arrange(prob)
+    
+    deer_agents <- deer_agents %>%
+      mutate(new_patch = ifelse(jump_patch == 1,
+                                sample(subset(jump_probability_df,
+                                              origin_ID==layer&
+                                                network_ID==network_ID)$destination_ID,
+                                       size = 1,
+                                       prob = subset(jump_probability_df,
+                                                     origin_ID==layer,
+                                                     network_ID==network_ID)$probability),
+                                layer)) %>%
+      mutate(new_row = ifelse(new_patch!=layer,round(runif(n=1,
+                                                           min = 0.5,
+                                                           max = subset(reduced_patches,# %>% st_drop_geometry(),
+                                                                        layer==layer)$gridrows)),
+                              new_row),
+             new_col = ifelse(new_patch!=layer,round(runif(n=1,
+                                                           min = 0.5,
+                                                           max = subset(reduced_patches,# %>% st_drop_geometry(),
+                                                                        layer==layer)$gridcols)),
+                              new_col)) %>%
+      mutate(gridrows = ifelse(new_patch!=layer,gridrows,gridrows),
+             gridcols = ifelse(new_patch!=layer,gridcols,gridcols)) %>%
+      mutate(old_row = row,
+             old_col = col,
+             row = new_row,
+             col = new_col,
+             layer = new_patch,
+             locs = paste0(row,",",col,",",network_ID))
+    
+    deer_paths <- deer_agents %>%
+      filter(jump_patch==1) %>%
+      filter(lengths(tick_links)<100) %>% # This is new
+      select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col,gridrows,gridcols) %>%
+      rowwise() %>%
+      mutate(old_col = round(runif(n(),min = 0.5, max = gridcols+.5)),
+             old_row = round(runif(n(),min = 0.5, max = gridrows+.5))) %>%
       mutate(cells = list(bresenham_line(old_col, old_row, new_col, new_row))) %>%
       ungroup() %>%
       unnest(cells) %>%
@@ -390,7 +418,10 @@ for(i in start_time:go_timesteps){
       ungroup() %>%
       group_by(Agent_ID) %>%
       mutate(prob = runif(min=0,max=1,n=1)) %>%
-      arrange(prob)}
+      arrange(prob) %>%
+      bind_rows(.,deer_paths1)
+    remove(deer_paths1)}
+    
     
     #####    
     # Attach ticks
@@ -719,10 +750,6 @@ for(i in start_time:go_timesteps){
           dead_males2 = dead_males}
           if(unq_ind>1){mated_females2 = rbind(mated_females,mated_females2)
           dead_males2 = rbind(dead_males,dead_males2)}
-          # tick_agents <<- tick_agents %>%
-          #   filter(!c(Agent_ID %in% mated_females$Agent_ID)) %>%
-          #   filter(!c(Agent_ID %in% dead_males$Agent_ID)) %>%
-          #   bind_rows(.,mated_females)
           
         }
         tick_agents <- tick_agents %>%
@@ -736,18 +763,6 @@ for(i in start_time:go_timesteps){
         deer_agents$tick_links = map(deer_agents$tick_links, ~ .x[!(.x %in% dm2_ids)])
         mouse_agents$tick_links = map(mouse_agents$tick_links, ~ .x[!(.x %in% dm2_ids)])
         
-        # deer_agents <<- deer_agents %>%
-        #   mutate(tick_links = map())
-        #   map(deer_agents$links, ~ .x[!(.x %in% df2_set)])
-        #   mutate(tick_links = map(tick_links, ~ .x[!(.x %in% dead_males2$Agent_ID)]))
-        #mutate(tick_links = map(tick_links, ~ discard(.x, ~ .x %in% dead_males2$Agent_ID)))
-        #mutate(tick_links = map(tick_links, ~ .x[!(.x %in% dead_males2$Agent_ID)])) # Update to use list
-        #mutate(tick_links = ifelse(tick_links %in% dead_males2$Agent_ID,0,tick_links))
-        # mouse_agents <<- mouse_agents %>%
-        #   mutate(tick_links = map(tick_links, ~ .x[!(.x %in% dead_males2$Agent_ID)]))
-        #mutate(tick_links = map(tick_links, ~ discard(.x, ~ .x %in% dead_males2$Agent_ID)))
-        #mutate(tick_links = map(tick_links, ~ .x[!(.x %in% dead_males2$Agent_ID)]))
-        #mutate(tick_links = ifelse(tick_links %in% dead_males2$Agent_ID,0,tick_links)) # Update to use list
       }
     }
   }  
