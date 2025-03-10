@@ -162,22 +162,22 @@ deer_agents = deer_agents %>%
   mutate(V1_infected = case_when(layer%in%starting_layers & V1_infected==0 ~ rbinom(n=n(),size=1,prob=.289),
                                  TRUE ~ V1_infected),
          V1_infection_timer = 0,
-         susceptible = ifelse(V1_infected==1,1,0),
+         susceptible = 1,#ifelse(V1_infected==1,1,0),
          tick_links = 0)
 mouse_agents = mouse_agents %>%
   mutate(Ha_infected = case_when(layer%in%starting_layers & Ha_infected == 0 ~ rbinom(n=n(),size=1,prob=.39),
                                  TRUE ~ Ha_infected),
          Ha_infection_timer = 0,
-         susceptible = ifelse(Ha_infected==1,1,0),
+         susceptible = 1,#ifelse(Ha_infected==1,1,0),
          tick_links = 0)
 
-rfdb = FALSE
+rfdb = TRUE
 #####
 # Run from debug:
 #####
 if(rfdb==T){
   #load(paste0(getwd(),'/Debugging/Network_6/net_6_timestep_25000.RData'))
-  load(paste0(getwd(),'/Simulations/Network_6/timestep_61320_attach_25_path_trans_100.RData'))
+  load(paste0(getwd(),'/Simulations/Network_6/BI_attach_25_path_trans_100alt.RData'))
   source(paste0(getwd(),'/Code/Model_set_up/Load_libraries.R'))
   options(dplyr.summarise.inform = FALSE)
   print(i)
@@ -275,11 +275,11 @@ for(i in start_time:go_timesteps){
     deer_agents = deer_agents %>%
       mutate(V1_infected = case_when(layer%in%starting_layers & V1_infected==0 ~ rbinom(n=n(),size=1,prob=.289),
                                      TRUE ~ V1_infected),
-             susceptible = ifelse(V1_infected==1,1,0))
+             susceptible = 1)#ifelse(V1_infected==1,1,0))
     mouse_agents = mouse_agents %>%
       mutate(Ha_infected = case_when(layer%in%starting_layers & Ha_infected == 0 ~ rbinom(n=n(),size=1,prob=.39),
                                      TRUE ~ Ha_infected),
-             susceptible = ifelse(Ha_infected==1,1,0))
+             susceptible = 1)#ifelse(Ha_infected==1,1,0))
     # 28.9 Percent of Deer (Massung 2005)
     # 50 Percent of Mice (Keesing 2012)
     
@@ -457,8 +457,8 @@ for(i in start_time:go_timesteps){
     #                                                                      mouse_links,0),0)))) 
     
     tick_agents <- T_matches5 %>%
-      mutate(selection = case_when(deer_links>0&mouse_links>0&Lifestage=="Nymph" ~ rbinom(n=n(),size = 1,prob = N_prob),
-                                   deer_links>0&mouse_links>0&Lifestage=="Larvae" ~ rbinom(n=n(),size=1,prob = L_prob),
+      mutate(selection = case_when(deer_links>0&mouse_links>0&Lifestage=="Nymph" ~ rbinom(n=n(),size = 1,prob = 1),# N_prob),
+                                   deer_links>0&mouse_links>0&Lifestage=="Larvae" ~ rbinom(n=n(),size=1,prob = 1),#L_prob),
                                    deer_links>0&mouse_links>0&Lifestage=="Adult" ~ 0,
                                    is.na(deer_links)==T & mouse_links>0 ~ 1,
                                    deer_links > 0 & is.na(mouse_links)==T ~ 0,
@@ -533,8 +533,8 @@ for(i in start_time:go_timesteps){
                                               (Lifestage == "Nymph")) &
                                            attempted_pathogen_transfer == 0 &
                                            linked_type == "Deer" &
-                                           Infection_status == "v1" &
-                                           deer_agents[match(links,deer_agents$Agent_ID),]$susceptible==1 ~ "t2dv1",
+                                           Infection_status == "v1" ~ "t2dv1",#&
+                                         #deer_agents[match(links,deer_agents$Agent_ID),]$susceptible==1 ~ "t2dv1",
                                          # deer_agents[match(links,deer_agents$Agent_ID),]$V1_infected==0 ~ "t2dv1",
                                          links>0 & 
                                            ((sex == "female" & Lifestage == "Adult") |
@@ -559,8 +559,8 @@ for(i in start_time:go_timesteps){
                                               (Lifestage == "Nymph")) &
                                            attempted_pathogen_transfer == 0 &
                                            linked_type == "Mouse" &
-                                           Infection_status == "ha" &
-                                           mouse_agents[match(links,mouse_agents$Agent_ID),]$susceptible==1 ~ "t2mha",
+                                           Infection_status == "ha" ~ "t2mha",#&
+                                         #mouse_agents[match(links,mouse_agents$Agent_ID),]$susceptible==1 ~ "t2mha",
                                          #mouse_agents[match(links,mouse_agents$Agent_ID),]$Ha_infected==0 
                                          links>0 & 
                                            ((sex == "female" & Lifestage == "Adult") |
@@ -1058,7 +1058,7 @@ for(i in start_time:go_timesteps){
            # Ha_infected = ifelse(Kill==1,0,Ha_infected),
            V1_infected = ifelse(Kill==1,0,V1_infected),
            Kill = 0,
-           susceptible = ifelse(Kill==1,rbinom(n=n(),size=1,prob=.289),susceptible))
+           susceptible = 1)#ifelse(Kill==1,rbinom(n=n(),size=1,prob=.289),susceptible))
   
   mouse_agents <- mouse_agents %>%
     mutate(Kill = case_when(Age==(2*24*365)~1,
@@ -1072,7 +1072,7 @@ for(i in start_time:go_timesteps){
            Ha_infected = ifelse(Kill==1,0,Ha_infected),
            # V1_infected = ifelse(Kill==1,0,V1_infected),
            Kill = 0,
-           susceptible = ifelse(Kill==1,rbinom(n=n(),size=1,prob=.39),susceptible))
+           susceptible = 1)#ifelse(Kill==1,rbinom(n=n(),size=1,prob=.39),susceptible))
   
   tick_agents = tick_agents %>%
     filter(!(Agent_ID %in% c(mkl,dkl)))
@@ -1190,9 +1190,29 @@ if(i==(8760*5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
   save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/BI_attach_",deer_attach_prob*100,
-                           "_path_trans_",substring(pathogen_label,1,3),".RData"))}
+                           "_path_trans_",substring(pathogen_label,1,3),"alt.RData"))}
 if(i>(8760*5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
   save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/timestep_",i,"_attach_",deer_attach_prob*100,
-                           "_path_trans_",substring(pathogen_label,1,3),".RData"))}
+                           "_path_trans_",substring(pathogen_label,1,3),"alt.RData"))}
+# write.csv(deer_data2,paste0(getwd(),"/Simulations/Deer/Deer_results_network_",
+#                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
+#                             "_.csv"))
+# write.csv(mouse_data2,paste0(getwd(),"/Simulations/Mice/Mouse_results_network_",
+#                              net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
+#                              "_.csv"))
+# write.csv(tick_data2,paste0(getwd(),"/Simulations/Ticks/Tick_results_network_",
+#                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
+#                             "_.csv"))
+
+# Save burn in:
+# save.image(file = paste0(getwd(),"/Simulations/Burn_in/Burn_in_environment_",
+#                          net_select,".RData"))
+# write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Simulations/Burn_in/deer_burn_in_",
+#                              net_select,"_.csv"))
+# write.csv(unnest_wider(mouse_agents,tick_links,names_sep="_"),paste0(getwd(),"/Simulations/Burn_in/mouse_burn_in_",
+#                               net_select,"_.csv"))
+# write.csv(tick_agents,paste0(getwd(),"/Simulations/Burn_in/tick_burn_in_",
+#                              net_select,"_.csv"))
+
