@@ -244,10 +244,8 @@ if(rfdb==T){
   set.seed(1)
 }
 
-
 for(i in start_time:go_timesteps){
-  
-  
+
   #####
   # Update environment
   #####
@@ -345,7 +343,7 @@ for(i in start_time:go_timesteps){
       mutate(jump_patch = ifelse(new_row<=0|new_col<=0,1,0))
     
     
-    deer_paths1 <- deer_agents %>%
+    deer_paths <- deer_agents %>%
       filter(lengths(tick_links)<100) %>% # This is new
       select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col,gridrows,gridcols) %>%
       rowwise() %>%
@@ -395,7 +393,7 @@ for(i in start_time:go_timesteps){
              col = new_col,
              layer = new_patch,
              locs = paste0(row,",",col,",",network_ID))
-    
+  if(length(which(deer_agents$jump_patch==1))>0){
     deer_paths <- deer_agents %>%
       filter(jump_patch==1) %>%
       filter(lengths(tick_links)<100) %>% # This is new
@@ -419,8 +417,8 @@ for(i in start_time:go_timesteps){
       group_by(Agent_ID) %>%
       mutate(prob = runif(min=0,max=1,n=1)) %>%
       arrange(prob) %>%
-      bind_rows(.,deer_paths1)
-    remove(deer_paths1)}
+      bind_rows(.,deer_paths)}
+    }
   
   
     #####    

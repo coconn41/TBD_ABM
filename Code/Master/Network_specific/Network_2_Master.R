@@ -1,5 +1,5 @@
 # If on running via a HPCC slurm script, set wd
-setwd("/user/collinoc/Cluster_TBD_ABM/")
+#setwd("/user/collinoc/Cluster_TBD_ABM/")
 
 # Clear model environment:
 rm(list=ls())
@@ -396,31 +396,31 @@ for(i in start_time:go_timesteps){
              layer = new_patch,
              locs = paste0(row,",",col,",",network_ID))
     
-    deer_paths <- deer_agents %>%
-      filter(jump_patch==1) %>%
-      filter(lengths(tick_links)<100) %>% # This is new
-      select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col,gridrows,gridcols) %>%
-      rowwise() %>%
-      mutate(old_col = round(runif(n(),min = 0.5, max = gridcols+.5)),
-             old_row = round(runif(n(),min = 0.5, max = gridrows+.5))) %>%
-      mutate(cells = list(bresenham_line(old_col, old_row, new_col, new_row))) %>%
-      ungroup() %>%
-      unnest(cells) %>%
-      mutate(row = cells[,1],
-             col = cells[,2]) %>%
-      select(Agent_ID,network_ID,layer,row,col) %>%
-      distinct() %>%
-      group_by(network_ID,layer,row,col) %>%
-      mutate(locs = paste0(row,",",
-                           col,",",
-                           layer,",",
-                           network_ID)) %>%
-      ungroup() %>%
-      group_by(Agent_ID) %>%
-      mutate(prob = runif(min=0,max=1,n=1)) %>%
-      arrange(prob) %>%
-      bind_rows(.,deer_paths1)
-    remove(deer_paths1)}
+    if(length(which(deer_agents$jump_patch==1))>0){
+      deer_paths <- deer_agents %>%
+        filter(jump_patch==1) %>%
+        filter(lengths(tick_links)<100) %>% # This is new
+        select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col,gridrows,gridcols) %>%
+        rowwise() %>%
+        mutate(old_col = round(runif(n(),min = 0.5, max = gridcols+.5)),
+               old_row = round(runif(n(),min = 0.5, max = gridrows+.5))) %>%
+        mutate(cells = list(bresenham_line(old_col, old_row, new_col, new_row))) %>%
+        ungroup() %>%
+        unnest(cells) %>%
+        mutate(row = cells[,1],
+               col = cells[,2]) %>%
+        select(Agent_ID,network_ID,layer,row,col) %>%
+        distinct() %>%
+        group_by(network_ID,layer,row,col) %>%
+        mutate(locs = paste0(row,",",
+                             col,",",
+                             layer,",",
+                             network_ID)) %>%
+        ungroup() %>%
+        group_by(Agent_ID) %>%
+        mutate(prob = runif(min=0,max=1,n=1)) %>%
+        arrange(prob) %>%
+        bind_rows(.,deer_paths)}}
   
   
   #####    
