@@ -1,5 +1,5 @@
 # If on running via a HPCC slurm script, set wd
-#setwd("/user/collinoc/Cluster_TBD_ABM/")
+setwd("/user/collinoc/Cluster_TBD_ABM/")
 
 # Clear model environment:
 rm(list=ls())
