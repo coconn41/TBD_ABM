@@ -345,7 +345,7 @@ for(i in start_time:go_timesteps){
       mutate(jump_patch = ifelse(new_row<=0|new_col<=0,1,0))
     
     
-    deer_paths1 <- deer_agents %>%
+    deer_paths <- deer_agents %>%
       filter(lengths(tick_links)<100) %>% # This is new
       select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col,gridrows,gridcols) %>%
       rowwise() %>%
