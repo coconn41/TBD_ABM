@@ -244,7 +244,7 @@ if(rfdb==T){
   rm(tick_data3,mouse_data3,deer_data3)
   
   set.seed(1)
-  cores = 30
+  cores = 44 
 }
 
 plan(multisession,workers = cores)
@@ -1217,7 +1217,7 @@ if(i%%1000==0){
   #                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
   #                             "_.csv"))
 }
-}#1.38 minutes
+}#1.38 minutes #5.09 minutes with 30 cores
 e = Sys.time()
 s-e
 end
