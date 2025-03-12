@@ -244,7 +244,7 @@ if(rfdb==T){
   rm(tick_data3,mouse_data3,deer_data3)
   
   set.seed(1)
-  cores = 44 
+  cores = 20 
 }
 
 plan(multisession,workers = cores)
