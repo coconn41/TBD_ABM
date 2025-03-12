@@ -660,7 +660,7 @@ for(i in start_time:go_timesteps){
   
   deer_agents <- deer_agents %>%
     mutate(num_linked = lengths(tick_links)-1) %>%
-    mutate(tick_links = future_map2(tick_links, num_linked, ~ {
+    mutate(tick_links = map2(tick_links, num_linked, ~ {
       if (rbinom(1, 1, deer_GR) == 1) {  
         if (length(.x) > 0) {
           idx <- sample(length(.x), 1)  # Choose a random index
@@ -680,7 +680,7 @@ for(i in start_time:go_timesteps){
   
   mouse_agents <- mouse_agents %>%
     mutate(num_linked = lengths(tick_links)-1) %>%
-    mutate(tick_links = future_map2(tick_links, num_linked, ~ {
+    mutate(tick_links = map2(tick_links, num_linked, ~ {
       if (rbinom(1, 1, mouse_GR) == 1) {  
         if (length(.x) > 0) {
           idx <- sample(length(.x), 1)  # Choose a random index
