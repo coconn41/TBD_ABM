@@ -244,11 +244,12 @@ if(rfdb==T){
   rm(tick_data3,mouse_data3,deer_data3)
   
   set.seed(1)
+  cores = 30
 }
 
 plan(multisession,workers = cores)
-
-for(i in start_time:go_timesteps){
+s=Sys.time()
+for(i in start_time:(start_time+2)){
   
   
   #####
@@ -1217,7 +1218,9 @@ if(i%%1000==0){
   #                             "_.csv"))
 }
 }#1.38 minutes
-
+e = Sys.time()
+s-e
+end
 # end_time = Sys.time()
 # end_time - start_time
 
