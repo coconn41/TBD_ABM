@@ -4,6 +4,10 @@ setwd("/user/collinoc/Cluster_TBD_ABM/")
 # Clear model environment:
 rm(list=ls())
 
+# rfdb?
+rfdb=T
+
+if(rfdb==F){
 # Load libraries:
 source(paste0(getwd(),'/Code/Model_set_up/Load_libraries.R'))
 
@@ -171,7 +175,7 @@ mouse_agents = mouse_agents %>%
          susceptible = 1,#ifelse(Ha_infected==1,1,0),
          tick_links = 0)
 
-rfdb = FALSE
+}
 #####
 # Run from debug:
 #####
@@ -396,7 +400,8 @@ for(i in start_time:go_timesteps){
              layer = new_patch,
              locs = paste0(row,",",col,",",network_ID))
     
-    if(length(which(deer_agents$jump_patch==1))>0){
+    if(min(lengths(deer_agents$tick_links)[which(deer_agents$jump_patch==1)])<100&
+       length(which(deer_agents$jump_patch==1))>0){
       deer_paths <- deer_agents %>%
         filter(jump_patch==1) %>%
         filter(lengths(tick_links)<100) %>% # This is new
