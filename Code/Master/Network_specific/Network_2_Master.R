@@ -247,7 +247,7 @@ if(rfdb==T){
   cores = 20 
 }
 
-plan(multisession,workers = cores)
+#plan(multisession,workers = cores)
 s=Sys.time()
 for(i in start_time:(start_time+2)){
   
@@ -615,14 +615,14 @@ for(i in start_time:(start_time+2)){
                                           TRUE ~ Infection_status))
     
     d_matches1 <- deer_agents %>%
-      filter(future_map_lgl(tick_links, ~ identical(.,0)) | V1_infected == 1)
+      filter(map_lgl(tick_links, ~ identical(.,0)) | V1_infected == 1)
     
     t2dv1_ids <- tick_agents$Agent_ID[tick_agents$transfer_type == "t2dv1"]
     
     deer_agents <- deer_agents %>%
-      filter(future_map_lgl(tick_links, ~ !identical(.,0)) & V1_infected == 0)
+      filter(map_lgl(tick_links, ~ !identical(.,0)) & V1_infected == 0)
     
-    deer_agents$tick_links <- future_map(deer_agents$tick_links, ~ .x[!is.na(.x)])
+    deer_agents$tick_links <- map(deer_agents$tick_links, ~ .x[!is.na(.x)])
     deer_agents$transfer_count <- vapply(deer_agents$tick_links, function(x) sum(x %in% t2dv1_ids), integer(1))
     new_infections <- rbinom(n = nrow(deer_agents), size = deer_agents$transfer_count, prob = tick_infect_deer_v1) > 0
     deer_agents$V1_infected <- ifelse(deer_agents$V1_infected == 0 & new_infections, 1, deer_agents$V1_infected)
@@ -632,14 +632,14 @@ for(i in start_time:(start_time+2)){
       rbind(.,d_matches1)
     
     m_matches1 <- mouse_agents %>%
-      filter(future_map_lgl(tick_links, ~ identical(.,0)) | Ha_infected == 1)
+      filter(map_lgl(tick_links, ~ identical(.,0)) | Ha_infected == 1)
     
     t2mha_ids <- tick_agents$Agent_ID[tick_agents$transfer_type == "t2mha"]
     
     mouse_agents <- mouse_agents %>%
-      filter(future_map_lgl(tick_links, ~ !identical(.,0)) & Ha_infected == 0)
+      filter(map_lgl(tick_links, ~ !identical(.,0)) & Ha_infected == 0)
     
-    mouse_agents$tick_links <- future_map(mouse_agents$tick_links, ~ .x[!is.na(.x)])
+    mouse_agents$tick_links <- map(mouse_agents$tick_links, ~ .x[!is.na(.x)])
     mouse_agents$transfer_count <- vapply(mouse_agents$tick_links, function(x) sum(x %in% t2mha_ids), integer(1))
     new_infections <- rbinom(n = nrow(mouse_agents), size = mouse_agents$transfer_count, prob = tick_infect_mouse_ha) > 0
     mouse_agents$Ha_infected <- ifelse(mouse_agents$Ha_infected == 0 & new_infections, 1, mouse_agents$Ha_infected)
@@ -769,8 +769,8 @@ for(i in start_time:(start_time+2)){
       # Below must filter out based on condition, use the same as grooming
       dm2_ids = unique(dead_males2$Agent_ID)
       
-      deer_agents$tick_links = future_map(deer_agents$tick_links, ~ .x[!(.x %in% dm2_ids)])
-      mouse_agents$tick_links = future_map(mouse_agents$tick_links, ~ .x[!(.x %in% dm2_ids)])
+      deer_agents$tick_links = map(deer_agents$tick_links, ~ .x[!(.x %in% dm2_ids)])
+      mouse_agents$tick_links = map(mouse_agents$tick_links, ~ .x[!(.x %in% dm2_ids)])
       
       # deer_agents <<- deer_agents %>%
       #   mutate(tick_links = map())
@@ -840,8 +840,8 @@ tick_agents <- tick_agents %>%
 dropped_IDs = tick_agents %>% filter(dropped==-1)
 dropped_IDs = dropped_IDs$Agent_ID
 
-deer_agents$tick_links = future_map(deer_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)])
-mouse_agents$tick_links = future_map(mouse_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)])
+deer_agents$tick_links = map(deer_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)])
+mouse_agents$tick_links = map(mouse_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)])
 
 dr <- tick_agents %>%
   mutate(dropped = ifelse(dropped==-1,1,dropped)) %>%
@@ -875,8 +875,8 @@ if(donext==TRUE){
   dropped_IDs = tick_agents %>% filter(dropped==-1)
   dropped_IDs = dropped_IDs$Agent_ID
   
-  deer_agents$tick_links = future_map(deer_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)])
-  mouse_agents$tick_links = future_map(mouse_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)]) #12.007 seconds
+  deer_agents$tick_links = map(deer_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)])
+  mouse_agents$tick_links = map(mouse_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)]) #12.007 seconds
   
   # deer_agents <<- deer_agents %>%
   #   mutate(tick_links = ifelse(tick_links%in%dropped_IDs,0,tick_links))
@@ -1036,11 +1036,11 @@ die_list <- tick_agents %>% filter(die==1)
 die_list = die_list$Agent_ID
 
 deer_agents <- deer_agents %>% 
-  mutate(tick_links = future_map(tick_links, ~ .x[!(.x %in% die_list)]))
+  mutate(tick_links = map(tick_links, ~ .x[!(.x %in% die_list)]))
 # mutate(tick_links = ifelse(tick_links %in% die_list,0,tick_links))
 
 mouse_agents <- mouse_agents %>%
-  mutate(tick_links = future_map(tick_links, ~ .x[!(.x %in% die_list)]))
+  mutate(tick_links = map(tick_links, ~ .x[!(.x %in% die_list)]))
 #mutate(tick_links = ifelse(tick_links %in% die_list,0,tick_links))
 
 tick_agents <- tick_agents %>%
@@ -1217,7 +1217,7 @@ if(i%%1000==0){
   #                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
   #                             "_.csv"))
 }
-}#1.38 minutes #5.09 minutes with 30 cores
+}#1.38 minutes #5.09 minutes with 30 cores # 4.2 minutes with 20 cores
 e = Sys.time()
 s-e
 end
