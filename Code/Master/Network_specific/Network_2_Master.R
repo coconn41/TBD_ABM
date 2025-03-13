@@ -248,8 +248,7 @@ if(rfdb==T){
 }
 
 #plan(multisession,workers = cores)
-s=Sys.time()
-for(i in start_time:(start_time+2)){
+for(i in start_time:go_timesteps){
   
   
   #####
@@ -1218,9 +1217,6 @@ if(i%%1000==0){
   #                             "_.csv"))
 }
 }#1.38 minutes #5.09 minutes with 30 cores # 4.2 minutes with 20 cores
-e = Sys.time()
-s-e
-end
 # end_time = Sys.time()
 # end_time - start_time
 
