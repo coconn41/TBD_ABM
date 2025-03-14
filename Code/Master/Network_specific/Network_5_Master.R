@@ -4,6 +4,11 @@ setwd("/user/collinoc/Cluster_TBD_ABM/")
 # Clear model environment:
 rm(list=ls())
 
+# rfdb?
+rfdb=T
+
+if(rfdb==F){
+
 # Load libraries:
 source(paste0(getwd(),'/Code/Model_set_up/Load_libraries.R'))
 
@@ -171,18 +176,18 @@ mouse_agents = mouse_agents %>%
          susceptible = 1,#ifelse(Ha_infected==1,1,0),
          tick_links = 0)
 
-rfdb = FALSE
+}
 #####
 # Run from debug:
 #####
 if(rfdb==T){
-  #load(paste0(getwd(),'/Debugging/Network_6/net_6_timestep_25000.RData'))
-  load(paste0(getwd(),'/Simulations/Network_6/BI_attach_25_path_trans_100alt.RData'))
+  load(paste0(getwd(),'/Debugging/Network_5/net_5_timestep_14000.RData'))
+  #load(paste0(getwd(),'/Simulations/Network_6/BI_attach_25_path_trans_100alt.RData'))
   source(paste0(getwd(),'/Code/Model_set_up/Load_libraries.R'))
   options(dplyr.summarise.inform = FALSE)
   print(i)
   start_time = i+1
-  go_timesteps = (8760*10)
+  go_timesteps = (8760*5)
   
   tick_data2 = tick_data2 %>%
     filter(Lifestage!="")
@@ -396,7 +401,8 @@ for(i in start_time:go_timesteps){
              layer = new_patch,
              locs = paste0(row,",",col,",",network_ID))
     
-    if(length(which(deer_agents$jump_patch==1))>0){
+    if(min(lengths(deer_agents$tick_links)[which(deer_agents$jump_patch==1)])<100&
+       length(which(deer_agents$jump_patch==1))>0){
       deer_paths <- deer_agents %>%
         filter(jump_patch==1) %>%
         filter(lengths(tick_links)<100) %>% # This is new
