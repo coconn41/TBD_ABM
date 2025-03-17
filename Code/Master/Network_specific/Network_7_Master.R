@@ -180,13 +180,13 @@ mouse_agents = mouse_agents %>%
 # Run from debug:
 #####
 if(rfdb==T){
-  #load(paste0(getwd(),'/Debugging/Network_6/net_6_timestep_25000.RData'))
-  load(paste0(getwd(),'/Simulations/Network_6/BI_attach_25_path_trans_100alt.RData'))
+  load(paste0(getwd(),'/Debugging/Network_7/net_7_timestep_43000.RData'))
+  #load(paste0(getwd(),'/Simulations/Network_7/BI_attach_25_path_trans_100alt.RData'))
   source(paste0(getwd(),'/Code/Model_set_up/Load_libraries.R'))
   options(dplyr.summarise.inform = FALSE)
   print(i)
   start_time = i+1
-  go_timesteps = (8760*10)
+  go_timesteps = (8760*7.5)
   
   tick_data2 = tick_data2 %>%
     filter(Lifestage!="")
@@ -834,10 +834,15 @@ for(i in start_time:go_timesteps){
     mutate(dropped = ifelse(fed == 1 & Lifestage == "Adult",-1,
                             ifelse(fed == 1 & Lifestage == "Nymph",-1,dropped))) %>%
     filter(!c(Agent_ID %in% L_ticks$Agent_ID)) %>%
-    bind_rows(.,L_ticks) %>%
+    bind_rows(.,L_ticks %>%
+                filter(num_ticks>0)) %>%
     bind_rows(.,L_ticks2)
+    
   
-  dropped_IDs = tick_agents %>% filter(dropped==-1)
+  dropped_IDs = tick_agents %>%
+    filter(dropped==-1) %>%
+    bind_rows(.,L_ticks %>%
+                filter(num_ticks==0))
   dropped_IDs = dropped_IDs$Agent_ID
   
   deer_agents$tick_links = map(deer_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)])
@@ -982,7 +987,7 @@ for(i in start_time:go_timesteps){
                                                  TRUE ~ 0),
                              TRUE ~ 0)) %>%
       mutate(fed = ifelse(molt==1,0,fed),
-             time_since_fed = ifelse(molt==1,0,fed),
+             time_since_fed = ifelse(molt==1,0,time_since_fed), ############ should be time_since_fed
              dropped = ifelse(molt==1,0,dropped),
              die = ifelse(molt==1,0,die),
              time_since_mating = ifelse(molt==1,0,time_since_mating),
