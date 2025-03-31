@@ -180,8 +180,8 @@ mouse_agents = mouse_agents %>%
 # Run from debug:
 #####
 if(rfdb==T){
-  load(paste0(getwd(),'/Debugging/Network_7/net_7_timestep_43000.RData'))
-  #load(paste0(getwd(),'/Simulations/Network_7/BI_attach_25_path_trans_100alt.RData'))
+  #load(paste0(getwd(),'/Debugging/Network_7/net_7_timestep_43000.RData'))
+  load(paste0(getwd(),'/Simulations/Network_7/BI_attach_25_path_trans_100alt.RData'))
   source(paste0(getwd(),'/Code/Model_set_up/Load_libraries.R'))
   options(dplyr.summarise.inform = FALSE)
   print(i)
