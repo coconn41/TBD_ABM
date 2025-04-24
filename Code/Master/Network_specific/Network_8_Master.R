@@ -1,192 +1,197 @@
 # If on running via a HPCC slurm script, set wd
 setwd("/user/collinoc/Cluster_TBD_ABM/")
 
+#####
+# Test commit changes
+#####
+
 # Clear model environment:
 rm(list=ls())
 
 # rfdb?
-rfdb=T
+rfdb=F
 
 if(rfdb==F){
-# Load libraries:
-source(paste0(getwd(),'/Code/Model_set_up/Load_libraries.R'))
-
-# Set random number state:
-set.seed(1)
-
-# Set number of cores:
-cores = 8
-if(detectCores()>10){computer = "Cluster"
-large_cores = 24}
-if(detectCores()==10){computer = "Personal"
-large_cores = 8}
-
-#####
-# Calculate data or load data:
-#####
-calculate_data = FALSE
-if(calculate_data==TRUE){source(paste0(getwd(),'/Code/Model_set_up/Calc_mod_setup.R'))}
-
-#####
-# Load data:
-#####
-# Agents and patches:
-source(paste0(getwd(),'/Code/Model_set_up/Load_model_environment.R'))
-# Sunlight times (for daily activity):
-source(paste0(getwd(),'/Code/Model_set_up/Sunlight_times.R'))
-
-#####
-# Load parameter values
-#####
-source(paste0(getwd(),"/Code/Parameters/Parameter_script.R"))
-
-#####
-# Load model subroutines:
-#####
-source(paste0(getwd(),'/Code/Subroutines/Update_environment.R')) # Good
-source(paste0(getwd(),'/Code/Subroutines/Mouse_movement.R')) # Good
-source(paste0(getwd(),'/Code/Subroutines/Deer_movement.R')) # Good
-#source(paste0(getwd(),'/Code/Subroutines/Other_movement.R')) # Not updated yet
-source(paste0(getwd(),'/Code/Subroutines/Create_deer_paths.R')) # Good
-source(paste0(getwd(),'/Code/Subroutines/Tick_attachment.R')) # Good
-source(paste0(getwd(),'/Code/Subroutines/Groom_attached_ticks.R')) # Good
-source(paste0(getwd(),'/Code/Subroutines/Tick_mating.R')) # Good
-source(paste0(getwd(),'/Code/Subroutines/Tick_timer.R')) # Good
-source(paste0(getwd(),'/Code/Subroutines/Tick_drop_off.R')) # Good
-source(paste0(getwd(),'/Code/Subroutines/Tick_molting.R'))
-source(paste0(getwd(),'/Code/Subroutines/lay_eggs.R')) # Good
-source(paste0(getwd(),'/Code/Subroutines/Transfer_pathogens.R'))
-source(paste0(getwd(),'/Code/Subroutines/Tick_death.R'))
-source(paste0(getwd(),'/Code/Subroutines/Host_timer.R'))
-source(paste0(getwd(),'/Code/Subroutines/Kill_hosts.R'))
-source(paste0(getwd(),'/Code/Master/Compile_results.R'))
-
-# Model starting timing:
-year=0
-day=265 
-daytime = "night"
-season = "fall"
-
-# Number of hourly timesteps
-go_timesteps = (8760*5)
-start_time = 1
-
-# Select network: either "all" or the network number
-net_select = 8
-
-# Parameter modification:
-deer_attach_prob = .25
-mouse_attach_prob = .25
-#deer_infect_tick_v1 =1# 0.0094
-#mouse_infect_tick_ha =1# 0.0665
-deer_trans_param = deer_infect_tick_v1
-mouse_trans_param = mouse_infect_tick_ha
-
-if(net_select!="all"){
+  # Load libraries:
+  source(paste0(getwd(),'/Code/Model_set_up/Load_libraries.R'))
+  
+  # Set random number state for data load:
+  set.seed(1)
+  
+  
+  # Set number of cores:
+  cores = 8
+  if(detectCores()>10){computer = "Cluster"
+  large_cores = 24}
+  if(detectCores()==10){computer = "Personal"
+  large_cores = 8}
+  
+  #####
+  # Calculate data or load data:
+  #####
+  calculate_data = FALSE
+  if(calculate_data==TRUE){source(paste0(getwd(),'/Code/Model_set_up/Calc_mod_setup.R'))}
+  
+  #####
+  # Load data:
+  #####
+  # Agents and patches:
+  source(paste0(getwd(),'/Code/Model_set_up/Load_model_environment.R'))
+  # Sunlight times (for daily activity):
+  source(paste0(getwd(),'/Code/Model_set_up/Sunlight_times.R'))
+  
+  #####
+  # Load parameter values
+  #####
+  source(paste0(getwd(),"/Code/Parameters/Parameter_script.R"))
+  
+  #####
+  # Load model subroutines:
+  #####
+  source(paste0(getwd(),'/Code/Subroutines/Update_environment.R')) # Good
+  source(paste0(getwd(),'/Code/Subroutines/Mouse_movement.R')) # Good
+  source(paste0(getwd(),'/Code/Subroutines/Deer_movement.R')) # Good
+  #source(paste0(getwd(),'/Code/Subroutines/Other_movement.R')) # Not updated yet
+  source(paste0(getwd(),'/Code/Subroutines/Create_deer_paths.R')) # Good
+  source(paste0(getwd(),'/Code/Subroutines/Tick_attachment.R')) # Good
+  source(paste0(getwd(),'/Code/Subroutines/Groom_attached_ticks.R')) # Good
+  source(paste0(getwd(),'/Code/Subroutines/Tick_mating.R')) # Good
+  source(paste0(getwd(),'/Code/Subroutines/Tick_timer.R')) # Good
+  source(paste0(getwd(),'/Code/Subroutines/Tick_drop_off.R')) # Good
+  source(paste0(getwd(),'/Code/Subroutines/Tick_molting.R'))
+  source(paste0(getwd(),'/Code/Subroutines/lay_eggs.R')) # Good
+  source(paste0(getwd(),'/Code/Subroutines/Transfer_pathogens.R'))
+  source(paste0(getwd(),'/Code/Subroutines/Tick_death.R'))
+  source(paste0(getwd(),'/Code/Subroutines/Host_timer.R'))
+  source(paste0(getwd(),'/Code/Subroutines/Kill_hosts.R'))
+  source(paste0(getwd(),'/Code/Master/Compile_results.R'))
+  
+  # Model starting timing:
+  year=0
+  day=265 
+  daytime = "night"
+  season = "fall"
+  
+  # Number of hourly timesteps
+  go_timesteps = (8760*7.5)
+  start_time = 1
+  
+  # Select network: either "all" or the network number
+  net_select = 7
+  
+  # Parameter modification:
+  deer_attach_prob = .25
+  mouse_attach_prob = .25
+  #deer_infect_tick_v1 =1# 0.0094
+  #mouse_infect_tick_ha =1# 0.0665
+  deer_trans_param = deer_infect_tick_v1
+  mouse_trans_param = mouse_infect_tick_ha
+  
+  if(net_select!="all"){
+    deer_agents = deer_agents %>% 
+      filter(network_ID == net_select)
+    mouse_agents = mouse_agents %>%
+      filter(network_ID == net_select)
+    tick_agents = tick_agents %>%
+      filter(network_ID == net_select)
+    nymph_agents = nymph_agents %>%
+      filter(network_ID == net_select)
+    jump_probability_df = jump_probability_df %>%
+      filter(network_ID == net_select)
+    aspatial_network = aspatial_network %>%
+      filter(network_ID == net_select)
+    network1 = network1 %>%
+      filter(network_ID == net_select)
+    reduced_patches = reduced_patches %>%
+      filter(network_ID == net_select)
+    spat_network = spat_network %>%
+      filter(network_ID == net_select)}
+  
+  
+  #pb = txtProgressBar(min = 1, max = go_timesteps, initial = 1) 
+  #start_time = Sys.time()
+  
+  #####
+  # Clear useless variables:
+  #####
   deer_agents = deer_agents %>% 
-    filter(network_ID == net_select)
+    select(-c(County,Site,metric,Ha_infected,Ha_infection_timer))
   mouse_agents = mouse_agents %>%
-    filter(network_ID == net_select)
+    select(-c(County,Site,metric,V1_infected,V1_infection_timer))
   tick_agents = tick_agents %>%
-    filter(network_ID == net_select)
-  nymph_agents = nymph_agents %>%
-    filter(network_ID == net_select)
-  jump_probability_df = jump_probability_df %>%
-    filter(network_ID == net_select)
-  aspatial_network = aspatial_network %>%
-    filter(network_ID == net_select)
-  network1 = network1 %>%
-    filter(network_ID == net_select)
-  reduced_patches = reduced_patches %>%
-    filter(network_ID == net_select)
-  spat_network = spat_network %>%
-    filter(network_ID == net_select)}
-
-
-#pb = txtProgressBar(min = 1, max = go_timesteps, initial = 1) 
-#start_time = Sys.time()
-
-#####
-# Clear useless variables:
-#####
-deer_agents = deer_agents %>% 
-  select(-c(County,Site,metric,Ha_infected,Ha_infection_timer))
-mouse_agents = mouse_agents %>%
-  select(-c(County,Site,metric,V1_infected,V1_infection_timer))
-tick_agents = tick_agents %>%
-  select(-c(County,Site,metric))
-
-#####
-# Preallocate compiler data frames:
-#####
-tdflength = length(unique(mouse_agents$layer))*4*go_timesteps
-hdflength = length(unique(mouse_agents$layer))*go_timesteps
-tick_data2 = data.frame(Lifestage = character(tdflength),
-                        network_ID = numeric(tdflength),
-                        layer = numeric(tdflength),
-                        ha_perc = numeric(tdflength),
-                        v1_perc = numeric(tdflength),
-                        tot_v1 = numeric(tdflength),
-                        tot_ha = numeric(tdflength),
-                        total_ticks = numeric(tdflength),
-                        Agent = character(tdflength),
-                        year = numeric(tdflength),
-                        timestep = numeric(tdflength),
-                        day_of_year = numeric(tdflength),
-                        network = numeric(tdflength),
-                        season = character(tdflength),
-                        simulation_day = numeric(tdflength),
-                        simulation_week = numeric(tdflength))
-deer_data2 = data.frame(network_ID = numeric(hdflength),
-                        layer = numeric(hdflength),
-                        tot_v1_infected = numeric(hdflength),
-                        tot_deer = numeric(hdflength),
-                        v1_perc = numeric(hdflength),
-                        day_of_year = numeric(hdflength),
-                        season = character(hdflength),
-                        timestep = numeric(hdflength),
-                        year = numeric(hdflength),
-                        network = numeric(hdflength),
-                        Agent = character(hdflength))
-mouse_data2 = data.frame(network_ID = numeric(hdflength),
-                         layer = numeric(hdflength),
-                         tot_ha_infected = numeric(hdflength),
-                         tot_mice = numeric(hdflength),
-                         ha_perc = numeric(hdflength),
-                         day_of_year = numeric(hdflength),
-                         season = character(hdflength),
-                         timestep = numeric(hdflength),
-                         year = numeric(hdflength),
-                         network = numeric(hdflength),
-                         Agent = character(hdflength))
-
-starting_layers = unique(mouse_agents$layer)
-
-deer_agents = deer_agents %>%
-  mutate(V1_infected = case_when(layer%in%starting_layers & V1_infected==0 ~ rbinom(n=n(),size=1,prob=.289),
-                                 TRUE ~ V1_infected),
-         V1_infection_timer = 0,
-         susceptible = 1,#ifelse(V1_infected==1,1,0),
-         tick_links = 0)
-mouse_agents = mouse_agents %>%
-  mutate(Ha_infected = case_when(layer%in%starting_layers & Ha_infected == 0 ~ rbinom(n=n(),size=1,prob=.39),
-                                 TRUE ~ Ha_infected),
-         Ha_infection_timer = 0,
-         susceptible = 1,#ifelse(Ha_infected==1,1,0),
-         tick_links = 0)
-
+    select(-c(County,Site,metric))
+  
+  #####
+  # Preallocate compiler data frames:
+  #####
+  tdflength = length(unique(mouse_agents$layer))*4*go_timesteps
+  hdflength = length(unique(mouse_agents$layer))*go_timesteps
+  tick_data2 = data.frame(Lifestage = character(tdflength),
+                          network_ID = numeric(tdflength),
+                          layer = numeric(tdflength),
+                          ha_perc = numeric(tdflength),
+                          v1_perc = numeric(tdflength),
+                          tot_v1 = numeric(tdflength),
+                          tot_ha = numeric(tdflength),
+                          total_ticks = numeric(tdflength),
+                          Agent = character(tdflength),
+                          year = numeric(tdflength),
+                          timestep = numeric(tdflength),
+                          day_of_year = numeric(tdflength),
+                          network = numeric(tdflength),
+                          season = character(tdflength),
+                          simulation_day = numeric(tdflength),
+                          simulation_week = numeric(tdflength))
+  deer_data2 = data.frame(network_ID = numeric(hdflength),
+                          layer = numeric(hdflength),
+                          tot_v1_infected = numeric(hdflength),
+                          tot_deer = numeric(hdflength),
+                          v1_perc = numeric(hdflength),
+                          day_of_year = numeric(hdflength),
+                          season = character(hdflength),
+                          timestep = numeric(hdflength),
+                          year = numeric(hdflength),
+                          network = numeric(hdflength),
+                          Agent = character(hdflength))
+  mouse_data2 = data.frame(network_ID = numeric(hdflength),
+                           layer = numeric(hdflength),
+                           tot_ha_infected = numeric(hdflength),
+                           tot_mice = numeric(hdflength),
+                           ha_perc = numeric(hdflength),
+                           day_of_year = numeric(hdflength),
+                           season = character(hdflength),
+                           timestep = numeric(hdflength),
+                           year = numeric(hdflength),
+                           network = numeric(hdflength),
+                           Agent = character(hdflength))
+  
+  starting_layers = unique(mouse_agents$layer)
+  
+  deer_agents = deer_agents %>%
+    mutate(V1_infected = case_when(layer%in%starting_layers & V1_infected==0 ~ rbinom(n=n(),size=1,prob=.289),
+                                   TRUE ~ V1_infected),
+           V1_infection_timer = 0,
+           susceptible = 1,#ifelse(V1_infected==1,1,0),
+           tick_links = 0)
+  mouse_agents = mouse_agents %>%
+    mutate(Ha_infected = case_when(layer%in%starting_layers & Ha_infected == 0 ~ rbinom(n=n(),size=1,prob=.39),
+                                   TRUE ~ Ha_infected),
+           Ha_infection_timer = 0,
+           susceptible = 1,#ifelse(Ha_infected==1,1,0),
+           tick_links = 0)
+  
 }
 #####
 # Run from debug:
 #####
 if(rfdb==T){
-  #load(paste0(getwd(),'/Debugging/Network_6/net_6_timestep_25000.RData'))
-  load(paste0(getwd(),'/Debugging/Network_8/net_8_timestep_14000.RData'))
+  #load(paste0(getwd(),'/Debugging/Network_7/net_7_timestep_43000.RData'))
+  load(paste0(getwd(),'/Simulations/Network_7/BI_attach_25_path_trans_100alt.RData'))
   source(paste0(getwd(),'/Code/Model_set_up/Load_libraries.R'))
   options(dplyr.summarise.inform = FALSE)
   print(i)
   start_time = i+1
-  go_timesteps = (8760*5)
+  go_timesteps = (8760*7.5)
   
   tick_data2 = tick_data2 %>%
     filter(Lifestage!="")
@@ -247,6 +252,13 @@ if(rfdb==T){
   
   set.seed(1)
 }
+
+# Set state for simulations:
+#set.seed(1)
+#set.seed(2)
+#set.seed(3)
+#set.seed(4)
+set.seed(5)
 
 
 for(i in start_time:go_timesteps){
@@ -834,10 +846,15 @@ for(i in start_time:go_timesteps){
     mutate(dropped = ifelse(fed == 1 & Lifestage == "Adult",-1,
                             ifelse(fed == 1 & Lifestage == "Nymph",-1,dropped))) %>%
     filter(!c(Agent_ID %in% L_ticks$Agent_ID)) %>%
-    bind_rows(.,L_ticks) %>%
+    bind_rows(.,L_ticks %>%
+                filter(num_ticks>0)) %>%
     bind_rows(.,L_ticks2)
   
-  dropped_IDs = tick_agents %>% filter(dropped==-1)
+  
+  dropped_IDs = tick_agents %>%
+    filter(dropped==-1) %>%
+    bind_rows(.,L_ticks %>%
+                filter(num_ticks==0))
   dropped_IDs = dropped_IDs$Agent_ID
   
   deer_agents$tick_links = map(deer_agents$tick_links, ~ .x[!(.x %in% dropped_IDs)])
@@ -982,7 +999,7 @@ for(i in start_time:go_timesteps){
                                                  TRUE ~ 0),
                              TRUE ~ 0)) %>%
       mutate(fed = ifelse(molt==1,0,fed),
-             time_since_fed = ifelse(molt==1,0,fed),
+             time_since_fed = ifelse(molt==1,0,time_since_fed), ############ should be time_since_fed
              dropped = ifelse(molt==1,0,dropped),
              die = ifelse(molt==1,0,die),
              time_since_mating = ifelse(molt==1,0,time_since_mating),
@@ -1200,7 +1217,7 @@ for(i in start_time:go_timesteps){
   }
   if(i%%1000==0){
     save.image(file = paste0(getwd(),"/Debugging/Network_",net_select,
-                             "/net_",net_select,"_timestep_",i,".RData"))
+                             "/net_",net_select,"_timestep_run_5_",i,".RData"))
     # write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/deer_debug_df_",
     #                                                      i,"_.csv"))
     # write.csv(unnest_wider(mouse_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/mouse_debug_df_",
@@ -1222,11 +1239,11 @@ for(i in start_time:go_timesteps){
 # end_time - start_time
 
 # Save results:
-if(i==(8760*5)){
+if(i==(8760*7.5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
   save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/BI_attach_",deer_attach_prob*100,
-                           "_path_trans_",substring(pathogen_label,1,3),"alt.RData"))}
+                           "_path_trans_",substring(pathogen_label,1,3),"alt_run2.RData"))}
 if(i>(8760*5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
