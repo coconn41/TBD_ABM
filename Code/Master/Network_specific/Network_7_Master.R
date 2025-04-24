@@ -9,14 +9,15 @@ setwd("/user/collinoc/Cluster_TBD_ABM/")
 rm(list=ls())
 
 # rfdb?
-rfdb=T
+rfdb=F
 
 if(rfdb==F){
 # Load libraries:
 source(paste0(getwd(),'/Code/Model_set_up/Load_libraries.R'))
 
-# Set random number state:
+# Set random number state for data load:
 set.seed(1)
+
 
 # Set number of cores:
 cores = 8
@@ -72,7 +73,7 @@ daytime = "night"
 season = "fall"
 
 # Number of hourly timesteps
-go_timesteps = (8760*5)
+go_timesteps = (8760*7.5)
 start_time = 1
 
 # Select network: either "all" or the network number
@@ -251,6 +252,13 @@ if(rfdb==T){
   
   set.seed(1)
 }
+
+# Set state for simulations:
+#set.seed(1)
+#set.seed(2)
+set.seed(3)
+#set.seed(4)
+#set.seed(5)
 
 
 for(i in start_time:go_timesteps){
@@ -1231,11 +1239,11 @@ for(i in start_time:go_timesteps){
 # end_time - start_time
 
 # Save results:
-if(i==(8760*5)){
+if(i==(8760*7.5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
   save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/BI_attach_",deer_attach_prob*100,
-                           "_path_trans_",substring(pathogen_label,1,3),"alt.RData"))}
+                           "_path_trans_",substring(pathogen_label,1,3),"alt_run2.RData"))}
 if(i>(8760*5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
