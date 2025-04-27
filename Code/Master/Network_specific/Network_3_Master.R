@@ -257,8 +257,8 @@ if(rfdb==T){
 #set.seed(1)
 #set.seed(2)
 #set.seed(3)
-set.seed(4)
-#set.seed(5)
+#set.seed(4)
+set.seed(5)
 
 
 for(i in start_time:go_timesteps){
@@ -1217,7 +1217,7 @@ for(i in start_time:go_timesteps){
   }
   if(i%%1000==0){
     save.image(file = paste0(getwd(),"/Debugging/Network_",net_select,
-                             "/net_",net_select,"_timestep_run_4_",i,".RData"))
+                             "/net_",net_select,"_timestep_run_5_",i,".RData"))
     # write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/deer_debug_df_",
     #                                                      i,"_.csv"))
     # write.csv(unnest_wider(mouse_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/mouse_debug_df_",
@@ -1243,7 +1243,7 @@ if(i==(8760*7.5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
   save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/BI_attach_",deer_attach_prob*100,
-                           "_path_trans_",substring(pathogen_label,1,3),"alt_run2.RData"))}
+                           "_path_trans_",substring(pathogen_label,1,3),"alt_run5.RData"))}
 if(i>(8760*5)){
   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
