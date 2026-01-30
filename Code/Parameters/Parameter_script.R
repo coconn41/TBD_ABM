@@ -1,8 +1,23 @@
 #####
 # Model parameters:
 #####
-
+#####
+# A priori
+####
+deer_density = 0.1
+mouse_density = 0.1
+tick_density = 10
+mouse_carrying_capacity = 50
+deer_carrying_capacity = 100
+deer_attach_prob = .25
+mouse_attach_prob = .25
+#deer_infect_tick_v1 =1# 0.0094
+#mouse_infect_tick_ha =1# 0.0665
+#deer_trans_param = deer_infect_tick_v1
+#mouse_trans_param = mouse_infect_tick_ha
+#####
 # Taken from Halsey and Miller 2018
+#####
 LA_probability = 0.103726853
 NA_probability = 0.16788807
 AA_probability = 0.011786875
@@ -67,8 +82,6 @@ tick_infect_deer_v1 = 1#.2894 # Massung EID 2005
 #####
 
 eggs_per_female = 1500 # Sonenshine 1991, but still apriori
-deer_attach_prob = .1 # A priori
-mouse_attach_prob = .1  # A priori
 
 # A priori:
 # Larval drop off within 12 hours
