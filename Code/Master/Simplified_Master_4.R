@@ -1505,7 +1505,7 @@ if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in net
 #    p5 == 25 &
 #    p6 == 0.1 &
 #    p7 == 0.1){save.image(paste0(getwd(),'/Parameter_sweeps/Debug.Rdata'))}
-# }
+}
 # end_time = Sys.time()
 # end_time - start_time
 
