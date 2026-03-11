@@ -48,7 +48,7 @@ p1=ggplot(data = Tick_data,
   ylab("Pathogen prevalence (%)")+
   xlab("Cohort")+
   theme_bw()+
-  theme();p1
+  theme(text = element_text(size=20));p1
 
 ggsave(plot = p1,
        filename = paste0(getwd(),'/Figures/Figures/Pathogen_prevalence.jpeg'),

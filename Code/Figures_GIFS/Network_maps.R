@@ -13,7 +13,8 @@ network1 = sf::read_sf(paste0(getwd(),'/Cached_data/Reduced_network.shp')) %>%
          destination_ID = "dstn_ID",
          distance = "distanc",
          inverse_sinuousity = "invrs_s",
-         network_ID = "ntwr_ID")
+         network_ID = "ntwr_ID") %>%
+  filter(network_ID %in% c(1,6,7)) 
 reduced_patches = read_sf(paste0(getwd(),'/Cached_data/Reduced_patches.shp')) %>%
   rename(Location_ID = "Lctn_ID",
          loc_county = "lc_cnty",
@@ -50,25 +51,40 @@ match_df = network1 %>%
   select(-tot)
 
 patches = left_join(reduced_patches,match_df) %>%
-  mutate(network_ID = factor(paste0("Network ",network_ID),
+  mutate(network_ID = case_when(network_ID==6 ~ 2,
+                                network_ID==7 ~ 3,
+                                TRUE ~ network_ID),
+         network_ID = factor(paste0("Network ",network_ID),
                              levels = c("Network 1",
                                         "Network 2",
-                                        "Network 3",
-                                        "Network 4",
-                                        "Network 5",
-                                        "Network 6",
-                                        "Network 7",
-                                        "Network 8")))
+                                        "Network 3"))) %>%
+  filter(is.na(network_ID)==F)
+  # mutate(network_ID = factor(paste0("Network ",network_ID),
+  #                            levels = c("Network 1",
+  #                                       "Network 2",
+  #                                       "Network 3",
+  #                                       "Network 4",
+  #                                       "Network 5",
+  #                                       "Network 6",
+  #                                       "Network 7",
+  #                                       "Network 8")))
 network1 = network1 %>%
-  mutate(network_ID = factor(paste0("Network ",network_ID),
+  mutate(network_ID = case_when(network_ID==6 ~ 2,
+                                network_ID==7 ~ 3,
+                                TRUE ~ network_ID),
+         network_ID = factor(paste0("Network ",network_ID),
                              levels = c("Network 1",
                                         "Network 2",
-                                        "Network 3",
-                                        "Network 4",
-                                        "Network 5",
-                                        "Network 6",
-                                        "Network 7",
-                                        "Network 8")))
+                                        "Network 3"))) 
+  # mutate(network_ID = factor(paste0("Network ",network_ID),
+  #                            levels = c("Network 1",
+  #                                       "Network 2",
+  #                                       "Network 3",
+  #                                       "Network 4",
+  #                                       "Network 5",
+  #                                       "Network 6",
+  #                                       "Network 7",
+  #                                       "Network 8")))
 
 #####
 # Download forest cover data:
@@ -103,7 +119,7 @@ m1=tm_shape(network1)+
 tm_shape(patches)+
   tm_polygons(col='#1B9E77')+
   tm_facets(by='network_ID',ncol = 3)+
-tm_shape(patches %>% 
+tm_shape(patches %>%
            filter(patch_type == "Node"))+
   tm_polygons(col='#D95F02')+
   tm_facets(by='network_ID',ncol = 3)+
@@ -115,12 +131,18 @@ tm_add_legend(title = "Key",
   tm_add_legend(type = 'line',
                 col = 'black',
                 label = "Least-cost paths")+
+  tm_scale_bar(position=c('right','bottom'),text.size = 1)+
   tm_layout(legend.outside.position = c('bottom'),
             panel.label.size = 1.5,
             legend.text.size = .75);m1
+
 tmap_save(m1,
-          filename = paste0(getwd(),'/Figures/Figures/Network_maps.jpeg'),
-          dpi = 300,
-          height=7.5,
-          width= 5)
+          filename = paste0(getwd(),'/Figures/Figures/Network_maps_scalebar.jpeg'),
+          dpi = 300)
+
+# tmap_save(m1,
+#           filename = paste0(getwd(),'/Figures/Figures/Network_maps.jpeg'),
+#           dpi = 300,
+#           height=7.5,
+#           width= 5)
 

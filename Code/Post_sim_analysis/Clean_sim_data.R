@@ -127,6 +127,15 @@ cohort_data = cohort_data %>%
   filter(cohort<=5,
          cohort!=0)
 
+calc_host_burn_in_day = cohort_data %>%
+  filter(year==1) 
+calc_host_burn_in_day = min(calc_host_burn_in_day$day_of_year)
+mn_ts = tick_data2 %>% 
+  filter(year==1 & day_of_year==calc_host_burn_in_day) %>%
+  slice_min(timestep)
+
+unique(mn_ts$timestep)
+
 write.csv(cohort_data,paste0(getwd(),'/Post_sim_analysis/Cleaned_data/Individual_networks/Network_6_ticks.csv'))
 write.csv(tick_data2,paste0(getwd(),'/Post_sim_analysis/Cleaned_data/Individual_networks/Network_6_ticks_all.csv'))
 write.csv(deer_data2,paste0(getwd(),'/Post_sim_analysis/Cleaned_data/Individual_networks/Network_6_deer.csv'))
@@ -244,8 +253,7 @@ write.csv(mouse_data2,paste0(getwd(),'/Post_sim_analysis/Cleaned_data/Individual
 #####
 # Pull in and clean network 7:
 #####
-
-load(paste0(getwd(),'/Simulations/Network_7/BI_attach_25_path_trans_100alt.RData'))
+load(paste0(getwd(),'/Simulations/Network_7/timestep_65700_attach_25_path_trans_100alt.RData'))
 tick_data2 = tick_data2 %>%
   filter(Lifestage!="") %>%
   mutate(Lifestage = case_when(Lifestage=="Nymph" ~ "Nymphs",
@@ -350,3 +358,4 @@ write.csv(cohort_data,paste0(getwd(),'/Post_sim_analysis/Cleaned_data/Individual
 write.csv(tick_data2,paste0(getwd(),'/Post_sim_analysis/Cleaned_data/Individual_networks/Network_7_ticks_all.csv'))
 write.csv(deer_data2,paste0(getwd(),'/Post_sim_analysis/Cleaned_data/Individual_networks/Network_7_deer.csv'))
 write.csv(mouse_data2,paste0(getwd(),'/Post_sim_analysis/Cleaned_data/Individual_networks/Network_7_mice.csv'))
+

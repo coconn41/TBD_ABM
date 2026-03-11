@@ -4,13 +4,18 @@
 #####
 # A priori
 ####
-deer_density = 0.1
-mouse_density = 0.1
-tick_density = 10
-mouse_carrying_capacity = 50
-deer_carrying_capacity = 100
-deer_attach_prob = .25
-mouse_attach_prob = .25
+
+# Uncomment these when not doing parameter sweeps
+
+# deer_density = 0.1
+# mouse_density = 0.1
+# tick_density = 10
+# mouse_carrying_capacity = 50
+# deer_carrying_capacity = 100
+# deer_attach_prob = .25
+# mouse_attach_prob = .25
+
+
 #deer_infect_tick_v1 =1# 0.0094
 #mouse_infect_tick_ha =1# 0.0665
 #deer_trans_param = deer_infect_tick_v1

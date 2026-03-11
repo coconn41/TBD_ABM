@@ -1,7 +1,7 @@
 # Debugging load:
-load(paste0(getwd(),'/Debugging/Network_6/net_6_timestep_15000.RData'))
+#load(paste0(getwd(),'/Debugging/Network_7/net_7_timestep_55000.RData'))
 # Burn in load:
-#load(paste0(getwd(),'/Simulations/Network_6/timestep_61320_attach_25_path_trans_100.RData'))
+load(paste0(getwd(),'/Simulations/Network_7/timestep_65700_attach_25_path_trans_100alt.RData'))
 library(tidyverse)
 library(tmap)
 library(gifski)
@@ -32,7 +32,8 @@ ggplot(data = mouse_data2 %>%
          # mutate(Ha_perc = ifelse(Ha_perc == NaN,0,
          #                         ifelse(is.na(Ha_perc)==T,0,Ha_perc))),
        aes(x=timestep,y=ha_perc))+
-         geom_line()
+         geom_line()#+
+  #coord_cartesian(xlim = c(10000,10025),ylim = c(34,35))
 #####
 # Calculate V1 percentage in deer:
 #####
@@ -151,8 +152,9 @@ tm_shape(spatial_join_dat %>%
            filter(Lifestage != "Eggs"))+
   tm_polygons(col='v1_perc',
               title = "Ap-v1 (%)",
-              breaks = c(0,.5,1,1.5,2,4,8,10,100),
-              palette = get_brewer_pal("Blues",n=8))+
+              #style = 'cont',
+              breaks = c(0,.5,1,1.5,2,4,8,10,20,30,40,50,100),
+              palette = get_brewer_pal("Blues",n=12))+
   tm_facets(by="Lifestage",
             nrow = 1,ncol=3,along='simulation_week')+
   tm_shape(txt_df %>%
@@ -161,10 +163,10 @@ tm_shape(spatial_join_dat %>%
           size=.75,
           ymod=1,xmod=-2.5)+
   tm_facets(by="Lifestage",
-            nrow = 1,ncol=3,along='simulation_week')
+            nrow = 2,ncol=2,along='simulation_week')
 
 tmap_animation(tm = m1,
-               filename = paste0(getwd(),'/Figures/Animations/Network_6_v1.gif'),
+               filename = paste0(getwd(),'/Figures/Animations/Network_7_v1.gif'),
                fps = 7)
 #####
 # Ha percentage in ticks GIF
@@ -175,8 +177,9 @@ m2=tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
              filter(Lifestage!="Eggs"))+
   tm_polygons(col='ha_perc',
               title = "Ap-ha (%)",
-              palette = get_brewer_pal("Reds",n=8),
-              breaks = c(0,.5,1,1.5,2,4,8,10,100))+
+              palette = get_brewer_pal("Reds",n=12),
+              #style = 'cont')+
+              breaks = c(0,.5,1,1.5,2,4,8,10,20,30,40,50,100))+
   tm_facets(by = "Lifestage", nrow = 1, ncol = 3, along='simulation_week')+
   tm_shape(txt_df %>%
              filter(Lifestage != "Eggs"))+
@@ -184,10 +187,10 @@ m2=tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
           size=.75,
           ymod=1,xmod=-2.5)+
   tm_facets(by="Lifestage",
-            nrow = 1,ncol=3,along='simulation_week')
+            nrow = 2,ncol=2,along='simulation_week')
 
 tmap_animation(tm = m2,
-               filename = paste0(getwd(),'/Figures/Animations/Network_6_ha.gif'),
+               filename = paste0(getwd(),'/Figures/Animations/Network_7_ha.gif'),
                fps = 7)
 #####
 # Tick density GIF
@@ -196,8 +199,9 @@ m3=tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
   tm_polygons()+
   tm_shape(spatial_join_dat)+
   tm_polygons(col='tick_density',
-              title = "Tick density",
+              title = "Tick density\n(ticks per sq. meter)",
               palette = viridisLite::viridis(n=10,option='plasma'),
+              #style = 'cont')+
               breaks = c(0,0.001,0.0025,0.005,0.01,0.015,0.02,0.025,0.04,.2,100))+
   tm_facets(by = "Lifestage",
             nrow = 1,
@@ -208,10 +212,10 @@ m3=tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
           size=.75,
           ymod=1,xmod=-2.5)+
   tm_facets(by="Lifestage",
-            nrow = 1,ncol=4,along='simulation_week')
+            nrow = 2,ncol=2,along='simulation_week')
 
   tmap_animation(tm = m3,
-               filename = paste0(getwd(),'/Figures/Animations/Network_6_ticks.gif'),
+               filename = paste0(getwd(),'/Figures/Animations/Network_7_ticks.gif'),
                fps = 7)
   
 m4 = tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
@@ -219,8 +223,10 @@ m4 = tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
   tm_shape(spatial_join_dat %>% filter(Lifestage!="Eggs"))+
   tm_polygons(col='ha_ERI',
               title = "Ap-ha ERI",
-              palette = get_brewer_pal("Reds",n=7),
-              breaks=c(0,.00005,.0001,.00015,.0002,.0004,.002,.02))+
+              palette = get_brewer_pal("Reds",n=11),
+              #style = 'cont')+
+              breaks=c(0,.00005,.0001,.00015,.0002,.0004,.002,
+                       .005,.01,.015,.02,.55))+
   tm_facets(by = "Lifestage",
             nrow = 1,
             ncol = 3,
@@ -230,10 +236,10 @@ m4 = tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
           size=.75,
           ymod=1,xmod=-2.5)+
   tm_facets(by="Lifestage",
-            nrow = 1,ncol=3,along='simulation_week')
+            nrow = 2,ncol=2,along='simulation_week')
 
 tmap_animation(tm = m4,
-               filename = paste0(getwd(),'/Figures/Animations/Network_6_Ha_ERI.gif'),
+               filename = paste0(getwd(),'/Figures/Animations/Network_7_Ha_ERI.gif'),
                fps = 7)
 
 m5 = tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
@@ -241,8 +247,9 @@ m5 = tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
   tm_shape(spatial_join_dat %>% filter(Lifestage!="Eggs"))+
   tm_polygons(col='v1_ERI',
               title = "Ap-v1 ERI",
-              palette = get_brewer_pal("Blues",n=9),
-              breaks=c(0,.0005,.001,.0015,.002,.003,.004,.005,.02,5))+
+              palette = get_brewer_pal("Blues",n=11),
+              #style = 'cont')+
+              breaks=c(0,.0005,.001,.0015,.002,.003,.004,.005,.02,5,50,240))+
   tm_facets(by = "Lifestage",
             nrow = 1,
             ncol = 3,
@@ -252,8 +259,8 @@ m5 = tm_shape(tm_patches,bbox=st_bbox(tm_patches))+
           size=.75,
           ymod=1,xmod=-2.5)+
   tm_facets(by="Lifestage",
-            nrow = 1,ncol=3,along='simulation_week')
+            nrow = 2,ncol=2,along='simulation_week')
 
 tmap_animation(tm = m5,
-               filename = paste0(getwd(),'/Figures/Animations/Network_6_v1_ERI.gif'),
+               filename = paste0(getwd(),'/Figures/Animations/Network_7_v1_ERI.gif'),
                fps = 7)

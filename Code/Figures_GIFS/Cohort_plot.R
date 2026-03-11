@@ -1,5 +1,5 @@
-#load(paste0(getwd(),'/Simulations/Attach_25/Pathogen_25/Network_6/BI_attach_25_path_trans_25.RData'))
-load(paste0(getwd(),'/Debugging/Network_6/net_6_timestep_65000.RData'))
+#load(paste0(getwd(),'/Simulations/Network_6/BI_attach_25_path_trans_100alt.RData'))
+load(paste0(getwd(),'/Debugging/Network_1/net_1_timestep_30000.RData'))
 library(tidyverse)
 library(ggplot2)
 library(tmaptools)
@@ -46,6 +46,7 @@ for(i in 2:max(cohort_data$year)){
 for(i in 1:max(cohort_data$cohort)){
   ch = cohort_data %>%
     filter(cohort==i)
+  if(nrow(ch)==0){next}
   eg = expand.grid(simulation_day = min(ch$simulation_day):max(ch$simulation_day),
                    Lifestage = c("Eggs","Larvae","Nymphs","Adults"),
                    cohort = i)
@@ -261,7 +262,8 @@ tot_percs = rbind(nymph_perc,adult_perc) %>%
   filter(keep==1)
 
 ggplot(data = tot_percs,
-       aes(x=year,y=value))+
+       aes(x=as.factor(year),y=value))+
   geom_bar(stat='identity')+
-  facet_grid(name~Lifestage)
+  facet_grid(name~Lifestage)+
+  theme_bw()
 
