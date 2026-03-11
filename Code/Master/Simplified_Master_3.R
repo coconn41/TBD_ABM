@@ -1497,15 +1497,15 @@ for(i in start_time:go_timesteps){
     #                             "_.csv"))
 #  }
 if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in network ",net_select))}
-if(i==15000 &
-   p1 == 0.1 & 
-   p2 == 0.1 &
-   p3 == 10 &
-   p4 == 25 &
-   p5 == 25 &
-   p6 == 0.1 &
-   p7 == 0.1){save.image(paste0(getwd(),'/Parameter_sweeps/Debug.Rdata'))}
-}
+# if(i==15000 &
+#    p1 == 0.1 & 
+#    p2 == 0.1 &
+#    p3 == 10 &
+#    p4 == 25 &
+#    p5 == 25 &
+#    p6 == 0.1 &
+#    p7 == 0.1){save.image(paste0(getwd(),'/Parameter_sweeps/Debug.Rdata'))}
+# }
 # end_time = Sys.time()
 # end_time - start_time
 
