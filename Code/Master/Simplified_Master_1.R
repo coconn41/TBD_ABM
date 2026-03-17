@@ -1,7 +1,7 @@
 #####
 # Parameter sweeping:
 #####
-net_select = 8 # individual number of c(1:8)
+net_select = 1 # individual number of c(1:8)
 round = 1
 deer_density_sweep = c(0.1,0.2,0.3,0.4,0.5) # round one sweeps
 mouse_density_sweep = c(0.1,0.2,0.3,0.4,0.5) # round one sweeps

@@ -2,6 +2,7 @@
 # Parameter sweeping:
 #####
 net_select = 3 # individual number of c(1:8)
+round = 1
 deer_density_sweep = c(0.1,0.2,0.3,0.4,0.5) # round one sweeps
 mouse_density_sweep = c(0.1,0.2,0.3,0.4,0.5) # round one sweeps
 tick_density_sweep = c(10,20,30,40,50) # round one sweeps
@@ -105,8 +106,8 @@ rm(list=setdiff(ls(), c("deer_density_sweep",
                         "p7",
                         "sweepcount",
                         "net_select")))
-if(file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
-                      net_select,'/tickdata_net_',
+if(file.exists(paste0(getwd(),'/Parameter_sweeps/Round_',
+                      round,'/tickdata_net_',
                       net_select,'_dd_',deer_density,
                       '_md_',mouse_density,
                       '_td_',tick_density,
@@ -115,8 +116,8 @@ if(file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
                       '_dap_',deer_attach_prob,
                       '_map_',mouse_attach_prob,
                       '_overpop.csv'))==T |
-   file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
-                      net_select,'/tickdata_net_',
+   file.exists(paste0(getwd(),'/Parameter_sweeps/Round_',
+                      round,'/tickdata_net_',
                       net_select,'_dd_',deer_density,
                       '_md_',mouse_density,
                       '_td_',tick_density,
@@ -125,8 +126,8 @@ if(file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
                       '_dap_',deer_attach_prob,
                       '_map_',mouse_attach_prob,
                       '_finished.csv'))==T |
-   file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
-                      net_select,'/tickdata_net_',
+   file.exists(paste0(getwd(),'/Parameter_sweeps/',
+                      round,'/tickdata_net_',
                       net_select,'_dd_',deer_density,
                       '_md_',mouse_density,
                       '_td_',tick_density,
@@ -424,6 +425,7 @@ print(paste0('_dd_',deer_density,
                  '_map_',mouse_attach_prob,
                  '_.csv'))
 for(i in start_time:go_timesteps){ 
+  if(i==7431|i==7432){print(paste0("step 1"," in timestep ",i))}
   if(nrow(tick_agents)==0){break}
   if(nrow(tick_agents)>1000000){break}
   
@@ -464,7 +466,7 @@ for(i in start_time:go_timesteps){
     # 50 Percent of Mice (Keesing 2012)
     
   }
-  
+  if(i==7431|i==7432){print(paste0("step 2"," in timestep ",i))}
   #####
   # Move mice
   #####
@@ -522,7 +524,7 @@ for(i in start_time:go_timesteps){
              new_col = sample(possibility_col_min:possiblitiy_col_max,size = 1),
              old_row = row,
              old_col = col) %>%
-      mutate(jump_patch = ifelse(new_row<=0|new_col<=0,1,0))
+      mutate(jump_patch = ifelse(new_row<=0|new_col<=0|new_row>gridrows|new_col>gridcols,1,0))
     
     
     deer_paths <- deer_agents %>%
@@ -546,7 +548,7 @@ for(i in start_time:go_timesteps){
       group_by(Agent_ID) %>%
       mutate(prob = runif(min=0,max=1,n=1)) %>%
       arrange(prob)
-    
+    if(i==7431|i==7432){print(paste0("step 2.5"," in timestep ",i))}
     deer_agents <- deer_agents %>%
       mutate(new_patch = ifelse(jump_patch == 1,
                                 sample(subset(jump_probability_df,
@@ -557,15 +559,15 @@ for(i in start_time:go_timesteps){
                                                      origin_ID==layer,
                                                      network_ID==network_ID)$probability),
                                 layer)) %>%
-      mutate(new_row = ifelse(new_patch!=layer,round(runif(n=1,
-                                                           min = 0.5,
+      mutate(new_row = ifelse(new_patch!=layer,floor(runif(n=n(),
+                                                           min = 1,
                                                            max = subset(reduced_patches,# %>% st_drop_geometry(),
-                                                                        layer==layer)$gridrows)),
+                                                                        layer==layer)$gridrows + 1)),
                               new_row),
-             new_col = ifelse(new_patch!=layer,round(runif(n=1,
-                                                           min = 0.5,
+             new_col = ifelse(new_patch!=layer,floor(runif(n=n(),
+                                                           min = 1,
                                                            max = subset(reduced_patches,# %>% st_drop_geometry(),
-                                                                        layer==layer)$gridcols)),
+                                                                        layer==layer)$gridcols + 1)),
                               new_col)) %>%
       mutate(gridrows = ifelse(new_patch!=layer,gridrows,gridrows),
              gridcols = ifelse(new_patch!=layer,gridcols,gridcols)) %>%
@@ -583,8 +585,8 @@ for(i in start_time:go_timesteps){
         filter(lengths(tick_links)<deer_carrying_capacity) %>% # This is new
         select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col,gridrows,gridcols) %>%
         rowwise() %>%
-        mutate(old_col = round(runif(n(),min = 0.5, max = gridcols+.5)),
-               old_row = round(runif(n(),min = 0.5, max = gridrows+.5))) %>%
+        mutate(new_col = floor(runif(n(),min = 1, max = gridcols+1)), # new fix?
+               new_row = floor(runif(n(),min = 1, max = gridrows+1))) %>% # new fix?
         mutate(cells = list(bresenham_line(old_col, old_row, new_col, new_row))) %>%
         ungroup() %>%
         unnest(cells) %>%
@@ -602,7 +604,7 @@ for(i in start_time:go_timesteps){
         mutate(prob = runif(min=0,max=1,n=1)) %>%
         arrange(prob) %>%
         bind_rows(.,deer_paths)}}
-    
+    if(i==7431|i==7432){print(paste0("step 3"," in timestep ",i))}
     
     #####    
     # Attach ticks
@@ -731,7 +733,7 @@ for(i in start_time:go_timesteps){
     tick_agents <- tick_agents %>%
       mutate(links = ifelse(is.na(links)==T,0,links))
     }
-    
+    if(i==7431|i==7432){print(paste0("step 4"," in timestep ",i))}
     #####
     # Transfer pathogens
     #####
@@ -832,6 +834,7 @@ for(i in start_time:go_timesteps){
                                                       attempted_pathogen_transfer == 0,1,attempted_pathogen_transfer))
     }
     }
+    if(i==7431|i==7432){print(paste0("step 5"," in timestep ",i))}
     #####  
     # Groom ticks
     #####  
@@ -967,6 +970,7 @@ for(i in start_time:go_timesteps){
       }
     }
   }
+  if(i==7431|i==7432){print(paste0("step 6"," in timestep ",i))}
   if(nrow(tick_agents)==0){break}
   if(nrow(tick_agents)>1000000){break}
   #####  
@@ -992,6 +996,7 @@ for(i in start_time:go_timesteps){
                                          TRUE ~ molt_death_immune)) 
   if(nrow(tick_agents)==0){break}
   if(nrow(tick_agents)>1000000){break}
+  if(i==7431|i==7432){print(paste0("step 7"," in timestep ",i))}
   #####  
   # Tick drop off
   #####
@@ -1099,6 +1104,7 @@ for(i in start_time:go_timesteps){
       mutate(links = ifelse(links>0&dropped==1,0,links))
     }
   }
+  if(i==7431|i==7432){print(paste0("step 8"," in timestep ",i))}
   if(nrow(tick_agents)==0){break}
   if(nrow(tick_agents)>1000000){break}
   if(day>=lay_egg){ 
@@ -1175,6 +1181,7 @@ for(i in start_time:go_timesteps){
                                    0,tick_age_wks))}
     if(nrow(tick_agents)==0){break}
     if(nrow(tick_agents)>1000000){break}
+    if(i==7431|i==7432){print(paste0("step 9"," in timestep ",i))}
     #####  
     # Tick molting
     #####
@@ -1241,6 +1248,7 @@ for(i in start_time:go_timesteps){
   }
   if(nrow(tick_agents)==0){break}
   if(nrow(tick_agents)>1000000){break}
+  if(i==7431|i==7432){print(paste0("step 10"," in timestep ",i))}
   #####
   # Tick death
   #####
@@ -1290,6 +1298,7 @@ for(i in start_time:go_timesteps){
     dplyr::select(-c(replete_death,un_replete_death))
   if(nrow(tick_agents)==0){break}
   if(nrow(tick_agents)>1000000){break}
+  if(i==7431|i==7432){print(paste0("step 11"," in timestep ",i))}
   #####  
   # Host timer
   #####
@@ -1319,7 +1328,7 @@ for(i in start_time:go_timesteps){
                                             mutate(Age = Age+1)}#,
   # V1_infected = case_when(V1_infection_timer >= (28*24) ~ 0,
   #                         TRUE ~ V1_infected))
-  
+  if(i==7431|i==7432){print(paste0("step 12"," in timestep ",i))}
   #####
   # "Kill" hosts
   #####
@@ -1359,7 +1368,7 @@ for(i in start_time:go_timesteps){
            Kill = 0)}
   tick_agents = tick_agents %>%
     filter(!(Agent_ID %in% c(mkl,dkl)))
-  
+  if(i==7431|i==7432){print(paste0("step 13"," in timestep ",i))}
   #####
   # Compile results
   #####
@@ -1434,7 +1443,7 @@ for(i in start_time:go_timesteps){
               day_of_year = day,
               network = net_select,
               season = season)}
-  
+  if(i==7431|i==7432){print(paste0("step 14"," in timestep ",i))}
   oldw <- getOption("warn")
   options(warn = -1)
   
@@ -1448,6 +1457,7 @@ for(i in start_time:go_timesteps){
     mouse_data2[lmj:(lmj+(nrow(mouse_data)-1)),] = mouse_data
     tick_data2[ltj:(ltj+(nrow(tick_data)-1)),] = tick_data
   }
+  if(i==7431|i==7432){print(paste0("step 15"," in timestep ",i))}
   options(warn = oldw)
   if(i==1){
     ltj = nrow(tick_data)+1
@@ -1459,6 +1469,7 @@ for(i in start_time:go_timesteps){
     ldj = ldj+nrow(deer_data)
     lmj = lmj+nrow(mouse_data)
   }
+  if(i==7431|i==7432){print(paste0("step 16"," in timestep ",i))}
   # }
   #  if(i==1){#24){
   #    deer_data2 <- deer_data
@@ -1497,14 +1508,14 @@ for(i in start_time:go_timesteps){
     #                             "_.csv"))
 #  }
 if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in network ",net_select))}
-# if(i==15000 &
-#    p1 == 0.1 & 
-#    p2 == 0.1 &
-#    p3 == 10 &
-#    p4 == 25 &
-#    p5 == 25 &
-#    p6 == 0.1 &
-#    p7 == 0.1){save.image(paste0(getwd(),'/Parameter_sweeps/Debug.Rdata'))}
+if(i==7430 &
+   p1 == 0.5 & 
+   p2 == 0.25 &
+   p3 == 40 &
+   p4 == 25 &
+   p5 == 100 &
+   p6 == 1 &
+   p7 == 0.5){save.image(paste0(getwd(),'/Parameter_sweeps/Debug.Rdata'))}
 }
 # end_time = Sys.time()
 # end_time - start_time
@@ -1524,8 +1535,7 @@ if(nrow(tick_agents)>1000000){fin_type = "overpop"}
 if(nrow(tick_agents)==0){fin_type = 'dieoff'}
 if(nrow(tick_agents)>0 & nrow(tick_agents)<=1000000){fin_type = "finished"}
 write.csv(tick_data2,
-          paste0(getwd(),'/Complete_parameter_sweeps/Network_',
-                 net_select,'/tickdata_net_',net_select,
+          paste0(getwd(),'/Parameter_sweeps/tickdata_net_',net_select,
                  '_dd_',deer_density,
                  '_md_',mouse_density,
                  '_td_',tick_density,

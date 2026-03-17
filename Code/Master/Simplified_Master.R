@@ -1,38 +1,38 @@
 #####
 # Parameter sweeping:
 #####
-net_select = 6 # individual number of c(1:8)
-# deer_density_sweep = c(0.1,0.2,0.3,0.4,0.5) # round one sweeps
-# mouse_density_sweep = c(0.1,0.2,0.3,0.4,0.5) # round one sweeps
-# tick_density_sweep = c(10,20,30,40,50) # round one sweeps
-# mouse_carrying_capacity_sweep = c(25,50,75,100) # round one sweeps
-# deer_carrying_capacity_sweep = c(25,50,75,100) # round one sweeps
-# deer_attach_prob_sweep = c(.1,.25,.5,.75,1) # round one sweeps
-# mouse_attach_prob_sweep = c(.1,.25,.5,.75,1) # round one sweeps
+net_select = 1 # individual number of c(1:8)
+deer_density_sweep = c(0.1,0.2,0.3,0.4,0.5) # round one sweeps
+mouse_density_sweep = c(0.1,0.2,0.3,0.4,0.5) # round one sweeps
+tick_density_sweep = c(10,20,30,40,50) # round one sweeps
+mouse_carrying_capacity_sweep = c(25,50,75,100) # round one sweeps
+deer_carrying_capacity_sweep = c(25,50,75,100) # round one sweeps
+deer_attach_prob_sweep = c(.1,.25,.5,.75,1) # round one sweeps
+mouse_attach_prob_sweep = c(.1,.25,.5,.75,1) # round one sweeps
 
 
-deer_density_sweep = c(.4,.5) #c(0.1,0.2,0.3) # round two sweeps
-mouse_density_sweep = 0.25 # round two sweeps
-tick_density_sweep = c(40,50)#c(10,20,30) # round two sweeps
-mouse_carrying_capacity_sweep = 25 # round two sweeps
-deer_carrying_capacity_sweep = 100 # round two sweeps
-deer_attach_prob_sweep = c(.75, 1)#c(.25,.5,.75) # round two sweeps
-mouse_attach_prob_sweep = .5 # round two sweeps
+# deer_density_sweep = c(.4,.5) #c(0.1,0.2,0.3) # round two sweeps
+# mouse_density_sweep = 0.25 # round two sweeps
+# tick_density_sweep = c(40,50)#c(10,20,30) # round two sweeps
+# mouse_carrying_capacity_sweep = 25 # round two sweeps
+# deer_carrying_capacity_sweep = 100 # round two sweeps
+# deer_attach_prob_sweep = c(.75, 1)#c(.25,.5,.75) # round two sweeps
+# mouse_attach_prob_sweep = .5 # round two sweeps
 
-# p1 = 0.1
-# deer_density = p1
-# p2 = 0.1
-# mouse_density = p2
-# p3 = 10
-# tick_density = p3
-# p4 = 25
-# mouse_carrying_capacity = p4
-# p5 = 25
-# deer_carrying_capacity = p5
-# p6 = 0.1
-# deer_attach_prob = p6
-# p7 = 0.1
-# mouse_attach_prob = p7
+p1 = 0.1
+deer_density = p1
+p2 = 0.1
+mouse_density = p2
+p3 = 10
+tick_density = p3
+p4 = 25
+mouse_carrying_capacity = p4
+p5 = 25
+deer_carrying_capacity = p5
+p6 = 0.1
+deer_attach_prob = p6
+p7 = 0.1
+mouse_attach_prob = p7
 sweepcount <- c(deer_density_sweep,
                 mouse_density_sweep,
                 tick_density_sweep,
@@ -40,48 +40,48 @@ sweepcount <- c(deer_density_sweep,
                 deer_carrying_capacity_sweep,
                 deer_attach_prob_sweep,
                 mouse_attach_prob_sweep)
-for(p1 in unique(deer_density_sweep)){
-  deer_density <- p1
-  for(p2 in unique(mouse_density_sweep)){
-    mouse_density <- p2
-    for(p3 in unique(tick_density_sweep)){
-      tick_density <- p3
-      for(p4 in unique(mouse_carrying_capacity_sweep)){
-        mouse_carrying_capacity <- p4
-        for(p5 in unique(deer_carrying_capacity_sweep)){
-          deer_carrying_capacity <- p5
-          for(p6 in unique(deer_attach_prob_sweep)){
-            deer_attach_prob <- p6
-            for(p7 in unique(mouse_attach_prob_sweep)){
-              mouse_attach_prob <- p7
+# for(p1 in unique(deer_density_sweep)){
+#   deer_density <- p1
+#   for(p2 in unique(mouse_density_sweep)){
+#     mouse_density <- p2
+#     for(p3 in unique(tick_density_sweep)){
+#       tick_density <- p3
+#       for(p4 in unique(mouse_carrying_capacity_sweep)){
+#         mouse_carrying_capacity <- p4
+#         for(p5 in unique(deer_carrying_capacity_sweep)){
+#           deer_carrying_capacity <- p5
+#           for(p6 in unique(deer_attach_prob_sweep)){
+#             deer_attach_prob <- p6
+#             for(p7 in unique(mouse_attach_prob_sweep)){
+#               mouse_attach_prob <- p7
               
-# for(asdf in 1:length(sweepcount)){
-#   if(asdf%in%c(1:5)){p1 <- sweepcount[asdf]
-#   deer_density <- p1}
-#   if(asdf%in%c(6:10)){p2 <- sweepcount[asdf]
-#   mouse_density <- p2
-#   p1 <- sweepcount[1]
-#   deer_density <- p1}
-#   if(asdf%in%c(11:15)){p3 <- sweepcount[asdf]
-#   tick_density <- p3
-#   p2 <- sweepcount[6]
-#   mouse_density <- p2}
-#   if(asdf%in%c(16:19)){p4 <- sweepcount[asdf]
-#   mouse_carrying_capacity <- p4
-#   p3 <- sweepcount[11]
-#   tick_density <- p3}
-#   if(asdf%in%c(20:23)){p5 <- sweepcount[asdf]
-#   deer_carrying_capacity <- p5
-#   p4 <- sweepcount[16]
-#   mouse_carrying_capacity <- p4}
-#   if(asdf%in%c(24:28)){p6 <- sweepcount[asdf]
-#   deer_attach_prob <- p6
-#   p5 <- sweepcount[20]
-#   deer_carrying_capacity <- p5}
-#   if(asdf%in%c(29:33)){p7 <- sweepcount[asdf]
-#   mouse_attach_prob <- p7
-#   p6 <- sweepcount[24]
-#   deer_attach_prob <- p6}
+for(asdf in 1:length(sweepcount)){
+  if(asdf%in%c(1:5)){p1 <- sweepcount[asdf]
+  deer_density <- p1}
+  if(asdf%in%c(6:10)){p2 <- sweepcount[asdf]
+  mouse_density <- p2
+  p1 <- sweepcount[1]
+  deer_density <- p1}
+  if(asdf%in%c(11:15)){p3 <- sweepcount[asdf]
+  tick_density <- p3
+  p2 <- sweepcount[6]
+  mouse_density <- p2}
+  if(asdf%in%c(16:19)){p4 <- sweepcount[asdf]
+  mouse_carrying_capacity <- p4
+  p3 <- sweepcount[11]
+  tick_density <- p3}
+  if(asdf%in%c(20:23)){p5 <- sweepcount[asdf]
+  deer_carrying_capacity <- p5
+  p4 <- sweepcount[16]
+  mouse_carrying_capacity <- p4}
+  if(asdf%in%c(24:28)){p6 <- sweepcount[asdf]
+  deer_attach_prob <- p6
+  p5 <- sweepcount[20]
+  deer_carrying_capacity <- p5}
+  if(asdf%in%c(29:33)){p7 <- sweepcount[asdf]
+  mouse_attach_prob <- p7
+  p6 <- sweepcount[24]
+  deer_attach_prob <- p6}
 rm(list=setdiff(ls(), c("deer_density_sweep",
                         "deer_density",
                         "mouse_density_sweep",
@@ -421,6 +421,7 @@ print(paste0('_dd_',deer_density,
                  '_map_',mouse_attach_prob,
                  '_.csv'))
 for(i in start_time:go_timesteps){ 
+  if(i==7431|i==7432){print(paste0("step 1"," in timestep ",i))}
   if(nrow(tick_agents)==0){break}
   if(nrow(tick_agents)>1000000){break}
   
@@ -461,7 +462,7 @@ for(i in start_time:go_timesteps){
     # 50 Percent of Mice (Keesing 2012)
     
   }
-  
+  if(i==7431|i==7432){print(paste0("step 2"," in timestep ",i))}
   #####
   # Move mice
   #####
@@ -519,7 +520,7 @@ for(i in start_time:go_timesteps){
              new_col = sample(possibility_col_min:possiblitiy_col_max,size = 1),
              old_row = row,
              old_col = col) %>%
-      mutate(jump_patch = ifelse(new_row<=0|new_col<=0,1,0))
+      mutate(jump_patch = ifelse(new_row<=0|new_col<=0|new_row>gridrows|new_col>gridcols,1,0))
     
     
     deer_paths <- deer_agents %>%
@@ -543,7 +544,7 @@ for(i in start_time:go_timesteps){
       group_by(Agent_ID) %>%
       mutate(prob = runif(min=0,max=1,n=1)) %>%
       arrange(prob)
-    
+    if(i==7431|i==7432){print(paste0("step 2.5"," in timestep ",i))}
     deer_agents <- deer_agents %>%
       mutate(new_patch = ifelse(jump_patch == 1,
                                 sample(subset(jump_probability_df,
@@ -554,15 +555,15 @@ for(i in start_time:go_timesteps){
                                                      origin_ID==layer,
                                                      network_ID==network_ID)$probability),
                                 layer)) %>%
-      mutate(new_row = ifelse(new_patch!=layer,round(runif(n=1,
-                                                           min = 0.5,
+      mutate(new_row = ifelse(new_patch!=layer,floor(runif(n=n(),
+                                                           min = 1,
                                                            max = subset(reduced_patches,# %>% st_drop_geometry(),
-                                                                        layer==layer)$gridrows)),
+                                                                        layer==layer)$gridrows + 1)),
                               new_row),
-             new_col = ifelse(new_patch!=layer,round(runif(n=1,
-                                                           min = 0.5,
+             new_col = ifelse(new_patch!=layer,floor(runif(n=n(),
+                                                           min = 1,
                                                            max = subset(reduced_patches,# %>% st_drop_geometry(),
-                                                                        layer==layer)$gridcols)),
+                                                                        layer==layer)$gridcols + 1)),
                               new_col)) %>%
       mutate(gridrows = ifelse(new_patch!=layer,gridrows,gridrows),
              gridcols = ifelse(new_patch!=layer,gridcols,gridcols)) %>%
@@ -580,8 +581,8 @@ for(i in start_time:go_timesteps){
         filter(lengths(tick_links)<deer_carrying_capacity) %>% # This is new
         select(Agent_ID,network_ID,layer,old_row,old_col,new_row,new_col,gridrows,gridcols) %>%
         rowwise() %>%
-        mutate(old_col = round(runif(n(),min = 0.5, max = gridcols+.5)),
-               old_row = round(runif(n(),min = 0.5, max = gridrows+.5))) %>%
+        mutate(new_col = floor(runif(n(),min = 1, max = gridcols+1)), # new fix?
+               new_row = floor(runif(n(),min = 1, max = gridrows+1))) %>% # new fix?
         mutate(cells = list(bresenham_line(old_col, old_row, new_col, new_row))) %>%
         ungroup() %>%
         unnest(cells) %>%
@@ -599,7 +600,7 @@ for(i in start_time:go_timesteps){
         mutate(prob = runif(min=0,max=1,n=1)) %>%
         arrange(prob) %>%
         bind_rows(.,deer_paths)}}
-    
+    if(i==7431|i==7432){print(paste0("step 3"," in timestep ",i))}
     
     #####    
     # Attach ticks
@@ -728,7 +729,7 @@ for(i in start_time:go_timesteps){
     tick_agents <- tick_agents %>%
       mutate(links = ifelse(is.na(links)==T,0,links))
     }
-    
+    if(i==7431|i==7432){print(paste0("step 4"," in timestep ",i))}
     #####
     # Transfer pathogens
     #####
@@ -829,6 +830,7 @@ for(i in start_time:go_timesteps){
                                                       attempted_pathogen_transfer == 0,1,attempted_pathogen_transfer))
     }
     }
+    if(i==7431|i==7432){print(paste0("step 5"," in timestep ",i))}
     #####  
     # Groom ticks
     #####  
@@ -964,6 +966,7 @@ for(i in start_time:go_timesteps){
       }
     }
   }
+  if(i==7431|i==7432){print(paste0("step 6"," in timestep ",i))}
   if(nrow(tick_agents)==0){break}
   if(nrow(tick_agents)>1000000){break}
   #####  
@@ -989,6 +992,7 @@ for(i in start_time:go_timesteps){
                                          TRUE ~ molt_death_immune)) 
   if(nrow(tick_agents)==0){break}
   if(nrow(tick_agents)>1000000){break}
+  if(i==7431|i==7432){print(paste0("step 7"," in timestep ",i))}
   #####  
   # Tick drop off
   #####
@@ -1096,6 +1100,7 @@ for(i in start_time:go_timesteps){
       mutate(links = ifelse(links>0&dropped==1,0,links))
     }
   }
+  if(i==7431|i==7432){print(paste0("step 8"," in timestep ",i))}
   if(nrow(tick_agents)==0){break}
   if(nrow(tick_agents)>1000000){break}
   if(day>=lay_egg){ 
@@ -1172,6 +1177,7 @@ for(i in start_time:go_timesteps){
                                    0,tick_age_wks))}
     if(nrow(tick_agents)==0){break}
     if(nrow(tick_agents)>1000000){break}
+    if(i==7431|i==7432){print(paste0("step 9"," in timestep ",i))}
     #####  
     # Tick molting
     #####
@@ -1238,6 +1244,7 @@ for(i in start_time:go_timesteps){
   }
   if(nrow(tick_agents)==0){break}
   if(nrow(tick_agents)>1000000){break}
+  if(i==7431|i==7432){print(paste0("step 10"," in timestep ",i))}
   #####
   # Tick death
   #####
@@ -1287,6 +1294,7 @@ for(i in start_time:go_timesteps){
     dplyr::select(-c(replete_death,un_replete_death))
   if(nrow(tick_agents)==0){break}
   if(nrow(tick_agents)>1000000){break}
+  if(i==7431|i==7432){print(paste0("step 11"," in timestep ",i))}
   #####  
   # Host timer
   #####
@@ -1316,7 +1324,7 @@ for(i in start_time:go_timesteps){
                                             mutate(Age = Age+1)}#,
   # V1_infected = case_when(V1_infection_timer >= (28*24) ~ 0,
   #                         TRUE ~ V1_infected))
-  
+  if(i==7431|i==7432){print(paste0("step 12"," in timestep ",i))}
   #####
   # "Kill" hosts
   #####
@@ -1356,7 +1364,7 @@ for(i in start_time:go_timesteps){
            Kill = 0)}
   tick_agents = tick_agents %>%
     filter(!(Agent_ID %in% c(mkl,dkl)))
-  
+  if(i==7431|i==7432){print(paste0("step 13"," in timestep ",i))}
   #####
   # Compile results
   #####
@@ -1431,7 +1439,7 @@ for(i in start_time:go_timesteps){
               day_of_year = day,
               network = net_select,
               season = season)}
-  
+  if(i==7431|i==7432){print(paste0("step 14"," in timestep ",i))}
   oldw <- getOption("warn")
   options(warn = -1)
   
@@ -1445,6 +1453,7 @@ for(i in start_time:go_timesteps){
     mouse_data2[lmj:(lmj+(nrow(mouse_data)-1)),] = mouse_data
     tick_data2[ltj:(ltj+(nrow(tick_data)-1)),] = tick_data
   }
+  if(i==7431|i==7432){print(paste0("step 15"," in timestep ",i))}
   options(warn = oldw)
   if(i==1){
     ltj = nrow(tick_data)+1
@@ -1456,6 +1465,7 @@ for(i in start_time:go_timesteps){
     ldj = ldj+nrow(deer_data)
     lmj = lmj+nrow(mouse_data)
   }
+  if(i==7431|i==7432){print(paste0("step 16"," in timestep ",i))}
   # }
   #  if(i==1){#24){
   #    deer_data2 <- deer_data
@@ -1494,14 +1504,14 @@ for(i in start_time:go_timesteps){
     #                             "_.csv"))
 #  }
 if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in network ",net_select))}
-if(i==15000 &
-   p1 == 0.1 & 
-   p2 == 0.1 &
-   p3 == 10 &
+if(i==7430 &
+   p1 == 0.5 & 
+   p2 == 0.25 &
+   p3 == 40 &
    p4 == 25 &
-   p5 == 25 &
-   p6 == 0.1 &
-   p7 == 0.1){save.image(paste0(getwd(),'/Parameter_sweeps/Debug.Rdata'))}
+   p5 == 100 &
+   p6 == 1 &
+   p7 == 0.5){save.image(paste0(getwd(),'/Parameter_sweeps/Debug.Rdata'))}
 }
 # end_time = Sys.time()
 # end_time - start_time
@@ -1530,12 +1540,12 @@ write.csv(tick_data2,
                  '_dap_',deer_attach_prob,
                  '_map_',mouse_attach_prob,
                  '_',fin_type,'.csv'))
-            }
-          }
-        }
-      }
-    }
-  }
+  #           }
+  #         }
+  #       }
+  #     }
+  #   }
+  # }
 }
 # if(i==(8760*7.5)){
 #   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
