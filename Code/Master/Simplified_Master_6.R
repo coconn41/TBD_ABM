@@ -1523,7 +1523,7 @@ if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in net
 #    p5 == 100 &
 #    p6 == 1 &
 #    p7 == 0.5){save.image(paste0(getwd(),'/Parameter_sweeps/Debug.Rdata'))}
-# }
+ }
 # end_time = Sys.time()
 # end_time - start_time
 
@@ -1552,7 +1552,7 @@ write.csv(tick_data2,
                  '_dcc_',deer_carrying_capacity,
                  '_dap_',deer_attach_prob,
                  '_map_',mouse_attach_prob,
-                 '_',fin_type,'.csv'))}
+                 '_',fin_type,'.csv'))
   #           }
   #         }
   #       }
