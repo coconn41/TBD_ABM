@@ -2,7 +2,7 @@
 # Parameter sweeping:
 #####
 net_select = 1 # individual number of c(1:8)
-round = 1
+round_select = 1
 deer_density_sweep = c(0.1,0.2,0.3,0.4,0.5) # round one sweeps
 mouse_density_sweep = c(0.1,0.2,0.3,0.4,0.5) # round one sweeps
 tick_density_sweep = c(10,20,30,40,50) # round one sweeps
@@ -105,19 +105,12 @@ rm(list=setdiff(ls(), c("deer_density_sweep",
                         "p6",
                         "p7",
                         "sweepcount",
-                        "net_select")))
-if(file.exists(paste0(getwd(),'/Parameter_sweeps/Round_',
-                      round,'/tickdata_net_',
-                      net_select,'_dd_',deer_density,
-                      '_md_',mouse_density,
-                      '_td_',tick_density,
-                      '_mcc_',mouse_carrying_capacity,
-                      '_dcc_',deer_carrying_capacity,
-                      '_dap_',deer_attach_prob,
-                      '_map_',mouse_attach_prob,
-                      '_overpop.csv'))==T |
-   file.exists(paste0(getwd(),'/Parameter_sweeps/Round_',
-                      round,'/tickdata_net_',
+                        "net_select",
+                        "round_select")))
+if(file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
+                      net_select,
+                      'Round_',round_select,
+                      '/tickdata_net_',
                       net_select,'_dd_',deer_density,
                       '_md_',mouse_density,
                       '_td_',tick_density,
@@ -126,8 +119,10 @@ if(file.exists(paste0(getwd(),'/Parameter_sweeps/Round_',
                       '_dap_',deer_attach_prob,
                       '_map_',mouse_attach_prob,
                       '_finished.csv'))==T |
-   file.exists(paste0(getwd(),'/Parameter_sweeps/',
-                      round,'/tickdata_net_',
+   file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
+                      net_select,
+                      'Round_',round_select,
+                      '/tickdata_net_',
                       net_select,'_dd_',deer_density,
                       '_md_',mouse_density,
                       '_td_',tick_density,
@@ -135,7 +130,19 @@ if(file.exists(paste0(getwd(),'/Parameter_sweeps/Round_',
                       '_dcc_',deer_carrying_capacity,
                       '_dap_',deer_attach_prob,
                       '_map_',mouse_attach_prob,
-                      '_dieoff.csv'))==T){print('skipping')
+                      '_finished.csv'))==T |
+   file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
+                      net_select,
+                      'Round_',round_select,
+                      '/tickdata_net_',
+                      net_select,'_dd_',deer_density,
+                      '_md_',mouse_density,
+                      '_td_',tick_density,
+                      '_mcc_',mouse_carrying_capacity,
+                      '_dcc_',deer_carrying_capacity,
+                      '_dap_',deer_attach_prob,
+                      '_map_',mouse_attach_prob,
+                      '_finished.csv'))==T){print('skipping')
   next}else(print('not skipping'))
 #####
 # Clear model environment:
@@ -1508,15 +1515,15 @@ for(i in start_time:go_timesteps){
     #                             "_.csv"))
 #  }
 if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in network ",net_select))}
-if(i==7430 &
-   p1 == 0.5 & 
-   p2 == 0.25 &
-   p3 == 40 &
-   p4 == 25 &
-   p5 == 100 &
-   p6 == 1 &
-   p7 == 0.5){save.image(paste0(getwd(),'/Parameter_sweeps/Debug.Rdata'))}
-}
+# if(i==7430 &
+#    p1 == 0.5 & 
+#    p2 == 0.25 &
+#    p3 == 40 &
+#    p4 == 25 &
+#    p5 == 100 &
+#    p6 == 1 &
+#    p7 == 0.5){save.image(paste0(getwd(),'/Parameter_sweeps/Debug.Rdata'))}
+# }
 # end_time = Sys.time()
 # end_time - start_time
 
@@ -1535,7 +1542,9 @@ if(nrow(tick_agents)>1000000){fin_type = "overpop"}
 if(nrow(tick_agents)==0){fin_type = 'dieoff'}
 if(nrow(tick_agents)>0 & nrow(tick_agents)<=1000000){fin_type = "finished"}
 write.csv(tick_data2,
-          paste0(getwd(),'/Parameter_sweeps/tickdata_net_',net_select,
+          paste0(getwd(),'/Complete_parameter_sweeps/Network_',
+                 net_select,'/Round_',round_select,
+                 '/tickdata_net_',net_select,
                  '_dd_',deer_density,
                  '_md_',mouse_density,
                  '_td_',tick_density,
@@ -1543,7 +1552,7 @@ write.csv(tick_data2,
                  '_dcc_',deer_carrying_capacity,
                  '_dap_',deer_attach_prob,
                  '_map_',mouse_attach_prob,
-                 '_',fin_type,'.csv'))
+                 '_',fin_type,'.csv'))}
   #           }
   #         }
   #       }
