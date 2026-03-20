@@ -7,14 +7,27 @@ library(ggnewscale)
 #####
 # Load data
 #####
-files <- list.files(paste0(getwd(),'/Parameter_sweeps/Round_2/'))
+Networks = paste0("Network_",rep(1:8))
+Rounds = paste0("Round_",rep(1:2))
+for(i in unique(Networks)){
+  for(j in unique(Rounds)){
+    files = list.files(paste0(getwd(),'/Complete_parameter_sweeps/',
+                              i,'/',
+                              j,'/'))[-1]
+    if(length(files)==0){next}
+    files = paste0(i,"/",j,"/",files)
+    if(i==Networks[1]&j==Rounds[1]){files2=files}else(files2=c(files2,files))
+  }
+}
+files = files2;rm(files2)
 ind = 0
 for(j in unique(files)){
   ind = ind+1
-  df <- read.csv(paste0(getwd(),'/Parameter_sweeps/Round_2/',j))
-  if(substring(j,69,70)%in%c("ov","ve")){df$model_end = "Overpopulation"}
-  if(substring(j,69,70)%in%c("ie","di")){df$model_end = "Dieoff"}
-  if(substring(j,69,70)%in%c("fi","in")){df$model_end = "Finished"}
+  df <- read.csv(paste0(getwd(),'/Complete_parameter_sweeps/',j))
+  j2 = substring(j,19,1000)
+  if(grepl("overpop",j)==T){df$model_end = "Overpopulation"}
+  if(grepl("dieoff",j)==T){df$model_end = "Dieoff"}
+  if(grepl("finished",j)==T){df$model_end = "Finished"}
   if(ind==1){df2 = df}
   if(ind>1){df2 = rbind(df,df2)}
 }
@@ -34,7 +47,7 @@ df2 = df2 %>%
 cohort_data = df2 %>%
   filter(year!=0) %>%
   mutate(simulation_day = (day_of_year+(year*365))-264) %>%
-  group_by(simulation_day,Lifestage,day_of_year,year,
+  group_by(network_ID,simulation_day,Lifestage,day_of_year,year,
            deer_density,tick_density,deer_attach_prob,
            model_end) %>% # simulation_day
   reframe(total_ticks = round(mean(total_ticks))) %>%
@@ -135,6 +148,12 @@ ch3 = ch2 %>%
               group_by(deer_density,tick_density,deer_attach_prob) %>%
               summarize(xintercept = max(simulation_day,na.rm=T)))
 
+ch3 = ch3 %>%
+  mutate(deer_attach_prob_lab = paste0("Deer Attach Prob = ",deer_attach_prob),
+         tick_density_lab = paste0("Tick Density = ",tick_density),
+         deer_density_lab = paste0("Deer Density = ",deer_density),
+         network_ID_lab = paste0("Network ",network_ID))
+
 p1=ggplot(data = ch3,
           aes(x=simulation_day,
               y=total_ticks,
@@ -144,7 +163,9 @@ p1=ggplot(data = ch3,
   new_scale_color()+
   geom_vline(data=ch3,aes(xintercept = xintercept, col=model_end),lwd=1)+
   scale_color_manual(values = c('#E41A1C','#4DAF4A','#FC8D62'))+
-  facet_grid(deer_attach_prob*tick_density ~ deer_density,scales='free_y')+
+  #facet_wrap(network_ID~deer_attach_prob*tick_density*deer_density)+
+  facet_grid(network_ID_lab~deer_attach_prob_lab*tick_density_lab*deer_density_lab,scales='free_y')+
+  #facet_grid(deer_attach_prob*tick_density ~ deer_density,scales='free_y')+
   ylab("Total ticks")+
   xlab("Simulation day")+
   geom_hline(yintercept=0)+

@@ -6,11 +6,24 @@ library(tmaptools)
 #####
 # Load data
 #####
-files <- list.files(paste0(getwd(),'/Parameter_sweeps/'))[-1]
+Networks = paste0("Network_",rep(1:8))
+Rounds = paste0("Round_",rep(1:2))
+for(i in unique(Networks)){
+  for(j in unique(Rounds)){
+  files = list.files(paste0(getwd(),'/Complete_parameter_sweeps/',
+                            i,'/',
+                            j,'/'))[-1]
+  if(length(files)==0){next}
+  files = paste0(i,"/",j,"/",files)
+if(i==Networks[1]&j==Rounds[1]){files2=files}else(files2=c(files2,files))
+  }
+}
+files = files2;rm(files2)
 ind = 0
 for(j in unique(files)){
   ind = ind+1
-  df <- read.csv(paste0(getwd(),'/Parameter_sweeps/',j)) 
+  
+  df <- read.csv(paste0(getwd(),'/Complete_parameter_sweeps/',j)) 
   if(min(df$deer_density)==0.1 & 
      min(df$mouse_density)==0.1 & 
      min(df$tick_density) == 10 &

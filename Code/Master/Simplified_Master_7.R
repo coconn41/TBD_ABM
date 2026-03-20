@@ -83,67 +83,67 @@ for(asdf in 1:length(sweepcount)){
   mouse_attach_prob <- p7
   p6 <- sweepcount[24]
   deer_attach_prob <- p6}
-rm(list=setdiff(ls(), c("deer_density_sweep",
-                        "deer_density",
-                        "mouse_density_sweep",
-                        "mouse_density",
-                        "tick_density_sweep",
-                        "tick_density",
-                        "mouse_carrying_capacity_sweep",
-                        "mouse_carrying_capacity",
-                        "deer_carrying_capacity_sweep",
-                        "deer_carrying_capacity",
-                        "deer_attach_prob_sweep",
-                        "deer_attach_prob",
-                        "mouse_attach_prob_sweep",
-                        "mouse_attach_prob",
-                        "p1",
-                        "p2",
-                        "p3",
-                        "p4",
-                        "p5",
-                        "p6",
-                        "p7",
-                        "sweepcount",
-                        "net_select",
-                        "round_select")))
-if(file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
-                      net_select,
-                      'Round_',round_select,
-                      '/tickdata_net_',
-                      net_select,'_dd_',deer_density,
-                      '_md_',mouse_density,
-                      '_td_',tick_density,
-                      '_mcc_',mouse_carrying_capacity,
-                      '_dcc_',deer_carrying_capacity,
-                      '_dap_',deer_attach_prob,
-                      '_map_',mouse_attach_prob,
-                      '_finished.csv'))==T |
-   file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
-                      net_select,
-                      'Round_',round_select,
-                      '/tickdata_net_',
-                      net_select,'_dd_',deer_density,
-                      '_md_',mouse_density,
-                      '_td_',tick_density,
-                      '_mcc_',mouse_carrying_capacity,
-                      '_dcc_',deer_carrying_capacity,
-                      '_dap_',deer_attach_prob,
-                      '_map_',mouse_attach_prob,
-                      '_finished.csv'))==T |
-   file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
-                      net_select,
-                      'Round_',round_select,
-                      '/tickdata_net_',
-                      net_select,'_dd_',deer_density,
-                      '_md_',mouse_density,
-                      '_td_',tick_density,
-                      '_mcc_',mouse_carrying_capacity,
-                      '_dcc_',deer_carrying_capacity,
-                      '_dap_',deer_attach_prob,
-                      '_map_',mouse_attach_prob,
-                      '_finished.csv'))==T){print('skipping')
-  next}else(print('not skipping'))
+  rm(list=setdiff(ls(), c("deer_density_sweep",
+                          "deer_density",
+                          "mouse_density_sweep",
+                          "mouse_density",
+                          "tick_density_sweep",
+                          "tick_density",
+                          "mouse_carrying_capacity_sweep",
+                          "mouse_carrying_capacity",
+                          "deer_carrying_capacity_sweep",
+                          "deer_carrying_capacity",
+                          "deer_attach_prob_sweep",
+                          "deer_attach_prob",
+                          "mouse_attach_prob_sweep",
+                          "mouse_attach_prob",
+                          "p1",
+                          "p2",
+                          "p3",
+                          "p4",
+                          "p5",
+                          "p6",
+                          "p7",
+                          "sweepcount",
+                          "net_select",
+                          "round_select")))
+  if(file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
+                        net_select,
+                        '/Round_',round_select,
+                        '/tickdata_net_',
+                        net_select,'_dd_',deer_density,
+                        '_md_',mouse_density,
+                        '_td_',tick_density,
+                        '_mcc_',mouse_carrying_capacity,
+                        '_dcc_',deer_carrying_capacity,
+                        '_dap_',deer_attach_prob,
+                        '_map_',mouse_attach_prob,
+                        '_finished.csv'))==T |
+     file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
+                        net_select,
+                        '/Round_',round_select,
+                        '/tickdata_net_',
+                        net_select,'_dd_',deer_density,
+                        '_md_',mouse_density,
+                        '_td_',tick_density,
+                        '_mcc_',mouse_carrying_capacity,
+                        '_dcc_',deer_carrying_capacity,
+                        '_dap_',deer_attach_prob,
+                        '_map_',mouse_attach_prob,
+                        '_dieoff.csv'))==T |
+     file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
+                        net_select,
+                        '/Round_',round_select,
+                        '/tickdata_net_',
+                        net_select,'_dd_',deer_density,
+                        '_md_',mouse_density,
+                        '_td_',tick_density,
+                        '_mcc_',mouse_carrying_capacity,
+                        '_dcc_',deer_carrying_capacity,
+                        '_dap_',deer_attach_prob,
+                        '_map_',mouse_attach_prob,
+                        '_overpop.csv'))==T){print('skipping')
+    next}else(print('not skipping'))
 #####
 # Clear model environment:
 #####
@@ -1515,15 +1515,15 @@ for(i in start_time:go_timesteps){
     #                             "_.csv"))
 #  }
 if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in network ",net_select))}
-# if(i==7430 &
-#    p1 == 0.5 & 
-#    p2 == 0.25 &
-#    p3 == 40 &
-#    p4 == 25 &
-#    p5 == 100 &
-#    p6 == 1 &
-#    p7 == 0.5){save.image(paste0(getwd(),'/Parameter_sweeps/Debug.Rdata'))}
- }
+if(i==7430 &
+   p1 == 0.5 & 
+   p2 == 0.25 &
+   p3 == 40 &
+   p4 == 25 &
+   p5 == 100 &
+   p6 == 1 &
+   p7 == 0.5){save.image(paste0(getwd(),'/Parameter_sweeps/Debug.Rdata'))}
+}
 # end_time = Sys.time()
 # end_time - start_time
 
@@ -1542,9 +1542,7 @@ if(nrow(tick_agents)>1000000){fin_type = "overpop"}
 if(nrow(tick_agents)==0){fin_type = 'dieoff'}
 if(nrow(tick_agents)>0 & nrow(tick_agents)<=1000000){fin_type = "finished"}
 write.csv(tick_data2,
-          paste0(getwd(),'/Complete_parameter_sweeps/Network_',
-                 net_select,'/Round_',round_select,
-                 '/tickdata_net_',net_select,
+          paste0(getwd(),'/Parameter_sweeps/tickdata_net_',net_select,
                  '_dd_',deer_density,
                  '_md_',mouse_density,
                  '_td_',tick_density,

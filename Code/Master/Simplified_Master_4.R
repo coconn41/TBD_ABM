@@ -109,7 +109,7 @@ rm(list=setdiff(ls(), c("deer_density_sweep",
                         "round_select")))
 if(file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
                       net_select,
-                      'Round_',round_select,
+                      '/Round_',round_select,
                       '/tickdata_net_',
                       net_select,'_dd_',deer_density,
                       '_md_',mouse_density,
@@ -121,7 +121,7 @@ if(file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
                       '_finished.csv'))==T |
    file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
                       net_select,
-                      'Round_',round_select,
+                      '/Round_',round_select,
                       '/tickdata_net_',
                       net_select,'_dd_',deer_density,
                       '_md_',mouse_density,
@@ -130,10 +130,10 @@ if(file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
                       '_dcc_',deer_carrying_capacity,
                       '_dap_',deer_attach_prob,
                       '_map_',mouse_attach_prob,
-                      '_finished.csv'))==T |
+                      '_dieoff.csv'))==T |
    file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
                       net_select,
-                      'Round_',round_select,
+                      '/Round_',round_select,
                       '/tickdata_net_',
                       net_select,'_dd_',deer_density,
                       '_md_',mouse_density,
@@ -142,7 +142,7 @@ if(file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
                       '_dcc_',deer_carrying_capacity,
                       '_dap_',deer_attach_prob,
                       '_map_',mouse_attach_prob,
-                      '_finished.csv'))==T){print('skipping')
+                      '_overpop.csv'))==T){print('skipping')
   next}else(print('not skipping'))
 #####
 # Clear model environment:
