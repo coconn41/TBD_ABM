@@ -277,7 +277,7 @@ Used_seeds = data.frame(used_seeds = 1)
 write.csv(Used_seeds, paste0(getwd(),'/Simulations/Network_',
                              net_select,"/used_sim_seeds/Used_seeds.csv"))}else{seed_state = max(Used_seeds$used_seeds,na.rm=T)+1
 Used_seeds2 = data.frame(used_seeds = seed_state)
-Used_seeds = rbind(Used_seeds,Used_seeds2)
+Used_seeds = rbind(Used_seeds[,-1],Used_seeds2)
 write.csv(Used_seeds, paste0(getwd(),'/Simulations/Network_',
                                net_select,"/used_sim_seeds/Used_seeds.csv"))
 write.csv(Used_seeds)}
