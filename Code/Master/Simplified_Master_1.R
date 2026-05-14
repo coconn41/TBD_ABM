@@ -1,153 +1,7 @@
 #####
-# Parameter sweeping:
-#####
-net_select = 1 # individual number of c(1:8)
-round_select = 1
-deer_density_sweep = c(0.1,0.2,0.3,0.4,0.5) # round one sweeps
-mouse_density_sweep = c(0.1,0.2,0.3,0.4,0.5) # round one sweeps
-tick_density_sweep = c(10,20,30,40,50) # round one sweeps
-mouse_carrying_capacity_sweep = c(25,50,75,100) # round one sweeps
-deer_carrying_capacity_sweep = c(25,50,75,100) # round one sweeps
-deer_attach_prob_sweep = c(.1,.25,.5,.75,1) # round one sweeps
-mouse_attach_prob_sweep = c(.1,.25,.5,.75,1) # round one sweeps
-
-
-# deer_density_sweep = c(.4,.5) #c(0.1,0.2,0.3) # round two sweeps
-# mouse_density_sweep = 0.25 # round two sweeps
-# tick_density_sweep = c(40,50)#c(10,20,30) # round two sweeps
-# mouse_carrying_capacity_sweep = 25 # round two sweeps
-# deer_carrying_capacity_sweep = 100 # round two sweeps
-# deer_attach_prob_sweep = c(.75, 1)#c(.25,.5,.75) # round two sweeps
-# mouse_attach_prob_sweep = .5 # round two sweeps
-
-p1 = 0.1
-deer_density = p1
-p2 = 0.1
-mouse_density = p2
-p3 = 10
-tick_density = p3
-p4 = 25
-mouse_carrying_capacity = p4
-p5 = 25
-deer_carrying_capacity = p5
-p6 = 0.1
-deer_attach_prob = p6
-p7 = 0.1
-mouse_attach_prob = p7
-sweepcount <- c(deer_density_sweep,
-                mouse_density_sweep,
-                tick_density_sweep,
-                mouse_carrying_capacity_sweep,
-                deer_carrying_capacity_sweep,
-                deer_attach_prob_sweep,
-                mouse_attach_prob_sweep)
-# for(p1 in unique(deer_density_sweep)){
-#   deer_density <- p1
-#   for(p2 in unique(mouse_density_sweep)){
-#     mouse_density <- p2
-#     for(p3 in unique(tick_density_sweep)){
-#       tick_density <- p3
-#       for(p4 in unique(mouse_carrying_capacity_sweep)){
-#         mouse_carrying_capacity <- p4
-#         for(p5 in unique(deer_carrying_capacity_sweep)){
-#           deer_carrying_capacity <- p5
-#           for(p6 in unique(deer_attach_prob_sweep)){
-#             deer_attach_prob <- p6
-#             for(p7 in unique(mouse_attach_prob_sweep)){
-#               mouse_attach_prob <- p7
-              
-for(asdf in 1:length(sweepcount)){
-  if(asdf%in%c(1:5)){p1 <- sweepcount[asdf]
-  deer_density <- p1}
-  if(asdf%in%c(6:10)){p2 <- sweepcount[asdf]
-  mouse_density <- p2
-  p1 <- sweepcount[1]
-  deer_density <- p1}
-  if(asdf%in%c(11:15)){p3 <- sweepcount[asdf]
-  tick_density <- p3
-  p2 <- sweepcount[6]
-  mouse_density <- p2}
-  if(asdf%in%c(16:19)){p4 <- sweepcount[asdf]
-  mouse_carrying_capacity <- p4
-  p3 <- sweepcount[11]
-  tick_density <- p3}
-  if(asdf%in%c(20:23)){p5 <- sweepcount[asdf]
-  deer_carrying_capacity <- p5
-  p4 <- sweepcount[16]
-  mouse_carrying_capacity <- p4}
-  if(asdf%in%c(24:28)){p6 <- sweepcount[asdf]
-  deer_attach_prob <- p6
-  p5 <- sweepcount[20]
-  deer_carrying_capacity <- p5}
-  if(asdf%in%c(29:33)){p7 <- sweepcount[asdf]
-  mouse_attach_prob <- p7
-  p6 <- sweepcount[24]
-  deer_attach_prob <- p6}
-rm(list=setdiff(ls(), c("deer_density_sweep",
-                        "deer_density",
-                        "mouse_density_sweep",
-                        "mouse_density",
-                        "tick_density_sweep",
-                        "tick_density",
-                        "mouse_carrying_capacity_sweep",
-                        "mouse_carrying_capacity",
-                        "deer_carrying_capacity_sweep",
-                        "deer_carrying_capacity",
-                        "deer_attach_prob_sweep",
-                        "deer_attach_prob",
-                        "mouse_attach_prob_sweep",
-                        "mouse_attach_prob",
-                        "p1",
-                        "p2",
-                        "p3",
-                        "p4",
-                        "p5",
-                        "p6",
-                        "p7",
-                        "sweepcount",
-                        "net_select",
-                        "round_select")))
-if(file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
-                      net_select,
-                      '/Round_',round_select,
-                      '/tickdata_net_',
-                      net_select,'_dd_',deer_density,
-                      '_md_',mouse_density,
-                      '_td_',tick_density,
-                      '_mcc_',mouse_carrying_capacity,
-                      '_dcc_',deer_carrying_capacity,
-                      '_dap_',deer_attach_prob,
-                      '_map_',mouse_attach_prob,
-                      '_finished.csv'))==T |
-   file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
-                      net_select,
-                      '/Round_',round_select,
-                      '/tickdata_net_',
-                      net_select,'_dd_',deer_density,
-                      '_md_',mouse_density,
-                      '_td_',tick_density,
-                      '_mcc_',mouse_carrying_capacity,
-                      '_dcc_',deer_carrying_capacity,
-                      '_dap_',deer_attach_prob,
-                      '_map_',mouse_attach_prob,
-                      '_dieoff.csv'))==T |
-   file.exists(paste0(getwd(),'/Complete_parameter_sweeps/Network_',
-                      net_select,
-                      '/Round_',round_select,
-                      '/tickdata_net_',
-                      net_select,'_dd_',deer_density,
-                      '_md_',mouse_density,
-                      '_td_',tick_density,
-                      '_mcc_',mouse_carrying_capacity,
-                      '_dcc_',deer_carrying_capacity,
-                      '_dap_',deer_attach_prob,
-                      '_map_',mouse_attach_prob,
-                      '_overpop.csv'))==T){print('skipping')
-  next}else(print('not skipping'))
-#####
 # Clear model environment:
 #####
-#rm(list=ls())
+rm(list=ls())
 #####
 # Hardware settings:
 #####
@@ -155,9 +9,13 @@ cluster = F
 #####
 # Set up data settings:
 #####
+net_select = 1 # individual number of c(1:8)
 rfdb = F
 calculate_data = FALSE
 pathogens = F
+Parameter_sweeping = FALSE
+variable_to_use = "deer_density"
+use_cached_sweep_results = TRUE
 #####
 # Model starting timing:
 #####
@@ -167,10 +25,6 @@ daytime = "night"
 season = "fall"
 go_timesteps = (8760*10) # Number of hourly timesteps
 start_time = 1
-
-######################## Check saving code at bottom
-
-
 
 # If on running via a HPCC slurm script, set wd
 if(cluster==T){setwd("/user/collinoc/Cluster_TBD_ABM/")}
@@ -417,12 +271,17 @@ if(rfdb==T){
 }
 
 # Set state for simulations:
-set.seed(1)
-#set.seed(2)
-#set.seed(3)
-#set.seed(4)
-#set.seed(5)
-
+Used_seeds <- read_csv(paste0(getwd(),"/Simulations/Network_1/used_sim_seeds/Used_seeds.csv"))
+if(nrow(Used_seeds)==0){seed_state = 1
+Used_seeds = data.frame(used_seeds = 1)
+write.csv(Used_seeds, paste0(getwd(),'/Simulations/Network_',
+                             net_select,"/used_sim_seeds/Used_seeds.csv"))}else{seed_state = max(Used_seeds$used_seeds,na.rm=T)+1
+Used_seeds2 = data.frame(used_seeds = seed_state)
+Used_seeds = rbind(Used_seeds,Used_seeds2)
+write.csv(Used_seeds, paste0(getwd(),'/Simulations/Network_',
+                               net_select,"/used_sim_seeds/Used_seeds.csv"))
+write.csv(Used_seeds)}
+set.seed(seed_state)
 print(paste0('_dd_',deer_density,
                  '_md_',mouse_density,
                  '_td_',tick_density,
@@ -431,8 +290,9 @@ print(paste0('_dd_',deer_density,
                  '_dap_',deer_attach_prob,
                  '_map_',mouse_attach_prob,
                  '_.csv'))
+print(paste0("Seed state is ",
+             seed_state))
 for(i in start_time:go_timesteps){ 
-  if(i==7431|i==7432){print(paste0("step 1"," in timestep ",i))}
   if(nrow(tick_agents)==0){break}
   if(nrow(tick_agents)>1000000){break}
   
@@ -1409,11 +1269,6 @@ for(i in start_time:go_timesteps){
               v1_perc = (length(which(Infection_status == "v1"))/n())*100,
               tot_v1 = length(which(Infection_status == "v1")),
               tot_ha = length(which(Infection_status == "ha")),
-              #total_attached = length(which(links>0)),
-              #total_fed = sum(fed),
-              # total_dropped = sum(dropped),
-              #total_molted = sum(molt),
-              #total_mated = sum(mated),
               total_ticks = sum(num_ticks),
               Agent = "Tick",
               year = year,
@@ -1476,75 +1331,19 @@ for(i in start_time:go_timesteps){
     ldj = ldj+nrow(deer_data)
     lmj = lmj+nrow(mouse_data)
   }
-  if(i==7431|i==7432){print(paste0("step 16"," in timestep ",i))}
-  # }
-  #  if(i==1){#24){
-  #    deer_data2 <- deer_data
-  #    mouse_data2 <- mouse_data
-  #    tick_data2 <- tick_data
-  #  }
-  #  if(i>1){#24){
-  #    deer_data2 <- rbind(deer_data,deer_data2)
-  #    mouse_data2 <- rbind(mouse_data,mouse_data2)
-  #    tick_data2 <- rbind(tick_data,tick_data2)
-  #  }
 
-#####
-# Debugging code:
-#####
-  # if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in network ",net_select))
-  #   #save.image(file = paste0(getwd(),"/Debugging/net_6_timestep_",i,".RData"))
-  # }
-  # if(i%%1000==0){
-  #   save.image(file = paste0(getwd(),"/Debugging/Network_",net_select,
-  #                            "/net_",net_select,"_timestep_run_1_",i,".RData"))
-    # write.csv(unnest_wider(deer_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/deer_debug_df_",
-    #                                                      i,"_.csv"))
-    # write.csv(unnest_wider(mouse_agents,tick_links,names_sep="_"),paste0(getwd(),"/Debugging/Network_",net_select,"/mouse_debug_df_",
-    #                                                       i,"_.csv"))
-    # write.csv(tick_agents,paste0(getwd(),"/Debugging/Network_",net_select,"/tick_debug_df_",
-    #                              i,"_.csv"))
-    # write.csv(deer_data2,paste0(getwd(),"/Debugging/Network_",net_select,"/Deer_results_debug_",
-    #                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
-    #                             "_.csv"))
-    # write.csv(mouse_data2,paste0(getwd(),"/Debugging/Network_",net_select,"/Mouse_results_debug_",
-    #                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
-    #                             "_.csv"))
-    # write.csv(tick_data2,paste0(getwd(),"/Debugging/Network_",net_select,"/Tick_results_debug_",
-    #                             net_select,"_",Sys.Date(),"_",substring(Sys.time(),12,16),
-    #                             "_.csv"))
-#  }
 if(i%%100==0){print(paste0("timestep ", i, ", day ",day,", year ", year," in network ",net_select))}
-# if(i==7430 &
-#    p1 == 0.5 & 
-#    p2 == 0.25 &
-#    p3 == 40 &
-#    p4 == 25 &
-#    p5 == 100 &
-#    p6 == 1 &
-#    p7 == 0.5){save.image(paste0(getwd(),'/Parameter_sweeps/Debug.Rdata'))}
- }
-# end_time = Sys.time()
-# end_time - start_time
+}
 
 # Save results:
-
-tick_data2 <- tick_data2 %>%
-  mutate(deer_density = p1,
-         mouse_density = p2,
-         tick_density = p3, 
-         mouse_carrying_capacity = p4,
-         deer_carrying_capacity = p5,
-         deer_attach_prob = p6,
-         mouse_attach_prob = p7) %>%
-  filter(Lifestage!="")
 if(nrow(tick_agents)>1000000){fin_type = "overpop"}
 if(nrow(tick_agents)==0){fin_type = 'dieoff'}
 if(nrow(tick_agents)>0 & nrow(tick_agents)<=1000000){fin_type = "finished"}
 write.csv(tick_data2,
-          paste0(getwd(),'/Complete_parameter_sweeps/Network_',
-                 net_select,'/Round_',round_select,
+          paste0(getwd(),'/Simulations/Network_',
+                 net_select,'/Results',
                  '/tickdata_net_',net_select,
+                 "_seed_",seed_state,
                  '_dd_',deer_density,
                  '_md_',mouse_density,
                  '_td_',tick_density,
@@ -1553,21 +1352,3 @@ write.csv(tick_data2,
                  '_dap_',deer_attach_prob,
                  '_map_',mouse_attach_prob,
                  '_',fin_type,'.csv'))
-  #           }
-  #         }
-  #       }
-  #     }
-  #   }
-  # }
-}
-# if(i==(8760*7.5)){
-#   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
-#   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
-#   save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/BI_attach_",deer_attach_prob*100,
-#                            "_path_trans_",substring(pathogen_label,1,3),"alt_run4.RData"))}
-# if(i>(8760*5)){
-#   if(deer_infect_tick_v1<.1){pathogen_label="apriori"}
-#   if(deer_infect_tick_v1>=.1){pathogen_label=deer_infect_tick_v1*100}
-#   save.image(file = paste0(getwd(),"/Simulations/Network_",net_select,"/timestep_",i,"_attach_",deer_attach_prob*100,
-#                            "_path_trans_",substring(pathogen_label,1,3),"alt.RData"))}
-# THIS IS RUN 4 NETWORK 7

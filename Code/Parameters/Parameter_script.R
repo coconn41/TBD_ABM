@@ -2,19 +2,23 @@
 # Model parameters:
 #####
 #####
+# From Parameter Sweeps
+##### 
+source(paste0(getwd(),'/Code/Post_sim_analysis/Examine_param_sweep.R'))
+Net_params = Parameter_set %>%
+  filter(Network == net_select)
+if(Parameter_sweeping==F){
+  deer_density = ifelse(variable_to_use == "deer_density",mean(Net_params$deer_density, na.rm = T),0.1)
+  mouse_density = ifelse(variable_to_use == "mouse_density",mean(Net_params$mouse_density, na.rm = T),0.1)
+  tick_density = ifelse(variable_to_use == "tick_density",mean(Net_params$tick_density, na.rm = T),10)
+  mouse_carrying_capacity = ifelse(variable_to_use == "mouse_carrying_capacity",mean(Net_params$mouse_carrying_capacity, na.rm = T),25)
+  deer_carrying_capacity = ifelse(variable_to_use == "deer_carrying_capacity",mean(Net_params$deer_carrying_capacity, na.rm = T),25)
+  deer_attach_prob = ifelse(variable_to_use == "deer_attach_prob",mean(Net_params$deer_attach_prob, na.rm = T),0.1)
+  mouse_attach_prob = ifelse(variable_to_use == "mouse_attach_prob",mean(Net_params$mouse_attach_prob, na.rm = T),0.1)
+}
+#####
 # A priori
-####
-
-# Uncomment these when not doing parameter sweeps
-
-# deer_density = 0.1
-# mouse_density = 0.1
-# tick_density = 10
-# mouse_carrying_capacity = 50
-# deer_carrying_capacity = 100
-# deer_attach_prob = .25
-# mouse_attach_prob = .25
-
+#####
 
 #deer_infect_tick_v1 =1# 0.0094
 #mouse_infect_tick_ha =1# 0.0665
