@@ -271,7 +271,7 @@ if(rfdb==T){
 }
 
 # Set state for simulations:
-Used_seeds <- read_csv(paste0(getwd(),"/Simulations/Network_1/used_sim_seeds/Used_seeds.csv"))
+Used_seeds <- read_csv(paste0(getwd(),"/Simulations/Network_",net_select,"/used_sim_seeds/Used_seeds.csv"))
 if(nrow(Used_seeds)==0){seed_state = 1
 Used_seeds = data.frame(used_seeds = 1)
 write.csv(Used_seeds, paste0(getwd(),'/Simulations/Network_',
