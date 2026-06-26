@@ -55,4 +55,4 @@ jump_probability_df = read.csv(paste0(getwd(),"/Cached_data/jump_probability_df.
 #####
 # Create agents:
 #####
-source(paste0(getwd(),'/code/Model_set_up/Create_agents_simplified.R'))
+source(paste0(getwd(),'/Code/Model_set_up/Create_agents_simplified.R'))
