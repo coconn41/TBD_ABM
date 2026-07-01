@@ -5,7 +5,7 @@ rm(list=ls())
 #####
 # Hardware settings:
 #####
-if(Sys.info()[4]=="Collins-MacBook-Pro.local"==T){
+if(Sys.info()[4]=="Collins-MacBook-Pro.local"){
   cluster = F}else{cluster = T}
 #####
 # Set up data settings:
