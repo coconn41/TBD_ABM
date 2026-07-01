@@ -5,7 +5,8 @@ rm(list=ls())
 #####
 # Hardware settings:
 #####
-cluster = F
+if(Sys.info()[4]=="Collins-MacBook-Pro.local"==T){
+  cluster = F}else{cluster = T}
 #####
 # Set up data settings:
 #####
@@ -27,7 +28,7 @@ go_timesteps = (8760*10) # Number of hourly timesteps
 start_time = 1
 
 # If on running via a HPCC slurm script, set wd
-if(cluster==T){setwd("/user/collinoc/Cluster_TBD_ABM/")}
+if(cluster==T){setwd("/R/TBD_ABM/")}
 
 #####
 # Test commit changes
@@ -42,11 +43,15 @@ if(rfdb==F){
   
   
   # Set number of cores:
-  cores = 8
-  if(detectCores()>10){computer = "Cluster"
-  large_cores = 24}
-  if(detectCores()==10){computer = "Personal"
+  if(cluster==T){cores = 1
+  large_cores = 1}
+  if(cluster==F){cores = 8
   large_cores = 8}
+  # cores = 8
+  # if(detectCores()>10){computer = "Cluster"
+  # large_cores = 24}
+  # if(detectCores()==10){computer = "Personal"
+  # large_cores = 8}
   
   #####
   # Calculate data or load data:
