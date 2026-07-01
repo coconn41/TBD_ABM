@@ -28,7 +28,8 @@ go_timesteps = (8760*10) # Number of hourly timesteps
 start_time = 1
 
 # If on running via a HPCC slurm script, set wd
-if(cluster==T){setwd("/R/TBD_ABM/")}
+# if(cluster==T){setwd("/R/TBD_ABM/")}
+# ABOVE IS NOT NEEDED
 
 #####
 # Test commit changes
