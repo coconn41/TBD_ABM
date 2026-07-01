@@ -4,7 +4,7 @@ echo "starting TBD_ABM_run_net_4.sh"
 
 # Submit the pipeline as a background process with ./run.sh
 module load R # Uncomment if R is an environment module.
-nohup nice -4 R CMD BATCH ./R/Cluster_TBD_ABM/Code/Master/Network_specific/Network_4_Master.R &
+nohup nice -4 R CMD BATCH ./R/TBD_ABM/Code/Master/Simplified_Master_4.R &
 
 # Change the nice level above as appropriate
 # for your situation and system.
