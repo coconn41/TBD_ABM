@@ -1,0 +1,19 @@
+cat > install_R6.slurm <<'EOF'
+#!/bin/bash
+#SBATCH -p shared,sapphire
+#SBATCH --job-name=install_R6
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=4G
+#SBATCH --time=00:20:00
+#SBATCH -o install_R6.out
+
+set -euo pipefail
+module purge
+module load R
+
+Rscript -e '.libPaths("/n/home08/collinoconnor/R/TBD_ABM/Library"); options(repos=c(CRAN="https://cloud.r-project.org"), pkgType="source"); install.packages("R6", type="source"); library(R6)'
+EOF
+
+sbatch install_R6.slurm
