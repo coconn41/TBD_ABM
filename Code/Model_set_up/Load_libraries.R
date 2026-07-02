@@ -22,6 +22,12 @@ for (pkg in packages) {
 library(parallel)
 }
 if(cluster==T){
+  .libPaths("/n/home08/collinoconnor/R/TBD_ABM/Library")
+  
+  cat("R version:", R.version.string, "\n")
+  cat(".libPaths():\n")
+  print(.libPaths())
+  cat("rlang path:", system.file("libs", "rlang.so", package = "rlang"), "\n")
   for(pkg in packages){
     library(pkg, character.only = TRUE,lib.loc = paste0(getwd(),'/Library/'))
   }
