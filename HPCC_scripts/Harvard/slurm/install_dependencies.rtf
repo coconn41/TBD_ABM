@@ -4,8 +4,8 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=2
-#SBATCH --mem=8G
-#SBATCH --time=04:00:00
+#SBATCH --mem=12G
+#SBATCH --time=06:00:00
 #SBATCH -o install_R_packages.out
 
 set -euo pipefail
@@ -13,16 +13,41 @@ set -euo pipefail
 module purge
 module load R
 
-cd /n/home08/collinoconnor/R/TBD_ABM
+PROJECT=/n/home08/collinoconnor/R/TBD_ABM
+LIB=$PROJECT/Library
+
+cd "$PROJECT"
+
+mkdir -p "$LIB"
 
 Rscript - <<'EOF'
-.libPaths("/n/home08/collinoconnor/R/TBD_ABM/Library")
+project <- "/n/home08/collinoconnor/R/TBD_ABM"
+lib <- file.path(project, "Library")
+
+.libPaths(lib)
+
+cat("R version:", R.version.string, "\n")
+cat("R home:", R.home(), "\n")
+cat(".libPaths():\n")
+print(.libPaths())
 
 options(
   repos = c(CRAN = "https://cloud.r-project.org"),
   pkgType = "source",
   Ncpus = 2
 )
+
+unlink(file.path(lib, "00LOCK*"), recursive = TRUE, force = TRUE)
+
+# Remove packages that commonly contain compiled .so files,
+# so they rebuild for the Slurm/Rocky8 environment.
+compiled_pkgs <- c(
+  "rlang", "Rcpp", "magrittr", "tibble", "pillar", "vctrs", "cli",
+  "glue", "lifecycle", "readr", "vroom", "cpp11", "tzdb",
+  "terra", "sf", "units", "s2", "wk", "igraph"
+)
+
+unlink(file.path(lib, compiled_pkgs), recursive = TRUE, force = TRUE)
 
 packages <- c(
   "FedData",
@@ -41,6 +66,7 @@ packages <- c(
 
 install.packages(
   packages,
+  lib = lib,
   dependencies = c("Depends", "Imports", "LinkingTo"),
   type = "source"
 )
@@ -49,7 +75,7 @@ cat("\nTesting package loads...\n")
 
 for (pkg in packages) {
   cat("Loading", pkg, "...\n")
-  library(pkg, character.only = TRUE)
+  library(pkg, character.only = TRUE, lib.loc = lib)
 }
 
 cat("\nAll requested packages loaded successfully.\n")
