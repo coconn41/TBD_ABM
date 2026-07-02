@@ -1,0 +1,17 @@
+#!/bin/bash
+#SBATCH -p shared,sapphire
+#SBATCH --job-name=install_terra
+#SBATCH --mem=12G
+#SBATCH --time=02:00:00
+#SBATCH -o install_terra.out
+
+set -euo pipefail
+module purge
+module load R
+module load gcc
+module load gdal
+module load geos
+module load proj
+module load udunits
+
+Rscript -e '.libPaths("/n/home08/collinoconnor/R/TBD_ABM/Library"); options(repos=c(CRAN="https://cloud.r-project.org"), pkgType="source", Ncpus=2); install.packages("terra", type="source"); library(terra); terra::gdal()'
