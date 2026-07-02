@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH -p shared,sapphire
+#SBATCH --job-name=install_hms
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=4G
+#SBATCH --time=00:30:00
+#SBATCH -o install_hms.out
+
+set -euo pipefail
+
+module purge
+module load R
+
+rm -rf /n/home08/collinoconnor/R/TBD_ABM/Library/hms
+rm -rf /n/home08/collinoconnor/R/TBD_ABM/Library/00LOCK*
+
+Rscript -e '.libPaths("/n/home08/collinoconnor/R/TBD_ABM/Library"); options(repos=c(CRAN="https://cloud.r-project.org"), pkgType="source"); install.packages("hms", type="source"); library(hms); print(system.file("libs", "hms.so", package="hms"))'
