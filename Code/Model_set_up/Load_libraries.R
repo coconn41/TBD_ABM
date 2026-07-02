@@ -1,13 +1,22 @@
-library(FedData)
-library(terra)
-library(sf)
-library(tidyverse)
-library(units)
-library(landscapemetrics)
-library(readxl)
-library(truncnorm)
+packages <- c(
+  "FedData",
+  "terra",
+  "sf",
+  "tidyverse",
+  "units",
+  "landscapemetrics",
+  "readxl",
+  "truncnorm",
+  "foreach",
+  "suncalc",
+  "igraph",
+  "furrr"
+)
+
+for (pkg in packages) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg, dependencies = TRUE)
+    library(pkg, character.only = TRUE)
+  }
+}
 library(parallel)
-library(foreach)
-library(suncalc)
-library(igraph)
-library(furrr)
