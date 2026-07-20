@@ -16,4 +16,4 @@ module load R
 rm -rf /n/home08/collinoconnor/R/TBD_ABM/Library/readr
 rm -rf /n/home08/collinoconnor/R/TBD_ABM/Library/00LOCK*
 
-Rscript -e '.libPaths("/n/home08/collinoconnor/R/TBD_ABM/Library"); options(repos=c(CRAN="https://cloud.r-project.org"), pkgType="source"); install.packages("reads", type="source"); library(read); print(system.file("libs", "readr.so", package="reads"))'
+Rscript -e '.libPaths("/n/home08/collinoconnor/R/TBD_ABM/Library"); options(repos=c(CRAN="https://cloud.r-project.org"), pkgType="source"); install.packages("readr", type="source"); library(readr); print(system.file("libs", "readr.so", package="readr"))'
