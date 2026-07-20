@@ -1,0 +1,15 @@
+#!/bin/bash
+#
+#SBATCH -p shared,sapphire
+#SBATCH --job-name "load_and_save"
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=300G
+#SBATCH --time=6:00:00 
+#SBATCH --mail-user=collinoconnor@hsph.harvard.edu
+#SBATCH --mail-type=begin
+#SBATCH --mail-type=end
+#SBATCH -o load_and_save.out
+
+bash ./R/TBD_ABM/Code/Post_sim_analysis/load_and_save.sh
