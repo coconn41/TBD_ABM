@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH -p shared,sapphire
+#SBATCH --job-name=install_dplyr
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=4G
+#SBATCH --time=00:30:00
+#SBATCH -o install_dplyr.out
+
+set -euo pipefail
+
+module purge
+module load R
+
+rm -rf /n/home08/collinoconnor/R/TBD_ABM/Library/dplyr
+rm -rf /n/home08/collinoconnor/R/TBD_ABM/Library/00LOCK*
+
+Rscript -e '.libPaths("/n/home08/collinoconnor/R/TBD_ABM/Library"); options(repos=c(CRAN="https://cloud.r-project.org"), pkgType="source"); install.packages("dplyr", type="source"); library(tibble); print(system.file("libs", "dplyr.so", package="dplyr"))'
